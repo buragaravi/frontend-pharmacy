@@ -44,7 +44,20 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MB limit
         navigateFallback: '/offline.html',
-        navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
+        navigateFallbackDenylist: [
+          // Don't use offline fallback for these routes
+          /^\/_/,                           // Private routes
+          /\/[^/?]+\.[^/]+$/,              // Files with extensions
+          /^\/api\//,                      // API routes
+          /^\/login$/,                     // Login page
+          /^\/register$/,                  // Register page
+          /^\/logout$/,                    // Logout
+          /^\/password-reset$/,            // Password reset
+          /^\/unauthorized$/,              // Unauthorized page
+          /^\/dashboard\//,                // Dashboard routes (will be handled by React)
+        ],
+        // Only use offline fallback for actual page navigation failures
+        navigationPreload: false,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

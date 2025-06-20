@@ -201,11 +201,17 @@
                 retryButton.innerHTML = '🔄 Try Again';
                 retryButton.onclick = checkConnection;
             }
-        }
-
-        function checkConnection() {
+        }        function checkConnection() {
+            // Only check connection if we're actually on the offline page
+            if (window.location.pathname !== '/offline.html') {
+                return;
+            }
+            
             // Force a network request to check connectivity
-            fetch('/favicon.ico?' + new Date().getTime())
+            fetch('/favicon.ico?' + new Date().getTime(), {
+                method: 'HEAD',
+                cache: 'no-cache'
+            })
                 .then(() => {
                     // If fetch succeeds, we're online
                     updateConnectionStatus();
@@ -223,13 +229,15 @@
 
         // Listen for online/offline events
         window.addEventListener('online', updateConnectionStatus);
-        window.addEventListener('offline', updateConnectionStatus);
-
-        // Initial status check
+        window.addEventListener('offline', updateConnectionStatus);        // Initial status check
         updateConnectionStatus();
 
-        // Periodically check connection
-        setInterval(checkConnection, 5000);
+        // Periodically check connection only if on offline page
+        setInterval(() => {
+            if (window.location.pathname === '/offline.html') {
+                checkConnection();
+            }
+        }, 10000); // Check every 10 seconds instead of 5
     </script>
 </body>
 </html>
