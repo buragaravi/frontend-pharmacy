@@ -1,0 +1,52 @@
+.calendar-container {
+  padding: 1rem;
+  background: #FFFFFF;
+  border: 1px solid #BCE0FD;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(11, 56, 97, 0.1);
+}
+
+.calendar-container h3 {
+  color: #0B3861;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.react-calendar-heatmap .color-scale-0 { fill: #F5F9FD; }
+.react-calendar-heatmap .color-scale-1 { fill: #BCE0FD; }
+.react-calendar-heatmap .color-scale-2 { fill: #64B5F6; }
+.react-calendar-heatmap .color-scale-3 { fill: #1E88E5; }
+.react-calendar-heatmap .color-scale-4 { fill: #0B3861; }
+
+.react-calendar-heatmap text {
+  font-size: 0.7rem;
+  fill: #64B5F6;
+}
+
+.calendar-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #BCE0FD;
+}
+
+.calendar-legend span {
+  font-size: 0.8rem;
+  color: #0B3861;
+}
+
+.color-block {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.calendar-legend .color-block:nth-child(2) { background-color: #F5F9FD; }
+.calendar-legend .color-block:nth-child(3) { background-color: #BCE0FD; }
+.calendar-legend .color-block:nth-child(4) { background-color: #64B5F6; }
+.calendar-legend .color-block:nth-child(5) { background-color: #1E88E5; }
+.calendar-legend .color-block:nth-child(6) { background-color: #0B3861; }

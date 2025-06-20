@@ -1,0 +1,251 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Basic styling for the product module */
+.product-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.filter-buttons {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.filter-buttons button {
+  padding: 8px 16px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filter-buttons button.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.add-product-btn {
+  background: #28a745;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-table th, .product-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.product-table th {
+  background-color: #f8f9fa;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn {
+  background: #ffc107;
+  color: #212529;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Category badges */
+.category-chemical {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.category-glassware {
+  color: #6f42c1;
+  font-weight: bold;
+}
+
+.category-others {
+  color: #fd7e14;
+  font-weight: bold;
+}
+
+/* Product form styles */
+.product-form-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.product-form-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.submit-btn {
+  background: #28a745;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #6c757d;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Deep Sea Color Palette */
+.bg-deep-sea-900 { background-color: #0b1a30; }
+.bg-deep-sea-800 { background-color: #0f2a4a; }
+.bg-deep-sea-700 { background-color: #143a64; }
+.bg-deep-sea-600 { background-color: #1a4b7e; }
+
+.from-deep-sea-900 { --tw-gradient-from: #0b1a30; }
+.to-deep-sea-700 { --tw-gradient-to: #143a64; }
+.from-deep-sea-800 { --tw-gradient-from: #0f2a4a; }
+.to-deep-sea-600 { --tw-gradient-to: #1a4b7e; }
+
+/* Glassmorphism effect */
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition-property: all;
+}
+.transition-colors {
+  transition-property: background-color, border-color, color, fill, stroke;
+}
+.duration-200 {
+  transition-duration: 200ms;
+}
+.duration-300 {
+  transition-duration: 300ms;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

@@ -1,0 +1,901 @@
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { BrowserQRCodeReader } from '@zxing/browser';
+import { DecodeHintType, BarcodeFormat } from '@zxing/library';
+
+const EquipmentQRScanner = ({ onScan, onClose }) => {
+  // State management
+  const [mode, setMode] = useState('camera');
+  const [error, setError] = useState('');
+  const [scanning, setScanning] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState(null);
+  const [availableDevices, setAvailableDevices] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState('');
+  const [torchSupported, setTorchSupported] = useState(false);
+  const [torchEnabled, setTorchEnabled] = useState(false);
+  const [scanCount, setScanCount] = useState(0);
+  const [playSound, setPlaySound] = useState(true);
+  
+  // Refs
+  const videoRef = useRef(null);
+  const codeReaderRef = useRef(null);
+  const streamRef = useRef(null);
+  const scanningRef = useRef(false);
+  const canvasRef = useRef(null);
+  const animationFrameRef = useRef(null);
+
+  // Sound effects
+  const playSuccessSound = useCallback(() => {
+    if (!playSound) return;
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 1000;
+      gainNode.gain.value = 0.5;
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      oscillator.start();
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+      oscillator.stop(audioCtx.currentTime + 0.3);
+    } catch (e) {
+      console.log('Audio error:', e);
+    }
+  }, [playSound]);
+
+  // Enhanced ZXing configuration
+  const getReaderHints = useCallback(() => {
+    const hints = new Map();
+    hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.QR_CODE]);
+    hints.set(DecodeHintType.TRY_HARDER, true);
+    hints.set(DecodeHintType.PURE_BARCODE, false);
+    hints.set(DecodeHintType.CHARACTER_SET, 'UTF-8');
+    hints.set(DecodeHintType.ASSUME_GS1, true);
+    return hints;
+  }, []);
+
+  // Initialize the code reader
+  useEffect(() => {
+    const initializeReader = async () => {
+      try {
+        const hints = getReaderHints();
+        codeReaderRef.current = new BrowserQRCodeReader(hints, {
+          delayBetweenScanAttempts: 50,
+          delayBetweenScanSuccess: 500
+        });
+        await loadCameraDevices();
+      } catch (err) {
+        console.error('Failed to initialize QR reader:', err);
+        setError('Failed to initialize QR code reader');
+      }
+    };
+
+    initializeReader();
+
+    return () => {
+      cleanup();
+    };
+  }, [getReaderHints]);
+
+  // Load available camera devices
+  const loadCameraDevices = async () => {
+    try {
+      const constraints = {
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      };
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      // Check for torch support
+      const track = stream.getVideoTracks()[0];
+      if (track && track.getCapabilities) {
+        const capabilities = track.getCapabilities();
+        setTorchSupported(!!capabilities.torch);
+      }
+      
+      stream.getTracks().forEach(track => track.stop());
+      setHasCameraPermission(true);
+      
+      // Get device list
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      
+      setAvailableDevices(videoDevices);
+      
+      // Prefer back camera
+      const backCamera = videoDevices.find(device => 
+        device.label.toLowerCase().includes('back') || 
+        device.label.toLowerCase().includes('environment')
+      );
+      
+      setSelectedDeviceId(backCamera?.deviceId || videoDevices[0]?.deviceId || '');
+    } catch (err) {
+      console.error('Camera permission error:', err);
+      setHasCameraPermission(false);
+      setError('Camera access denied. Please allow camera access and refresh the page.');
+    }
+  };
+
+  // Toggle torch/flashlight
+  const toggleTorch = useCallback(async () => {
+    if (!streamRef.current || !torchSupported) return;
+    
+    try {
+      const track = streamRef.current.getVideoTracks()[0];
+      if (track && track.applyConstraints) {
+        await track.applyConstraints({
+          advanced: [{ torch: !torchEnabled }]
+        });
+        setTorchEnabled(!torchEnabled);
+      }
+    } catch (err) {
+      console.error('Torch toggle error:', err);
+    }
+  }, [torchEnabled, torchSupported]);
+
+  // Enhanced scanning with canvas processing
+  const processVideoFrame = useCallback(() => {
+    if (!scanningRef.current || !videoRef.current || !canvasRef.current || !codeReaderRef.current) {
+      return;
+    }
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      // Draw video frame to canvas
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Apply image enhancement
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      // Advanced image processing
+      const brightness = 20;
+      const contrast = 1.3;
+      const gamma = 0.8;
+
+      for (let i = 0; i < data.length; i += 4) {
+        // Apply gamma correction
+        const r = Math.pow(data[i] / 255, gamma) * 255;
+        const g = Math.pow(data[i + 1] / 255, gamma) * 255;
+        const b = Math.pow(data[i + 2] / 255, gamma) * 255;
+        
+        // Apply contrast and brightness
+        data[i] = Math.min(255, Math.max(0, contrast * (r - 128) + 128 + brightness));
+        data[i + 1] = Math.min(255, Math.max(0, contrast * (g - 128) + 128 + brightness));
+        data[i + 2] = Math.min(255, Math.max(0, contrast * (b - 128) + 128 + brightness));
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+
+      // Try to decode from enhanced canvas
+      try {
+        codeReaderRef.current.decodeFromCanvas(canvas)
+          .then(result => {
+            if (result && scanningRef.current) {
+              handleScanSuccess(result.getText());
+            }
+          })
+          .catch(() => {
+            // No QR code found in this frame
+          });
+      } catch (err) {
+        // Continue scanning
+      }
+    }
+
+    if (scanningRef.current) {
+      animationFrameRef.current = requestAnimationFrame(processVideoFrame);
+    }
+  }, []);
+
+  // Start camera scanning
+  const startCamera = useCallback(async () => {
+    if (!selectedDeviceId || !codeReaderRef.current) {
+      setError('No camera selected or QR reader not initialized');
+      return;
+    }
+
+    setError('');
+    setScanning(true);
+    scanningRef.current = true;
+    setScanCount(0);
+
+    try {
+      const videoElement = videoRef.current;
+      if (!videoElement) {
+        throw new Error('Video element not available');
+      }
+
+      // Stop any existing stream
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+
+      // Enhanced video constraints
+      const constraints = {
+        video: {
+          deviceId: selectedDeviceId,
+          width: { ideal: 1280, min: 640 },
+          height: { ideal: 720, min: 480 },
+          facingMode: selectedDeviceId ? undefined : { ideal: 'environment' },
+          focusMode: { ideal: 'continuous' },
+          exposureMode: { ideal: 'continuous' },
+          whiteBalanceMode: { ideal: 'continuous' }
+        }
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      streamRef.current = stream;
+      videoElement.srcObject = stream;
+
+      // Check torch support
+      const track = stream.getVideoTracks()[0];
+      if (track && track.getCapabilities) {
+        const capabilities = track.getCapabilities();
+        setTorchSupported(!!capabilities.torch);
+      }
+
+      await new Promise((resolve) => {
+        videoElement.onloadedmetadata = resolve;
+      });
+
+      setCameraActive(true);
+      processVideoFrame();
+
+      // ZXing's continuous decode as backup
+      codeReaderRef.current.decodeFromVideoDevice(
+        selectedDeviceId,
+        videoElement,
+        (result, err) => {
+          if (result && scanningRef.current) {
+            handleScanSuccess(result.getText());
+          }
+        }
+      );
+
+    } catch (err) {
+      console.error('Camera start error:', err);
+      setError(`Camera error: ${err.message}`);
+      setHasCameraPermission(false);
+      setCameraActive(false);
+      scanningRef.current = false;
+    } finally {
+      setScanning(false);
+    }
+  }, [selectedDeviceId, processVideoFrame]);
+
+  // Stop camera function
+  const stopCamera = useCallback(() => {
+    scanningRef.current = false;
+    setCameraActive(false);
+    setTorchEnabled(false);
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+
+    try {
+      if (codeReaderRef.current) {
+        if (typeof codeReaderRef.current.reset === 'function') {
+          codeReaderRef.current.reset();
+        }
+        if (typeof codeReaderRef.current.stopContinuousDecode === 'function') {
+          codeReaderRef.current.stopContinuousDecode();
+        }
+      }
+
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => {
+          track.stop();
+        });
+        streamRef.current = null;
+      }
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+        videoRef.current.pause();
+      }
+    } catch (err) {
+      console.error('Error stopping camera:', err);
+    }
+  }, []);
+
+  // Cleanup function
+  const cleanup = useCallback(() => {
+    stopCamera();
+    codeReaderRef.current = null;
+  }, [stopCamera]);
+
+  // Robust QR code data extraction
+  const extractIdFromData = (data) => {
+    const normalizedData = data.trim();
+    
+    // Simple ID pattern (alphanumeric with dashes/underscores)
+    const simpleIdMatch = normalizedData.match(/^[a-zA-Z0-9-_]{3,}$/);
+    if (simpleIdMatch) return simpleIdMatch[0];
+    
+    // JSON parsing
+    if (/^[\{\[].*[\}\]]$/.test(normalizedData)) {
+      try {
+        const parsed = JSON.parse(normalizedData);
+        const idFields = [
+          'itemId', 'id', 'equipmentId', 'assetId',
+          'serial', 'serialNumber', 'code', 'qrCode',
+          'productId', 'deviceId', 'tagId'
+        ];
+        
+        for (const field of idFields) {
+          if (parsed[field] && String(parsed[field]).trim()) {
+            return String(parsed[field]).trim();
+          }
+        }
+      } catch (e) {
+        // Not valid JSON
+      }
+    }
+    
+    // URL parameters
+    if (normalizedData.includes('?')) {
+      try {
+        const url = new URL(normalizedData.startsWith('http') ? normalizedData : `http://dummy.com?${normalizedData.split('?')[1]}`);
+        const params = new URLSearchParams(url.search);
+        
+        const paramNames = [
+          'itemId', 'id', 'equipmentId', 'assetId',
+          'serial', 'code', 'qr', 'product', 'device'
+        ];
+        
+        for (const param of paramNames) {
+          if (params.has(param)) {
+            return params.get(param).trim();
+          }
+        }
+      } catch (e) {
+        // Not a valid URL
+      }
+    }
+    
+    // Key-value pairs
+    if (normalizedData.includes('=') || normalizedData.includes(':')) {
+      const pairs = normalizedData.split(/[&,;]/);
+      for (const pair of pairs) {
+        const [key, value] = pair.split(/[:=]/).map(s => s.trim());
+        if (key && value) {
+          const lowerKey = key.toLowerCase();
+          if (
+            lowerKey.includes('item') || 
+            lowerKey.includes('id') ||
+            lowerKey.includes('equip') ||
+            lowerKey.includes('asset') ||
+            lowerKey.includes('serial') ||
+            lowerKey.includes('code') ||
+            lowerKey.includes('product') ||
+            lowerKey.includes('device')
+          ) {
+            return value;
+          }
+        }
+      }
+    }
+    
+    // Fallback - extract first meaningful segment
+    const fallbackMatch = normalizedData.match(/[a-zA-Z0-9-_]{3,}/);
+    return fallbackMatch ? fallbackMatch[0] : normalizedData;
+  };
+
+  // Handle successful scan
+  const handleScanSuccess = useCallback((data) => {
+    if (!data || !scanningRef.current) return;
+
+    setScanCount(prev => prev + 1);
+    const itemId = extractIdFromData(data);
+
+    if (!itemId || itemId.length < 3) {
+      setError('No valid identifier found in QR code');
+      return;
+    }
+
+    // Stop scanning immediately on success
+    scanningRef.current = false;
+    stopCamera();
+
+    // Feedback
+    playSuccessSound();
+    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+
+    // Show success feedback
+    if (window.Swal) {
+      window.Swal.fire({
+        icon: 'success',
+        title: 'QR Code Scanned Successfully!',
+        html: `<div class="text-center">
+          <div class="text-lg font-semibold text-green-600 mb-2">Equipment ID:</div>
+          <div class="text-xl font-mono bg-gray-100 p-2 rounded border">${itemId}</div>
+        </div>`,
+        timer: 2500,
+        showConfirmButton: false,
+        customClass: {
+          popup: 'animate-pulse'
+        }
+      }).then(() => {
+        if (onScan) onScan(itemId);
+      });
+    } else {
+      setError('');
+      if (onScan) onScan(itemId);
+    }
+  }, [onScan, stopCamera, playSuccessSound]);
+
+  // Handle file upload
+  const handleFileUpload = async (e) => {
+    setError('');
+    const file = e.target.files[0];
+    if (!file) return;
+
+    e.target.value = '';
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/bmp'];
+    if (!validTypes.includes(file.type.toLowerCase())) {
+      setError('Please upload a valid image file (JPEG, PNG, WEBP, BMP)');
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      setError('File size too large. Please choose a file under 15MB.');
+      return;
+    }
+
+    try {
+      if (!codeReaderRef.current) {
+        throw new Error('QR reader not initialized');
+      }
+
+      // Create canvas for image preprocessing
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+      });
+
+      // Set canvas size
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      // Draw and enhance image
+      ctx.drawImage(img, 0, 0);
+      
+      // Apply enhancement
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      
+      // Advanced image processing
+      const brightness = 15;
+      const contrast = 1.3;
+      const gamma = 0.8;
+
+      for (let i = 0; i < data.length; i += 4) {
+        // Gamma correction
+        const r = Math.pow(data[i] / 255, gamma) * 255;
+        const g = Math.pow(data[i + 1] / 255, gamma) * 255;
+        const b = Math.pow(data[i + 2] / 255, gamma) * 255;
+        
+        // Contrast and brightness
+        data[i] = Math.min(255, Math.max(0, contrast * (r - 128) + 128 + brightness));
+        data[i + 1] = Math.min(255, Math.max(0, contrast * (g - 128) + 128 + brightness));
+        data[i + 2] = Math.min(255, Math.max(0, contrast * (b - 128) + 128 + brightness));
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+
+      // Try to decode from enhanced canvas
+      try {
+        const result = await codeReaderRef.current.decodeFromCanvas(canvas);
+        if (result && result.getText()) {
+          handleScanSuccess(result.getText());
+        } else {
+          throw new Error('No QR code detected');
+        }
+      } catch (canvasError) {
+        // Fallback to original image
+        const result = await codeReaderRef.current.decodeFromImageUrl(URL.createObjectURL(file));
+        if (result && result.getText()) {
+          handleScanSuccess(result.getText());
+        } else {
+          throw new Error('No QR code found');
+        }
+      }
+      
+      // Cleanup
+      URL.revokeObjectURL(img.src);
+      
+    } catch (err) {
+      console.error('File scan error:', err);
+      setError('Could not detect QR code in image. Please ensure the QR code is clear and well-lit.');
+    }
+  };
+
+  // Switch camera device
+  const switchCamera = (deviceId) => {
+    if (cameraActive) {
+      stopCamera();
+    }
+    setSelectedDeviceId(deviceId);
+  };
+
+  // Auto-start camera when conditions are met
+  useEffect(() => {
+    if (mode === 'camera' && selectedDeviceId && hasCameraPermission && !cameraActive && !scanning) {
+      const timer = setTimeout(() => {
+        startCamera();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [mode, selectedDeviceId, hasCameraPermission, cameraActive, scanning, startCamera]);
+
+  // Handle mode change
+  const handleModeChange = (newMode) => {
+    if (mode !== newMode) {
+      stopCamera();
+      setError('');
+      setMode(newMode);
+    }
+  };
+
+  // Handle component close
+  const handleClose = () => {
+    cleanup();
+    if (onClose) onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-lg w-full mx-4 max-h-[95vh] overflow-y-auto border border-blue-200">
+        {/* Close button */}
+        <button 
+          onClick={handleClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-light transition-colors z-10 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md"
+          aria-label="Close scanner"
+        >
+          ×
+        </button>
+        
+        {/* Header */}
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Professional QR Scanner</h2>
+          <p className="text-gray-600">Fast & accurate QR code detection</p>
+          {scanCount > 0 && (
+            <div className="mt-2 text-sm text-blue-600">
+              Scan attempts: {scanCount}
+            </div>
+          )}
+        </div>
+        
+        {/* Mode selector */}
+        <div className="flex gap-2 mb-6 bg-gray-100 p-1 rounded-xl">
+          <button
+            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
+              mode === 'camera' 
+                ? 'bg-white text-blue-600 shadow-md' 
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+            onClick={() => handleModeChange('camera')}
+            disabled={hasCameraPermission === false}
+          >
+            <span className="flex items-center justify-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Camera
+            </span>
+          </button>
+          <button
+            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
+              mode === 'upload' 
+                ? 'bg-white text-blue-600 shadow-md' 
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+            onClick={() => handleModeChange('upload')}
+          >
+            <span className="flex items-center justify-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              Upload
+            </span>
+          </button>
+        </div>
+
+        {/* Camera mode */}
+        {mode === 'camera' && (
+          <div className="space-y-4">
+            {/* Camera controls */}
+            <div className="flex gap-2">
+              {/* Camera selector */}
+              {availableDevices.length > 1 && (
+                <select
+                  value={selectedDeviceId}
+                  onChange={(e) => switchCamera(e.target.value)}
+                  className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
+                >
+                  {availableDevices.map((device, index) => (
+                    <option key={device.deviceId} value={device.deviceId}>
+                      {device.label || `Camera ${index + 1}`}
+                    </option>
+                  ))}
+                </select>
+              )}
+              
+              {/* Torch toggle */}
+              {torchSupported && (
+                <button
+                  onClick={toggleTorch}
+                  className={`p-2 rounded-lg border transition-all ${
+                    torchEnabled 
+                      ? 'bg-yellow-500 text-white border-yellow-500' 
+                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                  }`}
+                  title={torchEnabled ? 'Turn off flash' : 'Turn on flash'}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Camera permission denied */}
+            {hasCameraPermission === false && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+                <div className="text-red-600 mb-3">
+                  <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  <p className="font-medium">Camera Access Required</p>
+                  <p className="text-sm mt-1">Please allow camera access to scan QR codes</p>
+                </div>
+                <button
+                  onClick={loadCameraDevices}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+                >
+                  Grant Permission
+                </button>
+              </div>
+            )}
+
+            {/* Video preview */}
+            {hasCameraPermission && (
+              <div className="relative">
+                <div className="relative w-full aspect-video bg-gray-900 rounded-xl overflow-hidden border-2 border-gray-200">
+                  <video
+                    ref={videoRef}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    playsInline
+                    muted
+                  />
+                  
+                  {/* Hidden canvas for image processing */}
+                  <canvas ref={canvasRef} className="hidden" />
+                  
+                  {/* Scanning overlay */}
+                  {cameraActive && (
+                    <>
+                      {/* Scanning frame */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="relative w-64 h-64 max-w-[80%] max-h-[80%]">
+                          <div className="absolute inset-0 border-2 border-blue-400 rounded-lg">
+                            {/* Corner indicators */}
+                            <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-blue-500 rounded-tl-lg"></div>
+                            <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-blue-500 rounded-tr-lg"></div>
+                            <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-blue-500 rounded-bl-lg"></div>
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-blue-500 rounded-br-lg"></div>
+                            
+                            {/* Scanning line animation */}
+                            <div className="absolute inset-0 overflow-hidden rounded-lg">
+                              <div className="absolute top-0 left-0 right-0 h-0.5 bg-blue-400 animate-pulse"></div>
+                              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent animate-bounce" style={{
+                                animation: 'scan 2s linear infinite'
+                              }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Status indicators */}
+                      <div className="absolute top-3 left-3 flex gap-2">
+                        <div className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium shadow-sm flex items-center gap-1">
+                          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                          LIVE
+                        </div>
+                        {torchEnabled && (
+                          <div className="bg-yellow-500 text-white px-2 py-1 rounded-md text-xs font-medium shadow-sm">
+                            FLASH ON
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                  
+                  {/* Loading state */}
+                  {!cameraActive && hasCameraPermission && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
+                      <div className="text-center text-white">
+                        <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                        <p className="text-sm">{scanning ? 'Starting camera...' : 'Initializing...'}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Camera controls */}
+                <div className="flex justify-center gap-3 mt-4">
+                  {cameraActive ? (
+                    <button
+                      onClick={stopCamera}
+                      className="px-6 py-2.5 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all font-medium shadow-sm flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10h6v4H9z" />
+                      </svg>
+                      Stop Camera
+                    </button>
+                  ) : (
+                    <button
+                      onClick={startCamera}
+                      disabled={scanning || !selectedDeviceId}
+                      className="px-6 py-2.5 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm flex items-center gap-2"
+                    >
+                      {scanning ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Starting...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Start Camera
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Upload mode */}
+        {mode === 'upload' && (
+          <div className="border-2 border-dashed border-blue-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors bg-gradient-to-br from-blue-50 to-indigo-50">
+            <label className="cursor-pointer block">
+              <div className="space-y-4">
+                <div className="mx-auto w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-xl font-semibold text-gray-700 mb-2">
+                    Upload QR Code Image
+                  </p>
+                  <p className="text-gray-600 mb-1">
+                    Click here or drag and drop your image
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Supports: JPEG, PNG, WEBP, BMP (Max: 15MB)
+                  </p>
+                  <p className="text-xs text-blue-600 mt-2 font-medium">
+                    ✨ Enhanced processing for low-quality images
+                  </p>
+                </div>
+              </div>
+              <input 
+                type="file" 
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/bmp" 
+                onChange={handleFileUpload} 
+                className="hidden" 
+              />
+            </label>
+          </div>
+        )}
+
+        {/* Error display */}
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-start gap-3">
+            <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="font-medium">Error</p>
+              <p className="text-sm mt-1">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Manual entry option */}
+        <div className="mt-4 text-center">
+          <button 
+            onClick={() => {
+              const manualId = prompt('Enter equipment ID manually:');
+              if (manualId && manualId.trim() && onScan) {
+                onScan(manualId.trim());
+              }
+            }}
+            className="text-blue-500 hover:text-blue-700 text-sm font-medium"
+          >
+            Can't scan? Enter ID manually
+          </button>
+        </div>
+
+        {/* Enhanced instructions */}
+        {mode === 'camera' && cameraActive && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="font-medium text-sm">Scanning Tips</span>
+            </div>
+            <ul className="text-sm space-y-1">
+              <li>• Hold steady and align QR code within the frame</li>
+              <li>• Ensure good lighting or use the flash button</li>
+              <li>• Keep QR code flat and at arm's length</li>
+              {torchSupported && <li>• Use flash for better results in low light</li>}
+            </ul>
+          </div>
+        )}
+
+        {/* Settings */}
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input 
+              type="checkbox" 
+              checked={playSound} 
+              onChange={() => setPlaySound(!playSound)}
+              className="rounded text-blue-500 focus:ring-blue-400"
+            />
+            Enable scan confirmation sound
+          </label>
+        </div>
+      </div>
+
+      {/* Custom CSS for animations */}
+      <style jsx>{`
+        @keyframes scan {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(400%); }
+        }
+        
+        .animate-scan {
+          animation: scan 2s linear infinite;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default EquipmentQRScanner;

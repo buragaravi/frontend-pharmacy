@@ -1,0 +1,92 @@
+/* role-views.css */
+
+.role-view {
+  padding: 1rem;
+}
+
+.view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #BCE0FD;
+}
+
+.view-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #0B3861;
+}
+
+.time-range-display {
+  font-size: 0.9rem;
+  color: #64B5F6;
+}
+
+.dashboard-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Admin specific styles */
+.admin-view .dashboard-row:nth-child(odd) {
+  background: linear-gradient(135deg, #F5F9FD 0%, #E1F1FF 100%);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #BCE0FD;
+}
+
+/* Lab Assistant specific styles */
+.lab-assistant-view .dashboard-row {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* Faculty specific styles */
+.faculty-view .dashboard-row {
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+/* Card styles */
+.analytics-card {
+  background: white;
+  border: 1px solid #BCE0FD;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(11, 56, 97, 0.1);
+}
+
+.analytics-card:hover {
+  border-color: #64B5F6;
+  box-shadow: 0 4px 12px rgba(11, 56, 97, 0.15);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #BCE0FD;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0B3861;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .view-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

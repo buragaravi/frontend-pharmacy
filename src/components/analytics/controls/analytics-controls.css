@@ -1,0 +1,164 @@
+/* analytics-controls.css */
+
+.analytics-controls-container {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+  }
+  
+  .control-group {
+    margin-bottom: 1rem;
+  }
+  
+  .control-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #495057;
+  }
+  
+  .preset-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  
+  .preset-btn {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  
+  .preset-btn:hover {
+    background: #f1f3f5;
+  }
+  
+  .preset-btn.active {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    font-weight: 500;
+  }
+  
+  .custom-picker-container {
+    position: relative;
+    z-index: 1000;
+    margin-top: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 1rem;
+    background: white;
+  }
+  
+  .apply-btn {
+    margin-top: 1rem;
+    padding: 0.25rem 0.75rem;
+    background: #4dabf7;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .selected-range {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #495057;
+  }
+  
+  /* Chemical select styles */
+  .chemical-select__control {
+    min-height: 42px;
+    border-radius: 4px !important;
+  }
+  
+  .chemical-select__menu {
+    z-index: 1000;
+  }
+  
+  .chemical-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+  }
+  
+  .category-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  
+  .chemical-name {
+    flex-grow: 1;
+  }
+  
+  .chemical-stock {
+    color: #868e96;
+    font-size: 0.85rem;
+  }
+  
+  .chemical-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    font-weight: 600;
+    background: #f8f9fa;
+  }
+  
+  .group-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+  
+  .group-count {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: #868e96;
+    font-weight: normal;
+  }
+  
+  /* Lab select styles */
+  .lab-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .lab-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  .lab-code {
+    margin-left: auto;
+    color: #868e96;
+    font-size: 0.85rem;
+  }
+  
+  /* Metric toggle styles */
+  .metric-toggle-control .btn {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.75rem;
+  }
+  
+  .metric-icon {
+    margin-right: 0.25rem;
+  }
+  
+  .control-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+  }
