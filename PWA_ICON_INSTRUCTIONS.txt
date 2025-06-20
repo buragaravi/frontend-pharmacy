@@ -1,0 +1,27 @@
+/* 
+This file contains instructions for creating PNG icons from your SVG logo.
+
+STEPS TO CREATE PWA ICONS:
+
+1. Open the convert-icons.html file in your browser:
+   - Navigate to: http://localhost:5173/convert-icons.html (when your dev server is running)
+   - Or open the file directly in your browser
+
+2. The page will automatically load your pydah.svg and display it in two canvas elements (192x192 and 512x512)
+
+3. Click the download buttons to save the PNG files:
+   - Download 192x192 PNG (save as pydah-192.png)
+   - Download 512x512 PNG (save as pydah-512.png)
+
+4. Place the downloaded PNG files in the public folder:
+   - d:\frontend-pharmacy\public\pydah-192.png
+   - d:\frontend-pharmacy\public\pydah-512.png
+
+ALTERNATIVE METHOD:
+If you have an online SVG to PNG converter or image editing software:
+1. Convert pydah.svg to PNG at 192x192 pixels
+2. Convert pydah.svg to PNG at 512x512 pixels
+3. Save them as pydah-192.png and pydah-512.png in the public folder
+
+Once you have these PNG files, your PWA will be complete!
+*/

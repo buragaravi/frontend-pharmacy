@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG to PNG Converter for PWA Icons</title>
+</head>
+<body>
+    <h2>Convert SVG to PNG for PWA Icons</h2>
+    <p>This page helps convert your SVG logo to PNG format for PWA compatibility.</p>
+    
+    <canvas id="canvas192" width="192" height="192" style="border: 1px solid #000; margin: 10px;"></canvas>
+    <br>
+    <canvas id="canvas512" width="512" height="512" style="border: 1px solid #000; margin: 10px;"></canvas>
+    <br>
+    <button onclick="downloadPNG('canvas192', 'pydah-192.png')">Download 192x192 PNG</button>
+    <button onclick="downloadPNG('canvas512', 'pydah-512.png')">Download 512x512 PNG</button>
+
+    <script>
+        // Function to load and draw SVG to canvas
+        function loadSVGToCanvas(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Create an image element
+            const img = new Image();
+            img.onload = function() {
+                // Clear canvas and draw with white background
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, size, size);
+                
+                // Draw the image scaled to fit
+                ctx.drawImage(img, 0, 0, size, size);
+            };
+            
+            // Load the SVG file
+            img.src = './pydah.svg';
+        }
+        
+        // Function to download canvas as PNG
+        function downloadPNG(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Load SVGs when page loads
+        window.onload = function() {
+            loadSVGToCanvas('canvas192', 192);
+            loadSVGToCanvas('canvas512', 512);
+        };
+    </script>
+</body>
+</html>

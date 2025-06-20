@@ -22,6 +22,7 @@ import InvoiceList from './features/invoice/InvoiceList';
 import VendorInvoices from './features/vendor/VendorInvoices';
 import PasswordResetFlow from './features/auth/PasswordResetFlow';
 import OutOfStockChemicals from './features/chemicals/OutOfStockChemicals';
+import NotFound from './pages/NotFound';
 
 import { AllocateGlasswareForm, GlasswareStockPage } from './features/glassware';
 import { AllocateOtherProductForm } from './features/other';
@@ -240,6 +241,9 @@ const App = () => {
             <Route path="/equipment/scan-qr" element={<EquipmentQRScanPage />} />
             <Route path="/equipment/stock-check" element={<StockCheckPage />} />
             <Route path="/equipment/stock-check/reports" element={<StockCheckReportsPage />} />
+            
+            {/* 404 Not Found - Must be the last route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </Router>
