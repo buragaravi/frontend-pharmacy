@@ -23,6 +23,7 @@ import VendorInvoices from './features/vendor/VendorInvoices';
 import PasswordResetFlow from './features/auth/PasswordResetFlow';
 import OutOfStockChemicals from './features/chemicals/OutOfStockChemicals';
 import NotFound from './pages/NotFound';
+import OfflineIndicator from './components/OfflineIndicator';
 
 import { AllocateGlasswareForm, GlasswareStockPage } from './features/glassware';
 import { AllocateOtherProductForm } from './features/other';
@@ -48,6 +49,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <Router>
         <div className="min-h-screen bg-gradient-to-b from-[#F8F4F6] to-[#F0E6EE]">
+          <OfflineIndicator />
           <Routes>
             {/* Public Routes */}
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
