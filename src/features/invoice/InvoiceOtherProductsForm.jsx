@@ -3,6 +3,7 @@ import axios from 'axios';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import ProductForm from '../products/ProductForm';
 
 const API_BASE = 'https://backend-pharmacy-5541.onrender.com/api';
 
@@ -19,10 +20,20 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
   ]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [fileType, setFileType] = useState('csv');
   const [csvError, setCsvError] = useState('');
   const [unregisteredProducts, setUnregisteredProducts] = useState([]);
+  
+  // Product registration modal state
   const [showProductFormModal, setShowProductFormModal] = useState(false);
+  const [productFormIndex, setProductFormIndex] = useState(0);
+  const [productFormError, setProductFormError] = useState('');
+  const [productFormLoading, setProductFormLoading] = useState(false);
+
+  // Draft functionality
+  const [showDraftPrompt, setShowDraftPrompt] = useState(false);
+  const DRAFT_KEY = `invoiceOtherProductsFormDraft_${category}`;
 
   // Fetch data on mount
   useEffect(() => {
@@ -33,15 +44,25 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
           axios.get(`${API_BASE}/products/category/${category}`),
           axios.get(`${API_BASE}/vouchers/next?category=invoice`)
         ]);
-        setVendors(vendorsRes.data.vendors || []);
+        setVendors(vendorsRes.data.vendors || vendorsRes.data.data || []);
         setProducts(productsRes.data.data || []);
-        setVoucherId(voucherRes.data.voucherId || '');
+        setVoucherId(voucherRes.data.voucherId || voucherRes.data.nextVoucherId || '');
       } catch (err) {
         console.error('Failed to fetch data:', err);
+        setError('Failed to load initial data');
       }
     };
     fetchData();
   }, [category]);
+
+  // Handle vendor select (lock after selection)
+  const handleVendorSelect = (e) => {
+    const vendor = vendors.find(v => v._id === e.target.value);
+    setSelectedVendor(vendor);
+  };
+
+  // Prevent duplicate product selection
+  const selectedProductIds = lineItems.map(item => item.productId).filter(Boolean);
 
   // Handle product selection
   const handleProductSelect = (idx, productId) => {
@@ -51,7 +72,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
         ...item,
         productId: product._id,
         name: product.name,
-        variant: product.variant || product.unit,
+        variant: product.variant || product.unit || '',
         thresholdValue: product.thresholdValue,
         quantity: '',
         totalPrice: '',
@@ -65,6 +86,8 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
     setLineItems(items => items.map((item, i) => {
       if (i !== idx) return item;
       const updated = { ...item, [field]: value };
+      
+      // Auto-calculate price per unit
       if (field === 'quantity' || field === 'totalPrice') {
         const qty = Number(field === 'quantity' ? value : item.quantity);
         const total = Number(field === 'totalPrice' ? value : item.totalPrice);
@@ -99,64 +122,181 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
     0
   );
 
-  // File handling
+  // File handling - Enhanced version like InvoiceForm
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    setCsvError('');
+    setUnregisteredProducts([]);
+    
+    // Validate file extension based on selected fileType
+    if (fileType === 'csv' && !file.name.match(/\.(csv)$/i)) {
+      setCsvError('Please select a valid CSV file');
+      return;
+    }
+    if (fileType === 'excel' && !file.name.match(/\.(xlsx|xls)$/i)) {
+      setCsvError('Please select a valid Excel file (.xlsx, .xls)');
+      return;
+    }
+
+    if (fileType === 'csv') {
+      parseCSV(file);
+    } else {
+      parseExcel(file);
+    }
+  };
+
+  // Parse CSV file
+  const parseCSV = (file) => {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        if (results.errors.length > 0) {
+          setCsvError('CSV parsing errors: ' + results.errors.map(e => e.message).join(', '));
+          return;
+        }
+        processFileData(results.data);
+      },
+      error: (error) => {
+        setCsvError('Failed to parse CSV: ' + error.message);
+      }
+    });
+  };
+
+  // Parse Excel file
+  const parseExcel = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const data = fileType === 'csv' 
-          ? Papa.parse(e.target.result, { header: true }).data
-          : XLSX.read(e.target.result, { type: 'array' }).SheetNames
-              .map(name => XLSX.utils.sheet_to_json(XLSX.read(e.target.result, { type: 'array' }).Sheets[name]))
-              .flat();
-
-        processFileData(data);
-      } catch (err) {
-        setCsvError('Failed to parse file. Please check the format.');
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        processFileData(jsonData);
+      } catch (error) {
+        setCsvError('Failed to parse Excel file: ' + error.message);
       }
     };
-    fileType === 'csv' ? reader.readAsText(file) : reader.readAsArrayBuffer(file);
+    reader.readAsArrayBuffer(file);
   };
 
+  // Process data from either CSV or Excel - Enhanced version
   const processFileData = (data) => {
-    if (!Array.isArray(data)) {
-      setCsvError('Invalid file format');
+    if (!Array.isArray(data) || data.length === 0) {
+      setCsvError('No data found in file');
+      return;
+    }
+
+    // Define required and optional fields
+    const requiredFields = ['productName', 'quantity'];
+    const optionalFields = ['vendor', 'invoiceNumber', 'invoiceDate', 'pricePerUnit', 'totalPrice', 'variant', 'unit'];
+    
+    // Check for missing required fields
+    const missingFields = requiredFields.filter(field => 
+      !Object.keys(data[0]).some(key => key.toLowerCase() === field.toLowerCase())
+    );
+    
+    if (missingFields.length > 0) {
+      setCsvError(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
     const missingProducts = [];
-    const newItems = data.map(row => {
-      const product = products.find(p => p.name === row.productName);
-      if (!product && row.productName) missingProducts.push(row.productName);
+    const processedItems = [];
+    
+    data.forEach(row => {
+      // Normalize field names (case-insensitive)
+      const normalizedRow = {};
+      Object.keys(row).forEach(key => {
+        normalizedRow[key.toLowerCase()] = row[key];
+      });
+
+      const productName = normalizedRow['productname'] || normalizedRow['product'] || '';
+      const productVariant = normalizedRow['variant'] || normalizedRow['unit'] || '';
+      if (!productName) return;
+
+      // First try to find product by name and variant
+      let product = null;
+      if (productVariant) {
+        product = products.find(p => 
+          p.name.toLowerCase() === productName.toLowerCase() && 
+          (p.variant || p.unit || '').toLowerCase() === productVariant.toLowerCase()
+        );
+      }
       
-      return {
-        productId: product?._id || '',
-        name: product?.name || row.productName || '',
-        variant: product?.variant || '',
-        thresholdValue: product?.thresholdValue || '',
-        quantity: row.quantity || '',
-        totalPrice: row.totalPrice || '',
-        pricePerUnit: row.pricePerUnit || (row.quantity && row.totalPrice ? (row.totalPrice / row.quantity).toFixed(2) : '')
-      };
+      // If no variant match, try to find by name only
+      if (!product) {
+        product = products.find(p => 
+          p.name.toLowerCase() === productName.toLowerCase()
+        );
+      }
+
+      if (!product) {
+        const productIdentifier = productVariant ? `${productName} (${productVariant})` : productName;
+        missingProducts.push(productIdentifier);
+        return;
+      }
+
+      const quantity = normalizedRow['quantity'] || '';
+      const totalPrice = normalizedRow['totalprice'] || normalizedRow['total'] || '0'; // Default to '0' if missing
+      const pricePerUnit = normalizedRow['priceperunit'] || 
+        (quantity && totalPrice && Number(totalPrice) > 0 ? (Number(totalPrice) / Number(quantity)).toFixed(2) : '0');
+
+      processedItems.push({
+        productId: product._id,
+        name: product.name,
+        variant: product.variant || product.unit || '',
+        thresholdValue: product.thresholdValue,
+        quantity: quantity.toString(),
+        totalPrice: totalPrice.toString(),
+        pricePerUnit: pricePerUnit.toString()
+      });
     });
 
-    setLineItems(newItems);
-    setUnregisteredProducts(missingProducts.filter(Boolean));
-    if (missingProducts.length) {
-      setCsvError(`${missingProducts.length} products not found in system`);
+    setLineItems(processedItems.length > 0 ? 
+      processedItems : 
+      [{ productId: '', name: '', variant: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '' }]
+    );
+    
+    setUnregisteredProducts([...new Set(missingProducts)]); // Remove duplicates
+    
+    // Extract optional fields if available
+    const firstRow = data[0];
+    const normalizedFirstRow = {};
+    Object.keys(firstRow).forEach(key => {
+      normalizedFirstRow[key.toLowerCase()] = firstRow[key];
+    });
+
+    // Auto-fill vendor if found
+    if (!selectedVendor && normalizedFirstRow['vendor']) {
+      const foundVendor = vendors.find(v => 
+        v.name.toLowerCase().includes(normalizedFirstRow['vendor'].toLowerCase())
+      );
+      if (foundVendor) {
+        setSelectedVendor(foundVendor);
+      }
+    }
+    
+    // Auto-fill invoice fields
+    if (normalizedFirstRow['invoicenumber'] && !invoiceNumber) {
+      setInvoiceNumber(normalizedFirstRow['invoicenumber']);
+    }
+    if (normalizedFirstRow['invoicedate'] && !invoiceDate) {
+      setInvoiceDate(normalizedFirstRow['invoicedate']);
     }
   };
 
-  // Form submission
+  // Form submission - Enhanced version
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
+    setSuccess('');
 
-    // Validation
+    // Enhanced validation
     if (!selectedVendor) {
       setError('Please select a vendor');
       setSubmitting(false);
@@ -175,7 +315,17 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
       return;
     }
 
+    // Check for duplicate products
+    const productIds = lineItems.map(item => item.productId);
+    const duplicates = productIds.filter((id, index) => productIds.indexOf(id) !== index);
+    if (duplicates.length > 0) {
+      setError('Duplicate products found. Please remove duplicate entries.');
+      setSubmitting(false);
+      return;
+    }
+
     try {
+      const token = localStorage.getItem('token');
       const payload = {
         vendorId: selectedVendor._id,
         vendorName: selectedVendor.name,
@@ -193,7 +343,15 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
         }))
       };
 
-      const res = await axios.post(`${API_BASE}/invoices/${category}`, payload);
+      const res = await axios.post(`${API_BASE}/invoices/${category}`, payload, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      // Clear draft on successful submission
+      localStorage.removeItem(DRAFT_KEY);
       
       // --- Equipment: Show QR codes for each item if present ---
       if (category === 'equipment' && res.data.qrCodes && Array.isArray(res.data.qrCodes)) {
@@ -222,13 +380,16 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
       setInvoiceNumber('');
       setInvoiceDate('');
       setSelectedVendor(null);
+      setSuccess(`${getCategoryName()} invoice created successfully!`);
+      
       onSuccess?.();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create invoice');
+      const errorMsg = err.response?.data?.message || 'Failed to create invoice';
+      setError(errorMsg);
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: err.response?.data?.message || 'Failed to create invoice',
+        text: errorMsg,
         confirmButtonColor: '#ef4444'
       });
     } finally {
@@ -247,16 +408,43 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6">
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        {/* Header */}
-        <div className="bg-blue-600 p-4 md:p-6 text-white">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <div>
-              <h1 className="text-2xl font-bold">Create {getCategoryName()} Invoice</h1>
-              <p className="text-blue-100">Voucher ID: {voucherId || 'Loading...'}</p>
+      {/* Draft prompt modal */}
+      {showDraftPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">
+            <div className="text-lg font-semibold mb-2">Continue where you left off?</div>
+            <div className="mb-4 text-gray-600 text-sm">A draft {getCategoryName()} invoice was found. Would you like to continue editing it or discard?</div>
+            <div className="flex justify-center gap-4">
+              <button 
+                className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors" 
+                onClick={handleContinueDraft}
+              >
+                Continue
+              </button>
+              <button 
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition-colors" 
+                onClick={handleDiscardDraft}
+              >
+                Discard
+              </button>
             </div>
-            <div className="mt-2 md:mt-0 bg-blue-700 px-3 py-1 rounded-full text-sm">
-              Total: ₹{totalInvoicePrice.toFixed(2)}
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden relative">
+        {/* Header */}
+        <div className="bg-blue-600 p-4 md:p-6 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-blue-700/20"></div>
+          <div className="relative z-10">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold">Create {getCategoryName()} Invoice</h1>
+                <p className="text-blue-100">Voucher ID: {voucherId || 'Loading...'}</p>
+              </div>
+              <div className="mt-2 md:mt-0 bg-blue-700/50 backdrop-blur-sm px-4 py-2 rounded-full text-sm border border-blue-500/30">
+                Total: ₹{totalInvoicePrice.toFixed(2)}
+              </div>
             </div>
           </div>
         </div>
@@ -264,14 +452,14 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
         {/* Form */}
         <div className="p-4 md:p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Vendor Section */}
+            {/* Vendor Section - Enhanced */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <label className="block text-sm font-medium text-blue-800 mb-2">Vendor Information</label>
                 {selectedVendor ? (
                   <div className="space-y-2">
-                    <p className="font-medium">{selectedVendor.name}</p>
-                    <p className="text-sm text-gray-600">Code: {selectedVendor.vendorCode}</p>
+                    <p className="font-medium text-gray-800">{selectedVendor.name}</p>
+                    <p className="text-sm text-gray-600">Code: <span className="font-mono">{selectedVendor.vendorCode}</span></p>
                     <button
                       type="button"
                       onClick={() => setSelectedVendor(null)}
@@ -282,9 +470,9 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                   </div>
                 ) : (
                   <select
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/70 backdrop-blur-sm focus:ring-blue-500 focus:border-blue-500 text-gray-800"
                     value=""
-                    onChange={(e) => setSelectedVendor(vendors.find(v => v._id === e.target.value))}
+                    onChange={handleVendorSelect}
                     required
                   >
                     <option value="">Select a vendor...</option>
@@ -295,15 +483,15 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                 )}
               </div>
 
-              {/* Invoice Info */}
-              <div className="bg-blue-50 p-4 rounded-lg">
+              {/* Invoice Info - Enhanced */}
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <label className="block text-sm font-medium text-blue-800 mb-2">Invoice Details</label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs text-gray-600 mb-1">Invoice Number</label>
                     <input
                       type="text"
-                      className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded border border-gray-300 bg-white/70 backdrop-blur-sm focus:ring-blue-500 focus:border-blue-500 text-gray-800"
                       value={invoiceNumber}
                       onChange={(e) => setInvoiceNumber(e.target.value)}
                       required
@@ -313,7 +501,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                     <label className="block text-xs text-gray-600 mb-1">Invoice Date</label>
                     <input
                       type="date"
-                      className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded border border-gray-300 bg-white/70 backdrop-blur-sm focus:ring-blue-500 focus:border-blue-500 text-gray-800"
                       value={invoiceDate}
                       onChange={(e) => setInvoiceDate(e.target.value)}
                       required
@@ -353,21 +541,158 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                     onClick={() => {
                       const sampleData = [
                         { productName: "Sample Product", quantity: 10, totalPrice: 1000, pricePerUnit: 100 }
-                      ];
-                      if (fileType === 'csv') {
-                        const csv = Papa.unparse(sampleData);
-                        const blob = new Blob([csv], { type: 'text/csv' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'sample_import.csv';
-                        a.click();
-                      } else {
-                        const ws = XLSX.utils.json_to_sheet(sampleData);
-                        const wb = XLSX.utils.book_new();
-                        XLSX.utils.book_append_sheet(wb, ws, "Sample");
-                        XLSX.writeFile(wb, 'sample_import.xlsx');
-                      }
+                      ];  // Generate sample file - Enhanced version
+  const generateSampleFile = () => {
+    const sampleData = [
+      {
+        productName: "Sample Glass Beaker",
+        variant: "250ml",
+        quantity: 5,
+        totalPrice: 1250,
+        pricePerUnit: 250,
+        vendor: "ABC Suppliers",
+        invoiceNumber: "INV-2024-001",
+        invoiceDate: "2024-01-15"
+      },
+      {
+        productName: "Laboratory Equipment",
+        variant: "Digital",
+        quantity: 2,
+        vendor: "ABC Suppliers"
+      },
+      {
+        productName: "Test Tube",
+        quantity: 10,
+        vendor: "ABC Suppliers"
+      }
+    ];
+
+    if (fileType === 'csv') {
+      const csv = Papa.unparse(sampleData);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sample_${category}_import.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      const ws = XLSX.utils.json_to_sheet(sampleData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Sample");
+      XLSX.writeFile(wb, `sample_${category}_import.xlsx`);
+    }
+  };
+
+  // --- DRAFT LOGIC ---
+  // Save draft to localStorage (debounced)
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const draftData = {
+        selectedVendor,
+        invoiceNumber,
+        invoiceDate,
+        lineItems,
+        fileType,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+    }, 500); // Debounce: 500ms
+    
+    return () => clearTimeout(handler);
+  }, [selectedVendor, invoiceNumber, invoiceDate, lineItems, fileType, DRAFT_KEY]);
+
+  // Rehydrate draft on mount
+  useEffect(() => {
+    const draft = localStorage.getItem(DRAFT_KEY);
+    if (draft) {
+      try {
+        const draftData = JSON.parse(draft);
+        // Only show prompt if draft is recent (within 24 hours)
+        if (Date.now() - draftData.timestamp < 24 * 60 * 60 * 1000) {
+          setShowDraftPrompt(true);
+        }
+      } catch (e) {
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    }
+  }, [DRAFT_KEY]);
+
+  // Handle draft actions
+  const handleContinueDraft = () => {
+    const draft = localStorage.getItem(DRAFT_KEY);
+    if (draft) {
+      try {
+        const draftData = JSON.parse(draft);
+        setSelectedVendor(draftData.selectedVendor);
+        setInvoiceNumber(draftData.invoiceNumber || '');
+        setInvoiceDate(draftData.invoiceDate || '');
+        setLineItems(draftData.lineItems || [{ productId: '', name: '', variant: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '' }]);
+        setFileType(draftData.fileType || 'csv');
+      } catch (e) {
+        console.error('Failed to restore draft:', e);
+      }
+    }
+    setShowDraftPrompt(false);
+  };
+
+  const handleDiscardDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    setShowDraftPrompt(false);
+  };
+
+  // Warn on tab close if draft exists
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      const draft = localStorage.getItem(DRAFT_KEY);
+      if (draft) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [DRAFT_KEY]);
+
+  // Product registration logic
+  const handleCreateProductFromInvoice = async (productData) => {
+    setProductFormLoading(true);
+    setProductFormError('');
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${API_BASE}/products`, productData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const newProduct = response.data.data;
+      setProducts(prev => [...prev, newProduct]);
+      
+      // Remove from unregistered list
+      const currentProductName = unregisteredProducts[productFormIndex];
+      setUnregisteredProducts(prev => prev.filter(name => name !== currentProductName));
+      
+      // Move to next product or close modal
+      if (productFormIndex + 1 < unregisteredProducts.length) {
+        setProductFormIndex(prev => prev + 1);
+      } else {
+        setShowProductFormModal(false);
+        setProductFormIndex(0);
+      }
+      
+      setSuccess(`Product "${newProduct.name}" registered successfully!`);
+      setTimeout(() => setSuccess(''), 3000);
+      
+    } catch (error) {
+      setProductFormError(error.response?.data?.message || 'Failed to create product');
+    } finally {
+      setProductFormLoading(false);
+    }
+  };
                     }}
                     className="text-blue-600 hover:text-blue-800 text-sm"
                   >
@@ -393,6 +718,11 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                 </label>
               </div>
 
+              <div className="mt-2 text-xs text-gray-600 bg-blue-50 p-2 rounded">
+                <strong>Tip:</strong> Include a 'variant' column for products with different variants (e.g., sizes, types). 
+                Products are matched by both name and variant for accurate selection.
+              </div>
+
               {csvError && (
                 <div className="mt-2 text-sm text-red-600 flex items-center">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -409,12 +739,15 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                   </div>
                   <ul className="list-disc pl-5 text-yellow-700 text-sm">
                     {unregisteredProducts.slice(0, 3).map((name, idx) => (
-                      <li key={idx}>{name}</li>
+                      <li key={idx} className="break-words">{name}</li>
                     ))}
                     {unregisteredProducts.length > 3 && (
                       <li>+ {unregisteredProducts.length - 3} more</li>
                     )}
                   </ul>
+                  <div className="mt-2 text-xs text-yellow-600">
+                    Note: Products are matched by name and variant. Make sure both match exactly.
+                  </div>
                   <button
                     type="button"
                     onClick={() => setShowProductFormModal(true)}
@@ -449,14 +782,14 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                     <div className="md:col-span-4">
                       <label className="block text-xs text-gray-500 mb-1">Product</label>
                       <select
-                        className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 rounded border border-gray-300 bg-white/70 backdrop-blur-sm focus:ring-blue-500 focus:border-blue-500 text-gray-800"
                         value={item.productId}
                         onChange={(e) => handleProductSelect(idx, e.target.value)}
                         required
                       >
                         <option value="">Select product...</option>
                         {products
-                          .filter(p => !lineItems.some(li => li.productId === p._id && li.productId !== item.productId))
+                          .filter(p => !selectedProductIds.includes(p._id) || p._id === item.productId)
                           .map(p => (
                             <option key={p._id} value={p._id}>
                               {p.name} {p.variant ? `(${p.variant})` : ''}
@@ -531,13 +864,22 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
               </div>
             </div>
 
-            {/* Error Message */}
+            {/* Success/Error Messages */}
             {error && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-lg flex items-start">
+              <div className="p-3 bg-red-50 text-red-600 rounded-lg flex items-start border border-red-200">
                 <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
                 <div>{error}</div>
+              </div>
+            )}
+
+            {success && (
+              <div className="p-3 bg-green-50 text-green-600 rounded-lg flex items-start border border-green-200">
+                <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <div>{success}</div>
               </div>
             )}
 
@@ -570,47 +912,53 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
         </div>
       </div>
 
-      {/* Product Registration Modal */}
+      {/* Product Registration Modal - Enhanced */}
       {showProductFormModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Register New Product</h3>
-                    <ProductForm
-                      product={null}
-                      initialData={{ 
-                        name: unregisteredProducts[0] || '',
-                        category,
-                        variant: ''
-                      }}
-                      onCreate={(product) => {
-                        setProducts([...products, product]);
-                        setUnregisteredProducts(unregisteredProducts.filter(p => p !== product.name));
-                        if (unregisteredProducts.length <= 1) {
-                          setShowProductFormModal(false);
-                        }
-                      }}
-                      onClose={() => setShowProductFormModal(false)}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button
-                  type="button"
-                  onClick={() => setShowProductFormModal(false)}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 overflow-y-auto backdrop-blur-sm bg-black/30">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden relative mt-4">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-green-500"></div>
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">Register New {getCategoryName()} Product</h3>
+                <button 
+                  onClick={() => setShowProductFormModal(false)} 
+                  className="text-gray-400 hover:text-gray-700 text-xl font-bold"
                 >
-                  Cancel
+                  ✕
                 </button>
               </div>
+              
+              {unregisteredProducts.length > 1 && (
+                <div className="mb-4 text-sm text-gray-500 bg-blue-50 p-2 rounded">
+                  Registering: {unregisteredProducts[productFormIndex]} 
+                  ({productFormIndex + 1} of {unregisteredProducts.length})
+                </div>
+              )}
+              
+              <ProductForm
+                product={null}
+                onCreate={handleCreateProductFromInvoice}
+                onUpdate={() => {}}
+                onClose={() => setShowProductFormModal(false)}
+                initialName={unregisteredProducts[productFormIndex] || ''}
+                initialCategory={category}
+              />
+              
+              {productFormError && (
+                <div className="mt-3 text-center text-red-600 text-sm">{productFormError}</div>
+              )}
+              
+              {productFormLoading && (
+                <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                  <div className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating product...
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -152,9 +152,16 @@ const ProductList = () => {
     fetchProductsByCategory(category);
   };
 
-  const filteredProducts = (products || []).filter(product =>
-    product?.name?.toLowerCase()?.includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = (products || []).filter(product => {
+    const searchLower = searchTerm.toLowerCase();
+    const productName = product?.name?.toLowerCase() || '';
+    const productVariant = (product?.variant || product?.unit || '').toLowerCase();
+    const productDescription = (product?.description || '').toLowerCase();
+    
+    return productName.includes(searchLower) || 
+           productVariant.includes(searchLower) || 
+           productDescription.includes(searchLower);
+  });
 
   useEffect(() => {
     fetchProducts();
@@ -317,7 +324,7 @@ const ProductList = () => {
                   </div>
                   <input
                     type="text"
-                    placeholder="Search products..."
+                    placeholder="Search by name, variant, or description..."
                     className="block w-full pl-10 pr-4 py-3 border border-blue-200 rounded-2xl bg-white text-gray-900 placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -400,7 +407,10 @@ const ProductList = () => {
                     </svg>
                   </div>
                   <h3 className="text-2xl font-bold text-gray-700 mb-2">No products found</h3>
-                  <p className="text-gray-500 text-lg mb-6">Try changing your search terms or category filters</p>
+                  <p className="text-gray-500 text-lg mb-2">Try changing your search terms or category filters</p>
+                  <p className="text-sm text-gray-400 mb-6">
+                    Tip: Products with the same name but different variants are shown separately
+                  </p>
                   <div className="flex gap-3 justify-center">
                     <button
                       onClick={() => setShowBulkUpload(true)}
@@ -447,6 +457,11 @@ const ProductList = () => {
                                 <div className="ml-4">
                                   <div className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
                                     {product.name}
+                                    {(product.variant || product.unit) && (
+                                      <span className="ml-2 text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                                        {product.variant || product.unit}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-sm text-gray-500 font-medium">
                                     Product ID: {product._id.slice(-6)}
@@ -461,12 +476,23 @@ const ProductList = () => {
                               </span>
                             </td>
                             <td className="px-6 py-4">
-                              <div className="text-sm font-semibold text-gray-900">{product.unit || product.variant}</div>
-                              <div className="text-sm text-gray-500">
-                                <span className="inline-flex items-center">
-                                  <span className="w-2 h-2 bg-amber-400 rounded-full mr-2"></span>
-                                  Threshold: {product.thresholdValue}
-                                </span>
+                              <div className="space-y-1">
+                                {(product.variant || product.unit) && (
+                                  <div className="text-sm font-semibold text-gray-900">
+                                    Variant: {product.variant || product.unit}
+                                  </div>
+                                )}
+                                <div className="text-sm text-gray-500">
+                                  <span className="inline-flex items-center">
+                                    <span className="w-2 h-2 bg-amber-400 rounded-full mr-2"></span>
+                                    Threshold: {product.thresholdValue}
+                                  </span>
+                                </div>
+                                {product.description && (
+                                  <div className="text-xs text-gray-400 truncate max-w-xs">
+                                    {product.description}
+                                  </div>
+                                )}
                               </div>
                             </td>
                             <td className="px-6 py-4 text-right">
