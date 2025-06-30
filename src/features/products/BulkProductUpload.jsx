@@ -76,6 +76,44 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
     return unit;
   };
 
+  // Function to handle variant processing
+  const processVariant = (variant, category) => {
+    if (!variant || variant.toString().trim() === '') {
+      return { variant: '', customVariant: '' };
+    }
+    
+    const variantStr = variant.toString().trim();
+    const categoryVariants = VARIANT_PRESETS[category] || [];
+    
+    // Check if variant exists in predefined list (excluding 'other')
+    const predefinedVariants = categoryVariants.filter(v => v !== 'other');
+    if (predefinedVariants.includes(variantStr)) {
+      return { variant: variantStr, customVariant: '' };
+    }
+    
+    // If variant doesn't exist in predefined list, use 'other' and set custom
+    return { variant: 'other', customVariant: variantStr };
+  };
+
+  // Function to handle unit processing
+  const processUnit = (unit) => {
+    if (!unit || unit.toString().trim() === '') {
+      return { unit: '', customUnit: '' };
+    }
+    
+    const normalizedUnit = normalizeUnit(unit);
+    const standardUnits = UNIT_OPTIONS.map(u => u.value);
+    
+    // Check if normalized unit exists in predefined list (excluding 'other')
+    const predefinedUnits = standardUnits.filter(u => u !== 'other');
+    if (predefinedUnits.includes(normalizedUnit)) {
+      return { unit: normalizedUnit, customUnit: '' };
+    }
+    
+    // If unit doesn't exist in predefined list, use 'other' and set custom
+    return { unit: 'other', customUnit: normalizedUnit };
+  };
+
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (!selectedFile) return;
@@ -119,10 +157,12 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
           const product = {
             name: '',
             unit: '',
+            customUnit: '',
             thresholdValue: 0,
             category: 'chemical',
             subCategory: '',
             variant: '',
+            customVariant: '',
             rowIndex: index + 2 // Excel row number (1-based + header)
           };
 
@@ -140,8 +180,10 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
                   break;
                 case 'unit':
                 case 'units':
-                  // Apply unit normalization
-                  product.unit = normalizeUnit(stringValue);
+                  // Apply unit processing with auto-selection of 'other'
+                  const unitResult = processUnit(stringValue);
+                  product.unit = unitResult.unit;
+                  product.customUnit = unitResult.customUnit;
                   break;
                 case 'threshold':
                 case 'threshold value':
@@ -162,11 +204,19 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
                   break;
                 case 'variant':
                 case 'variants':
-                  product.variant = stringValue;
+                  // Apply variant processing with auto-selection of 'other'
+                  const variantResult = processVariant(stringValue, product.category);
+                  product.variant = variantResult.variant;
+                  product.customVariant = variantResult.customVariant;
                   break;
               }
             }
           });
+
+          // Handle missing variants for non-chemical products
+          if (product.category !== 'chemical' && !product.variant && !product.customVariant) {
+            product.variant = 'Not applicable';
+          }
 
           return product;
         }).filter(product => product.name.trim() !== ''); // Remove empty rows
@@ -200,11 +250,11 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
         newErrors.push(`Row ${product.rowIndex}: Product name is required`);
       }
       
-      if (product.category === 'chemical' && !product.unit.trim()) {
+      if (product.category === 'chemical' && !product.unit.trim() && !product.customUnit.trim()) {
         newErrors.push(`Row ${product.rowIndex}: Unit is required for chemical products`);
       }
       
-      if (product.category !== 'chemical' && !product.variant.trim()) {
+      if (product.category !== 'chemical' && !product.variant.trim() && !product.customVariant.trim() && product.variant !== 'Not applicable') {
         newErrors.push(`Row ${product.rowIndex}: Variant is required for non-chemical products`);
       }
     });
@@ -219,20 +269,28 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
     }
 
     setIsUploading(true);
-    setErrors([]);
+    setErrors([]);      try {
+        const token = localStorage.getItem('token');
+        // Prepare products data for upload
+        const productsForUpload = parsedProducts.map(product => ({
+          name: product.name,
+          unit: product.unit === 'other' ? product.customUnit : product.unit,
+          thresholdValue: product.thresholdValue,
+          category: product.category,
+          subCategory: product.subCategory,
+          variant: product.variant === 'other' ? product.customVariant : product.variant
+        }));
 
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        'https://backend-pharmacy-5541.onrender.com/api/products/bulk',
-        { products: parsedProducts },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+        const response = await axios.post(
+          'https://backend-pharmacy-5541.onrender.com/api/products/bulk',
+          { products: productsForUpload },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
-        }
-      );
+        );
 
       setUploadResults(response.data);
       
@@ -258,9 +316,9 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
 
   const renderProductRow = (product, index) => (
     <div key={index} className="bg-white rounded-lg p-4 border border-gray-200 mb-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {/* Name */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
           <input
             type="text"
@@ -272,7 +330,7 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
         </div>
 
         {/* Category */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
           <select
             value={product.category}
@@ -287,42 +345,72 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
 
         {/* Unit (for chemical) */}
         {product.category === 'chemical' && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
-            <select
-              value={product.unit}
-              onChange={(e) => handleProductChange(index, 'unit', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              required
-            >
-              <option value="">Select unit</option>
-              {UNIT_OPTIONS.map(unit => (
-                <option key={unit.value} value={unit.value}>{unit.label}</option>
-              ))}
-            </select>
-          </div>
+          <>
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
+              <select
+                value={product.unit}
+                onChange={(e) => handleProductChange(index, 'unit', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                required
+              >
+                <option value="">Select unit</option>
+                {UNIT_OPTIONS.map(unit => (
+                  <option key={unit.value} value={unit.value}>{unit.label}</option>
+                ))}
+              </select>
+            </div>
+            {product.unit === 'other' && (
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Custom Unit *</label>
+                <input
+                  type="text"
+                  value={product.customUnit || ''}
+                  onChange={(e) => handleProductChange(index, 'customUnit', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter custom unit"
+                  required
+                />
+              </div>
+            )}
+          </>
         )}
 
         {/* Variant (for non-chemical) */}
         {product.category !== 'chemical' && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Variant *</label>
-            <select
-              value={product.variant}
-              onChange={(e) => handleProductChange(index, 'variant', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              required
-            >
-              <option value="">Select variant</option>
-              {(VARIANT_PRESETS[product.category] || []).map(variant => (
-                <option key={variant} value={variant}>{variant}</option>
-              ))}
-            </select>
-          </div>
+          <>
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Variant</label>
+              <select
+                value={product.variant}
+                onChange={(e) => handleProductChange(index, 'variant', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Select variant</option>
+                <option value="Not applicable">Not applicable</option>
+                {(VARIANT_PRESETS[product.category] || []).map(variant => (
+                  <option key={variant} value={variant}>{variant}</option>
+                ))}
+              </select>
+            </div>
+            {product.variant === 'other' && (
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Custom Variant *</label>
+                <input
+                  type="text"
+                  value={product.customVariant || ''}
+                  onChange={(e) => handleProductChange(index, 'customVariant', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter custom variant"
+                  required
+                />
+              </div>
+            )}
+          </>
         )}
 
         {/* Threshold Value */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Threshold</label>
           <input
             type="number"
@@ -334,7 +422,7 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
         </div>
 
         {/* Sub Category */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Sub Category</label>
           <input
             type="text"
@@ -348,12 +436,12 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
   );
 
   return (
-    <div className="p-6 bg-white/80 backdrop-blur-xl rounded-xl shadow-xl max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-6 max-h-[75vh] overflow-y-auto">
+      <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b border-gray-200 z-10">
         <h2 className="text-2xl font-semibold text-gray-800">Bulk Product Upload</h2>
         <button
           onClick={onClose}
-          className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors text-xl font-bold"
         >
           ✕
         </button>
@@ -383,10 +471,11 @@ const BulkProductUpload = ({ onClose, onSuccess }) => {
               Expected columns: name, unit, threshold, category, subcategory, variant
             </p>
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <p className="text-xs text-blue-700 font-medium mb-1">Unit Conversion Guide:</p>
-              <p className="text-xs text-blue-600">• 'l', 'L', 'liter', 'liters' → ml (Milliliters)</p>
-              <p className="text-xs text-blue-600">• 'g', 'gram', 'grams' → g (Grams)</p>
-              <p className="text-xs text-blue-600">• 'cap', 'capsule', 'capsules' → cap (Capsules)</p>
+              <p className="text-xs text-blue-700 font-medium mb-1">Auto-Processing Features:</p>
+              <p className="text-xs text-blue-600">• Units not in predefined list will auto-select "other" with custom value</p>
+              <p className="text-xs text-blue-600">• Variants not in predefined list will auto-select "other" with custom value</p>
+              <p className="text-xs text-blue-600">• Missing variants for non-chemical products will be set to "Not applicable"</p>
+              <p className="text-xs text-blue-600">• Unit conversions: 'l'→'ml', 'grams'→'g', 'capsules'→'cap'</p>
             </div>
           </div>
         </div>

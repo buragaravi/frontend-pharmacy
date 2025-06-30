@@ -107,7 +107,7 @@ const ProductForm = ({ product, onCreate, onUpdate, onClose, initialName }) => {
   };
 
   return (
-    <div className="p-6 bg-white/80 backdrop-blur-xl rounded-xl shadow-xl relative">
+    <div className="p-6 bg-white/80 backdrop-blur-xl rounded-xl shadow-xl relative max-h-[75vh] overflow-y-auto">
       {toast.show && (
         <div
           className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-semibold transition-all duration-300

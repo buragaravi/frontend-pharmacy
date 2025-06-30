@@ -303,7 +303,7 @@ const NotificationCenter = ({ notifications = [], onMarkAsRead }) => {
 const AdminDashboard = () => {
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [selectedChild, setSelectedChild] = useState(null);
-  const [selected, setSelected] = useState('chemicals');
+  const [selected, setSelected] = useState('AllLabRequestsPage');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expandedLab, setExpandedLab] = useState(null);

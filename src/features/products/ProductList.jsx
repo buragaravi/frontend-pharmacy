@@ -461,7 +461,7 @@ const ProductList = () => {
                               </span>
                             </td>
                             <td className="px-6 py-4">
-                              <div className="text-sm font-semibold text-gray-900">{product.unit}</div>
+                              <div className="text-sm font-semibold text-gray-900">{product.unit || product.variant}</div>
                               <div className="text-sm text-gray-500">
                                 <span className="inline-flex items-center">
                                   <span className="w-2 h-2 bg-amber-400 rounded-full mr-2"></span>
@@ -501,12 +501,18 @@ const ProductList = () => {
 
         {/* Enhanced Product Form Modal */}
         {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 pt-8 overflow-y-auto">
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+            <div 
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => {
+                setShowForm(false);
+                setEditingProduct(null);
+              }}
+            ></div>
             
             {/* Modal */}
-            <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-white/20 overflow-hidden transform transition-all duration-300 scale-100">
+            <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-white/20 overflow-hidden transform transition-all duration-300 scale-100 mt-4">
               <div className="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
               <ProductForm 
                 product={editingProduct}
@@ -523,13 +529,16 @@ const ProductList = () => {
 
         {/* Bulk Upload Modal */}
         {showBulkUpload && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 pt-8 overflow-y-auto">
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+            <div 
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setShowBulkUpload(false)}
+            ></div>
             
             {/* Modal */}
-            <div className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-white/20 overflow-hidden transform transition-all duration-300 scale-100">
-              <div className="absolute top-0 left-0 w-full h-2 bg-green-600"></div>
+            <div className="relative w-full max-w-6xl bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all duration-300 scale-100 max-h-[85vh] mt-4">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-green-500"></div>
               <BulkProductUpload 
                 onClose={() => setShowBulkUpload(false)}
                 onSuccess={handleBulkUploadSuccess}
