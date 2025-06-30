@@ -1,0 +1,125 @@
+{
+  "name": "Pydah Pharmacy - Stock Management System",
+  "short_name": "Pydah Pharmacy",
+  "description": "Advanced Chemical Management System for Pydah Pharmacy - Manage inventory, track equipment, and streamline pharmaceutical operations",
+  "theme_color": "#FE6500",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "start_url": "/",
+  "id": "pydah-pharmacy-stock",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["medical", "business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/pydah.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pydah-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pydah-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/pydah-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Pydah Pharmacy Dashboard"
+    },
+    {
+      "src": "/pydah-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Pydah Pharmacy Management Interface"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Go to main dashboard",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/pydah-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Chemical Inventory",
+      "short_name": "Chemicals",
+      "description": "Manage chemical inventory",
+      "url": "/dashboard/admin",
+      "icons": [
+        {
+          "src": "/pydah-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "QR Scanner",
+      "short_name": "QR Scanner",
+      "description": "Scan QR codes for equipment",
+      "url": "/qr-scanner",
+      "icons": [
+        {
+          "src": "/pydah-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Equipment",
+      "short_name": "Equipment",
+      "description": "Manage equipment inventory",
+      "url": "/equipment",
+      "icons": [
+        {
+          "src": "/pydah-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+pydahpharmacy",
+      "url": "/?handler=%s"
+    }
+  ],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  }
+}

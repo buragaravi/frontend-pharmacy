@@ -1,8 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-// Predefined units for dropdown
+// Predefined units for dropdown with descriptive names
 const UNIT_OPTIONS = [
-  'mg', 'g', 'kg', 'ml', 'L', 'pcs', 'set', 'box', 'pack', 'other'
+  { value: 'mg', label: 'mg (Milligrams)' },
+  { value: 'g', label: 'g (Grams)' },
+  { value: 'kg', label: 'kg (Kilograms)' },
+  { value: 'ml', label: 'ml (Milliliters)' },
+  { value: 'L', label: 'L (Liters)' },
+  { value: 'pcs', label: 'pcs (Pieces)' },
+  { value: 'set', label: 'set (Sets)' },
+  { value: 'box', label: 'box (Boxes)' },
+  { value: 'pack', label: 'pack (Packs)' },
+  { value: 'cap', label: 'cap (Capsules)' },
+  { value: 'other', label: 'other (Other)' }
 ];
 
 // Predefined variants for glassware/equipment
@@ -153,7 +163,7 @@ const ProductForm = ({ product, onCreate, onUpdate, onClose, initialName }) => {
             >
               <option value="">Select unit</option>
               {UNIT_OPTIONS.map((unit) => (
-                <option key={unit} value={unit}>{unit}</option>
+                <option key={unit.value} value={unit.value}>{unit.label}</option>
               ))}
             </select>
           </div>
@@ -199,39 +209,36 @@ const ProductForm = ({ product, onCreate, onUpdate, onClose, initialName }) => {
             value={formData.thresholdValue}
             onChange={handleChange}
             min="0"
-            required
             className="mt-1 w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/70 backdrop-blur-sm focus:ring-blue-500 focus:border-blue-500 text-gray-800"
           />
         </div>
 
-        {/* Sub-Category */}
-        <div className="mb-4">
-          <label htmlFor="subCategory" className="block text-sm font-medium text-gray-700">Subcategory (optional)</label>
+        {/* Sub Category */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Sub Category</label>
           <input
             type="text"
-            id="subCategory"
             name="subCategory"
             value={formData.subCategory}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            placeholder="e.g. Beaker, Flask, Microscope, etc."
+            className="mt-1 w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/70 backdrop-blur-sm focus:ring-blue-500 focus:border-blue-500 text-gray-800"
           />
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-4 pt-4">
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-full transition"
-          >
-            {product ? 'Update' : 'Create'}
-          </button>
+        {/* Buttons */}
+        <div className="flex justify-end space-x-3 pt-4">
           <button
             type="button"
             onClick={handleCancel}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-5 py-2 rounded-full transition"
+            className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors"
           >
             Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            {product ? 'Update' : 'Create'}
           </button>
         </div>
       </form>
