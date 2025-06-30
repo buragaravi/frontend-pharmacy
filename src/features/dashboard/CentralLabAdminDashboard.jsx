@@ -18,7 +18,7 @@ import InvoicePage from '../invoice/InvoicePage';
 import VendorList from '../vendor/VendorList';
 import { AllocateEquipmentToLabByScanForm } from '../equipment';
 import EquipmentStockList from '../equipment/EquipmentStockList';
-import UserManagement from '../users/UserManagement';
+
 
 // SVG Icons
 const ChemicalIcon = () => (
@@ -125,7 +125,6 @@ const NAV_CATEGORIES = {
   'Administration': [
     { key: 'invoices', label: 'Invoices', icon: InvoiceIcon, component: <InvoicePage /> },
     { key: 'vendors', label: 'Vendors', icon: VendorIcon, component: <VendorList /> },
-    { key: 'users', label: 'User Management', icon: UserIcon, component: <UserManagement /> }
   ]
 };
 
