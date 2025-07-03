@@ -3,26 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { getAllGlasswareStock } from './glasswareApi';
 import { generateLabColors } from '../../components/analytics/utils/colorPalette';
 
-// Breadcrumb Navigation Component
-const BreadcrumbNavigation = () => {
-  const navigate = useNavigate();
-  
-  return (
-    <nav className="flex items-center space-x-2 text-sm mb-6 p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/20">
-      <button
-        onClick={() => navigate('/dashboard/admin')}
-        className="text-blue-600 hover:text-blue-800 transition-colors duration-200 font-medium"
-      >
-        Admin Dashboard
-      </button>
-      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-      </svg>
-      <span className="text-gray-500 font-medium">Glassware Stock</span>
-    </nav>
-  );
-};
-
 const GlobalPrintStyles = () => (
   <style>
     {`
@@ -57,6 +37,24 @@ const GlobalPrintStyles = () => (
         to { transform: translateX(0); opacity: 1; }
       }
 
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-10px) rotate(1deg); }
+        66% { transform: translateY(5px) rotate(-1deg); }
+      }
+
+      @keyframes floatReverse {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(8px) rotate(-1deg); }
+        66% { transform: translateY(-12px) rotate(1deg); }
+      }
+
+      @keyframes bubbleFloat {
+        0% { transform: translateY(0px) scale(1); opacity: 0.7; }
+        50% { transform: translateY(-20px) scale(1.1); opacity: 1; }
+        100% { transform: translateY(0px) scale(1); opacity: 0.7; }
+      }
+
       .hover-scale {
         transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
       }
@@ -76,6 +74,25 @@ const GlobalPrintStyles = () => (
 
       .glass-card:nth-child(even) {
         animation-delay: 0.2s;
+      }
+
+      .bubble-float-1 {
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .bubble-float-2 {
+        animation: floatReverse 8s ease-in-out infinite;
+        animation-delay: -2s;
+      }
+
+      .bubble-float-3 {
+        animation: bubbleFloat 10s ease-in-out infinite;
+        animation-delay: -4s;
+      }
+
+      .bubble-float-4 {
+        animation: float 7s ease-in-out infinite;
+        animation-delay: -1s;
       }
     `}
   </style>
@@ -555,105 +572,155 @@ const GlasswareStockPage = () => {
   const totalLabs = Object.keys(groupedStock).length;
 
   return (
-    <div className="p-6 bg-gradient-to-br from-white via-blue-50 to-blue-100 min-h-screen"
-         style={{ animation: 'fadeIn 0.5s ease-out' }}>
+    <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
       <GlobalPrintStyles />
       
-      {/* Breadcrumb Navigation */}
-      <BreadcrumbNavigation />
+      {/* Background floating bubbles */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-20 left-10 w-16 h-16 bg-blue-200/20 rounded-full blur-lg bubble-float-1"></div>
+        <div className="absolute top-40 right-20 w-12 h-12 bg-indigo-200/15 rounded-full blur-md bubble-float-2"></div>
+        <div className="absolute top-60 left-1/4 w-20 h-20 bg-cyan-200/10 rounded-full blur-xl bubble-float-3"></div>
+        <div className="absolute top-80 right-1/3 w-14 h-14 bg-purple-200/15 rounded-full blur-lg bubble-float-4"></div>
+        <div className="absolute bottom-40 left-1/3 w-18 h-18 bg-blue-300/10 rounded-full blur-md bubble-float-1"></div>
+        <div className="absolute bottom-60 right-10 w-16 h-16 bg-indigo-300/12 rounded-full blur-lg bubble-float-2"></div>
+        <div className="absolute top-1/2 left-5 w-10 h-10 bg-cyan-300/8 rounded-full blur-sm bubble-float-3"></div>
+        <div className="absolute top-1/3 right-5 w-8 h-8 bg-purple-300/10 rounded-full blur-sm bubble-float-4"></div>
+      </div>
       
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-t-2xl p-6 mb-8 shadow-2xl border-b border-blue-500/20">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <div className="flex items-center gap-4" style={{ animation: 'slideIn 0.5s ease-out' }}>
-            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-white tracking-tight">
-                Glassware Stock Management
-              </h1>
-              <p className="text-blue-100 mt-1">
-                {totalItems} items across {totalLabs} labs • Total quantity: {totalQuantity} pieces
-              </p>
-            </div>
-          </div>
-          
-          {/* Controls */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
-               style={{ animation: 'scaleIn 0.5s ease-out' }}>
-            {/* View Mode Toggle */}
-            <div className="flex bg-white/20 backdrop-blur-sm rounded-xl border border-white/30 p-1">
-              <button
-                onClick={() => setViewMode('cards')}
-                className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
-                  viewMode === 'cards'
-                    ? 'bg-white/30 text-white shadow-lg backdrop-blur-sm border border-white/40'
-                    : 'text-blue-100 hover:text-white hover:bg-white/20'
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                Cards
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
-                  viewMode === 'table'
-                    ? 'bg-white/30 text-white shadow-lg backdrop-blur-sm border border-white/40'
-                    : 'text-blue-100 hover:text-white hover:bg-white/20'
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                Table
-              </button>
-            </div>
-            
-            {/* Search */}
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search glassware..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2.5 w-64 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-blue-100 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 hover:border-white/40 transition-all duration-200"
-              />
-              <svg className="w-5 h-5 text-blue-100 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            
-            {/* Lab filter */}
-            <select 
-              value={selectedLab}
-              onChange={(e) => setSelectedLab(e.target.value)}
-              className="px-4 py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white font-medium focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 hover:border-white/40 transition-all duration-200 min-w-40"
-            >
-              {labList.map(lab => (
-                <option key={lab.id} value={lab.id} className="bg-blue-800 text-white">
-                  {lab.name}
-                </option>
-              ))}
-            </select>
-            
-            {/* Print button */}
-            <button
-              onClick={handlePrintQRCodes}
-              className="px-5 py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 text-white rounded-xl hover:bg-white/30 hover:shadow-lg text-sm flex items-center gap-2 transition-all duration-300 hover-scale whitespace-nowrap"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
-              </svg>
-              Print QR Codes
-            </button>
-          </div>
+      <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
+        {/* Enhanced Background Effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+      
+      {/* Breadcrumb Navigation */}
+      <div className="relative z-10 w-full bg-white/70 backdrop-blur-sm border-b border-gray-200/30">
+        <div className="w-full px-4 py-2">
+          <nav className="flex items-center space-x-1.5 text-xs">
+            <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+            <span className="text-gray-500">Admin Dashboard</span>
+            <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+            <span className="text-blue-600 font-medium">Glassware Stock Management</span>
+          </nav>
         </div>
       </div>
+
+      {/* Enhanced Header Section - Invoice Form Style */}
+      <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-8 text-white overflow-hidden rounded-t-3xl shadow-lg">
+        <div className="absolute inset-0 bg-blue-800/20"></div>
+        <div className="relative z-10">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div className="flex items-center gap-4">
+              <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-3xl lg:text-4xl font-bold mb-2">
+                  Glassware Stock Management
+                </h1>
+                <p className="text-blue-100 text-lg">{totalItems} items across {totalLabs} labs • Total quantity: {totalQuantity} pieces</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              {/* View Mode Toggle */}
+              <div className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-2xl border border-white/30">
+                <div className="text-sm text-blue-100 mb-2">View Mode</div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setViewMode('cards')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                      viewMode === 'cards'
+                        ? 'bg-white/30 text-white shadow-lg'
+                        : 'text-blue-100 hover:text-white hover:bg-white/20'
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    Cards
+                  </button>
+                  <button
+                    onClick={() => setViewMode('table')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                      viewMode === 'table'
+                        ? 'bg-white/30 text-white shadow-lg'
+                        : 'text-blue-100 hover:text-white hover:bg-white/20'
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Table
+                  </button>
+                </div>
+              </div>
+              
+              {/* Search */}
+              <div className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-2xl border border-white/30">
+                <div className="text-sm text-blue-100 mb-2">Search</div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search glassware..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-8 pr-4 py-1.5 w-48 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-blue-100 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 text-sm"
+                  />
+                  <svg className="w-4 h-4 text-blue-100 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+              
+              {/* Lab filter */}
+              <div className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-2xl border border-white/30">
+                <div className="text-sm text-blue-100 mb-2">Lab Filter</div>
+                <select 
+                  value={selectedLab}
+                  onChange={(e) => setSelectedLab(e.target.value)}
+                  className="px-3 py-1.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white font-medium focus:outline-none focus:ring-2 focus:ring-white/50 text-sm min-w-32"
+                >
+                  {labList.map(lab => (
+                    <option key={lab.id} value={lab.id} className="bg-blue-800 text-white">
+                      {lab.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Print button */}
+              <button
+                onClick={handlePrintQRCodes}
+                className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-2xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+                </svg>
+                Print QR Codes
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+          <div className="w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+        </div>
+        <div className="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2">
+          <div className="w-32 h-32 bg-indigo-300/20 rounded-full blur-2xl"></div>
+        </div>
+      </div>
+
+      {/* Main Content Section */}
+      <div className="relative z-10 p-8">
 
       <PrintableQRView groupedStock={filteredGroupedStock} />
 
@@ -661,8 +728,8 @@ const GlasswareStockPage = () => {
       {loading && (
         <div className="flex justify-center items-center py-16">
           <div className="flex flex-col items-center gap-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
-            <p className="text-gray-600">Loading glassware stock...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+            <p className="text-gray-600 font-medium">Loading glassware stock...</p>
           </div>
         </div>
       )}
@@ -727,7 +794,7 @@ const GlasswareStockPage = () => {
 
       {/* Back to top button */}
       {!loading && Object.keys(filteredGroupedStock).length > 0 && (
-        <div className="fixed bottom-6 right-6">
+        <div className="fixed bottom-6 right-6 z-50">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover-scale border border-blue-400/30"
@@ -738,6 +805,8 @@ const GlasswareStockPage = () => {
           </button>
         </div>
       )}
+      </div>
+      </div>
     </div>
   );
 };
