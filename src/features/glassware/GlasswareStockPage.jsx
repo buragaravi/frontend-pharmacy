@@ -3,6 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import { getAllGlasswareStock } from './glasswareApi';
 import { generateLabColors } from '../../components/analytics/utils/colorPalette';
 
+// Breadcrumb Navigation Component
+const BreadcrumbNavigation = () => {
+  const navigate = useNavigate();
+  
+  return (
+    <nav className="flex items-center space-x-2 text-sm mb-6 p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/20">
+      <button
+        onClick={() => navigate('/dashboard/admin')}
+        className="text-blue-600 hover:text-blue-800 transition-colors duration-200 font-medium"
+      >
+        Admin Dashboard
+      </button>
+      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+      <span className="text-gray-500 font-medium">Glassware Stock</span>
+    </nav>
+  );
+};
+
 const GlobalPrintStyles = () => (
   <style>
     {`
@@ -301,6 +321,141 @@ const LabSection = ({ labId, items, labColor }) => {
   );
 };
 
+// Table View Component
+const TableView = ({ groupedStock, labColorMap, searchTerm }) => {
+  const allItems = Object.entries(groupedStock).reduce((acc, [labId, items]) => {
+    return acc.concat(items.map(item => ({ ...item, labId })));
+  }, []);
+
+  // Sort items by lab, then by name
+  const sortedItems = allItems.sort((a, b) => {
+    if (a.labId === b.labId) {
+      return (a.name || '').localeCompare(b.name || '');
+    }
+    return getLabDisplayName(a.labId).localeCompare(getLabDisplayName(b.labId));
+  });
+
+  const getStatusBadge = (item) => {
+    const isExpired = item.expiryDate && new Date(item.expiryDate) < new Date();
+    const isNearExpiry = item.expiryDate && new Date(item.expiryDate) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    
+    if (isExpired) {
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Expired</span>;
+    }
+    if (!isExpired && isNearExpiry) {
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Near Expiry</span>;
+    }
+    if (item.quantity === 0) {
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Out of Stock</span>;
+    }
+    return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Available</span>;
+  };
+
+  const getQuantityColor = (quantity) => {
+    if (quantity === 0) return 'text-red-600';
+    if (quantity < 10) return 'text-yellow-600';
+    return 'text-green-600';
+  };
+
+  return (
+    <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-blue-200/50">
+          <thead className="bg-gradient-to-r from-blue-50/80 to-blue-100/60 backdrop-blur-sm">
+            <tr>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
+                Lab & Item
+              </th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
+                Quantity
+              </th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
+                Details
+              </th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
+                Expiry Date
+              </th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
+                Status
+              </th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
+                QR Code
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-blue-100/50 bg-white/30">
+            {sortedItems.map((item, index) => (
+              <tr key={item._id || index} className="hover:bg-blue-50/50 transition-colors duration-200">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div 
+                      className="w-3 h-3 rounded-full mr-3 shadow-sm"
+                      style={{ backgroundColor: labColorMap[item.labId] }}
+                    />
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                      <div className="text-sm text-blue-600">{getLabDisplayName(item.labId)}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className={`text-sm font-bold ${getQuantityColor(item.quantity)}`}>
+                    {item.quantity} {item.unit || ''}
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="text-sm text-gray-900">
+                    {item.variant && (
+                      <div className="mb-1">
+                        <span className="text-gray-600">Variant:</span> {item.variant}
+                      </div>
+                    )}
+                    {item.batchId && (
+                      <div>
+                        <span className="text-gray-600">Batch:</span> 
+                        <span className="ml-1 font-mono text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                          {item.batchId}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : '-'}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {getStatusBadge(item)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  {item.qrCodeImage ? (
+                    <svg className="w-5 h-5 text-blue-600 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zM13 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      
+      {sortedItems.length === 0 && (
+        <div className="text-center py-12 bg-white/30">
+          <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m8-5a1 1 0 100-2 1 1 0 000 2z" />
+          </svg>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No glassware found</h3>
+          <p className="text-gray-600">
+            {searchTerm ? 'Try adjusting your search term or filter.' : 'No glassware stock available.'}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const GlasswareStockPage = () => {
   const [allStock, setAllStock] = useState([]);
   const [groupedStock, setGroupedStock] = useState({});
@@ -308,6 +463,7 @@ const GlasswareStockPage = () => {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLab, setSelectedLab] = useState('all');
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
   const navigate = useNavigate();
 
   const labList = [
@@ -399,68 +555,103 @@ const GlasswareStockPage = () => {
   const totalLabs = Object.keys(groupedStock).length;
 
   return (
-    <div className="p-6 bg-gradient-to-br from-white to-green-50 min-h-screen"
+    <div className="p-6 bg-gradient-to-br from-white via-blue-50 to-blue-100 min-h-screen"
          style={{ animation: 'fadeIn 0.5s ease-out' }}>
       <GlobalPrintStyles />
       
+      {/* Breadcrumb Navigation */}
+      <BreadcrumbNavigation />
+      
       {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
-        <div className="flex items-center gap-4" style={{ animation: 'slideIn 0.5s ease-out' }}>
-          <div className="p-3 bg-green-100 rounded-2xl">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
-              Glassware Stock Management
-            </h1>
-            <p className="text-gray-600 mt-1">
-              {totalItems} items across {totalLabs} labs • Total quantity: {totalQuantity} pieces
-            </p>
-          </div>
-        </div>
-        
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
-             style={{ animation: 'scaleIn 0.5s ease-out' }}>
-          {/* Search */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search glassware..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2.5 w-64 bg-white border-2 border-green-200 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:border-green-400 hover:border-green-300 transition-colors"
-            />
-            <svg className="w-5 h-5 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-t-2xl p-6 mb-8 shadow-2xl border-b border-blue-500/20">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div className="flex items-center gap-4" style={{ animation: 'slideIn 0.5s ease-out' }}>
+            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-white tracking-tight">
+                Glassware Stock Management
+              </h1>
+              <p className="text-blue-100 mt-1">
+                {totalItems} items across {totalLabs} labs • Total quantity: {totalQuantity} pieces
+              </p>
+            </div>
           </div>
           
-          {/* Lab filter */}
-          <select 
-            value={selectedLab}
-            onChange={(e) => setSelectedLab(e.target.value)}
-            className="px-4 py-2.5 bg-white border-2 border-green-200 rounded-lg text-green-800 font-medium focus:outline-none focus:border-green-400 hover:border-green-300 transition-colors min-w-40"
-          >
-            {labList.map(lab => (
-              <option key={lab.id} value={lab.id}>
-                {lab.name}
-              </option>
-            ))}
-          </select>
-          
-          {/* Print button */}
-          <button
-            onClick={handlePrintQRCodes}
-            className="px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center gap-2 transition-all duration-300 hover:shadow-lg hover-scale whitespace-nowrap"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
-            </svg>
-            Print QR Codes
-          </button>
+          {/* Controls */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+               style={{ animation: 'scaleIn 0.5s ease-out' }}>
+            {/* View Mode Toggle */}
+            <div className="flex bg-white/20 backdrop-blur-sm rounded-xl border border-white/30 p-1">
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                  viewMode === 'cards'
+                    ? 'bg-white/30 text-white shadow-lg backdrop-blur-sm border border-white/40'
+                    : 'text-blue-100 hover:text-white hover:bg-white/20'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Cards
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                  viewMode === 'table'
+                    ? 'bg-white/30 text-white shadow-lg backdrop-blur-sm border border-white/40'
+                    : 'text-blue-100 hover:text-white hover:bg-white/20'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Table
+              </button>
+            </div>
+            
+            {/* Search */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search glassware..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2.5 w-64 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-blue-100 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 hover:border-white/40 transition-all duration-200"
+              />
+              <svg className="w-5 h-5 text-blue-100 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            
+            {/* Lab filter */}
+            <select 
+              value={selectedLab}
+              onChange={(e) => setSelectedLab(e.target.value)}
+              className="px-4 py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white font-medium focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 hover:border-white/40 transition-all duration-200 min-w-40"
+            >
+              {labList.map(lab => (
+                <option key={lab.id} value={lab.id} className="bg-blue-800 text-white">
+                  {lab.name}
+                </option>
+              ))}
+            </select>
+            
+            {/* Print button */}
+            <button
+              onClick={handlePrintQRCodes}
+              className="px-5 py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 text-white rounded-xl hover:bg-white/30 hover:shadow-lg text-sm flex items-center gap-2 transition-all duration-300 hover-scale whitespace-nowrap"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+              </svg>
+              Print QR Codes
+            </button>
+          </div>
         </div>
       </div>
 
@@ -508,6 +699,12 @@ const GlasswareStockPage = () => {
                 {searchTerm ? 'Try adjusting your search term or filter.' : 'No glassware stock available in the system.'}
               </p>
             </div>
+          ) : viewMode === 'table' ? (
+            <TableView 
+              groupedStock={filteredGroupedStock}
+              labColorMap={labColorMap}
+              searchTerm={searchTerm}
+            />
           ) : (
             Object.entries(filteredGroupedStock)
               .sort(([a], [b]) => {
@@ -533,7 +730,7 @@ const GlasswareStockPage = () => {
         <div className="fixed bottom-6 right-6">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="p-3 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 transition-all duration-300 hover-scale"
+            className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover-scale border border-blue-400/30"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
