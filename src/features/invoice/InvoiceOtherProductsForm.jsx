@@ -301,7 +301,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
       }
 
       const quantity = normalizedRow['quantity'] || '';
-      const totalPrice = normalizedRow['totalprice'] || normalizedRow['total'] || '0'; // Default to '0' if missing
+      const totalPrice = normalizedRow['totalprice'] || normalizedRow['total'] || 0; // Default to '0' if missing
       const pricePerUnit = normalizedRow['priceperunit'] || 
         (quantity && totalPrice && Number(totalPrice) > 0 ? (Number(totalPrice) / Number(quantity)).toFixed(2) : '0');
 
@@ -403,7 +403,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
         category
       };
 
-      const response = await axios.post(`${API_BASE}/invoices`, invoiceData, {
+      const response = await axios.post(`${API_BASE}/invoices/${category}`, invoiceData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

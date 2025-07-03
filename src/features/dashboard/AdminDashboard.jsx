@@ -347,6 +347,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [expandedLab, setExpandedLab] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileExpandedCategory, setMobileExpandedCategory] = useState(null);
   const [showDashboard, setShowDashboard] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
@@ -383,18 +384,23 @@ const AdminDashboard = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close dropdowns when clicking outside - Added from CentralLabAdminDashboard
+  // Close dropdowns when clicking outside - Fixed mobile menu handling
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Check if click is outside dropdown
       if (!event.target.closest('.dropdown-container')) {
         setExpandedCategory(null);
       }
-      if (!event.target.closest('.mobile-menu-container')) {
+      // Check if click is outside mobile menu and toggle button
+      if (!event.target.closest('.mobile-menu-container') && 
+          !event.target.closest('.mobile-menu-toggle')) {
         setMobileMenuOpen(false);
+        setMobileExpandedCategory(null);
       }
     };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Fetch user data
@@ -497,6 +503,7 @@ const AdminDashboard = () => {
     setShowDashboard(false);
     setMobileMenuOpen(false);
     setExpandedCategory(null);
+    setMobileExpandedCategory(null);
   };
 
   // Find the selected child item for rendering
@@ -625,9 +632,10 @@ const AdminDashboard = () => {
             {/* Mobile Menu Button */}
             <div className="md:hidden">
               <button
-                className="flex items-center justify-center p-2 sm:p-3 rounded-lg focus:outline-none bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                className="mobile-menu-toggle flex items-center justify-center p-2 sm:p-3 rounded-lg focus:outline-none bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-blue-50 active:bg-blue-100"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-label="Toggle menu"
+                type="button"
               >
                 <svg className="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   {mobileMenuOpen ? (
@@ -697,42 +705,75 @@ const AdminDashboard = () => {
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden w-full bg-white/95 backdrop-blur-lg border-t border-gray-100/50 mobile-menu-container">
-            <ul className="flex flex-col gap-1 py-3 sm:py-4 px-4 sm:px-6 max-h-[70vh] overflow-y-auto">
+            <div className="flex flex-col gap-1 py-3 sm:py-4 px-4 sm:px-6 max-h-[70vh] overflow-y-auto">
               {/* Dashboard Button for Mobile */}
-              <li>
-                <button
-                  className={`w-full text-left px-4 py-3 sm:py-4 rounded-xl font-medium transition-all duration-200 flex items-center gap-3 sm:gap-4 text-sm sm:text-base ${
-                    showDashboard && !selectedChild 
-                      ? 'bg-blue-100/80 text-blue-700 shadow-sm' 
-                      : 'bg-white text-blue-600 shadow-sm hover:bg-blue-50'
-                  }`}
-                  onClick={() => {
-                    setShowDashboard(true);
-                    setSelectedChild(null);
-                    setExpandedCategory(null);
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  🏠 Dashboard
-                </button>
-              </li>
-              {Object.values(NAV_CATEGORIES).flat().map((item) => (
-                <li key={item.key}>
+              <button
+                className={`w-full text-left px-4 py-3 sm:py-4 rounded-xl font-medium transition-all duration-200 flex items-center gap-3 sm:gap-4 text-sm sm:text-base ${
+                  showDashboard && !selectedChild 
+                    ? 'bg-blue-100/80 text-blue-700 shadow-sm' 
+                    : 'bg-white text-blue-600 shadow-sm hover:bg-blue-50'
+                }`}
+                onClick={() => {
+                  setShowDashboard(true);
+                  setSelectedChild(null);
+                  setExpandedCategory(null);
+                  setMobileExpandedCategory(null);
+                  setMobileMenuOpen(false);
+                }}
+              >
+                🏠 Dashboard
+              </button>
+              
+              {/* Categories with collapsible sections */}
+              {Object.entries(NAV_CATEGORIES).map(([category, items]) => (
+                <div key={category} className="mb-2">
                   <button
-                    className={`w-full text-left px-4 py-3 sm:py-4 rounded-xl font-medium transition-all duration-200 flex items-center gap-3 sm:gap-4 text-sm sm:text-base ${
-                      selectedChild === item.key 
-                        ? 'bg-blue-100/80 text-blue-700 shadow-sm' 
-                        : 'bg-white text-blue-600 shadow-sm hover:bg-blue-50'
+                    className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-between text-sm sm:text-base ${
+                      mobileExpandedCategory === category 
+                        ? 'bg-blue-100/80 text-blue-800 shadow-sm' 
+                        : 'bg-gray-50 text-gray-700 hover:bg-blue-50'
                     }`}
-                    onClick={() => handleChildClick(item)}
+                    onClick={() => setMobileExpandedCategory(mobileExpandedCategory === category ? null : category)}
                   >
-                    <item.icon />
-                    {item.label}
+                    <span>{category}</span>
+                    <svg 
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        mobileExpandedCategory === category ? 'rotate-90' : ''
+                      }`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M9 5l7 7-7 7"/>
+                    </svg>
                   </button>
-                </li>
+                  
+                  {/* Category Items */}
+                  {mobileExpandedCategory === category && (
+                    <div className="mt-1 ml-4 space-y-1">
+                      {items.map((item) => (
+                        <button
+                          key={item.key}
+                          className={`w-full text-left px-4 py-2 sm:py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-3 text-sm sm:text-base ${
+                            selectedChild === item.key 
+                              ? 'bg-blue-600 text-white shadow-sm' 
+                              : 'bg-white text-blue-600 shadow-sm hover:bg-blue-50 border border-gray-100'
+                          }`}
+                          onClick={() => handleChildClick(item)}
+                        >
+                          <item.icon />
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
+              
+              {/* User Info Section */}
               {user && (
-                <li className="px-4 py-3 sm:py-4 mt-2 rounded-xl bg-white shadow-sm">
+                <div className="px-4 py-3 sm:py-4 mt-4 rounded-xl bg-white shadow-sm border-t border-gray-200">
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
                       {user.name.charAt(0)}
@@ -742,9 +783,9 @@ const AdminDashboard = () => {
                       <div className="text-blue-700 font-semibold">{user.name}</div>
                     </div>
                   </div>
-                </li>
+                </div>
               )}
-            </ul>
+            </div>
           </div>
         )}
       </header>

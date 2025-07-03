@@ -306,7 +306,7 @@ const UserManagement = () => {
     e.preventDefault();
     if (selectedUser) {
       updateUserMutation.mutate({
-        userId: selectedUser._id,
+        userId: selectedUser.id,
         userData: formData,
       });
     }
@@ -360,33 +360,31 @@ const UserManagement = () => {
         </div>
 
         {/* Enhanced Header Section */}
-        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-6 md:p-8 text-white overflow-hidden">
+        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-8 text-white overflow-hidden">
           <div className="absolute inset-0 bg-blue-800/20"></div>
           <div className="relative z-10">
-            <div className="flex flex-col gap-4 md:gap-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="flex items-center gap-3 md:gap-4">
-                  <div className="p-3 md:p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                    <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-1 md:mb-2">User Management</h1>
-                    <p className="text-blue-100 text-sm md:text-lg">Manage users and their permissions</p>
-                  </div>
-                </div>
-                
-                <button
-                  onClick={handleAddUser}
-                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold px-4 md:px-6 py-2.5 md:py-3 rounded-2xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                >
-                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
-                  <span className="text-sm md:text-base">Add User</span>
-                </button>
+                </div>
+                <div>
+                  <h1 className="text-3xl lg:text-4xl font-bold mb-2">User Management</h1>
+                  <p className="text-blue-100 text-lg">Manage users and their permissions</p>
+                </div>
               </div>
+              
+              <button
+                onClick={handleAddUser}
+                className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-2xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add User
+              </button>
             </div>
           </div>
           
@@ -400,11 +398,10 @@ const UserManagement = () => {
         </div>
 
         {/* Content Section */}
-        <div className="relative z-10 p-4 md:p-8">
+        <div className="relative z-10 p-8">
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-100/50 overflow-hidden">
-            
-            {/* Desktop Table View - Hidden on mobile */}
-            <div className="hidden md:block">
+            {/* Table Container */}
+            <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gradient-to-r from-blue-600/90 to-indigo-600/90 text-white">
                   <tr>
@@ -419,7 +416,7 @@ const UserManagement = () => {
                 </thead>
                 <tbody className="bg-white/60 backdrop-blur-sm divide-y divide-blue-100">
                   {users?.map((user, index) => (
-                    <tr key={user._id} className={`transition-colors duration-200 hover:bg-blue-50/70 ${index % 2 === 0 ? 'bg-white/40' : 'bg-blue-50/30'}`}>
+                    <tr key={user.id} className={`transition-colors duration-200 hover:bg-blue-50/70 ${index % 2 === 0 ? 'bg-white/40' : 'bg-blue-50/30'}`}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {user.userId}
                       </td>
@@ -461,7 +458,7 @@ const UserManagement = () => {
                             </svg>
                           </button>
                           <button
-                            onClick={() => handleDelete(user._id)}
+                            onClick={() => handleDelete(user.id)}
                             className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-lg transition-all duration-200"
                             disabled={deleteUserMutation.isLoading}
                             title="Delete User"
@@ -474,110 +471,6 @@ const UserManagement = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
-
-            {/* Mobile Card View - Visible only on mobile */}
-            <div className="block md:hidden p-4 space-y-4">
-              {users?.map((user, index) => (
-                <div 
-                  key={user._id} 
-                  className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-blue-100/50 p-6 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] relative overflow-hidden"
-                >
-                  {/* Card Background Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-indigo-50/30 pointer-events-none"></div>
-                  
-                  <div className="relative z-10">
-                    {/* Header with Name and Role */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                          <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
-                          <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                            {user.role}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* User Details */}
-                    <div className="space-y-3 mb-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-500 min-w-[80px]">User ID:</span>
-                        <span className="text-sm text-gray-900 font-medium">{user.userId}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-500 min-w-[80px]">Email:</span>
-                        <span className="text-sm text-gray-900 break-all">{user.email}</span>
-                      </div>
-                      
-                      {user.labId && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-500 min-w-[80px]">Lab ID:</span>
-                          <span className="text-sm text-gray-900 font-medium">{user.labId}</span>
-                        </div>
-                      )}
-                      
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-500 min-w-[80px]">Last Login:</span>
-                        <span className="text-sm text-gray-900">
-                          {user.lastLogin ? format(new Date(user.lastLogin), 'MMM d, yyyy h:mm a') : 'Never'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex justify-end space-x-2 pt-4 border-t border-blue-100/50">
-                      <button
-                        onClick={() => handleEdit(user)}
-                        className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-all duration-200 text-sm font-medium"
-                        disabled={updateUserMutation.isLoading}
-                      >
-                        <EditIcon />
-                        <span>Edit</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => handleResetPassword(user)}
-                        className="flex items-center gap-2 px-4 py-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 rounded-lg transition-all duration-200 text-sm font-medium"
-                        disabled={resetPasswordMutation.isLoading}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z" />
-                        </svg>
-                        <span>Reset</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => handleDelete(user._id)}
-                        className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-lg transition-all duration-200 text-sm font-medium"
-                        disabled={deleteUserMutation.isLoading}
-                      >
-                        <DeleteIcon />
-                        <span>Delete</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {/* Empty State for Mobile */}
-              {users?.length === 0 && (
-                <div className="text-center py-12">
-                  <div className="p-4 bg-blue-100 rounded-full inline-block mb-4">
-                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Users Found</h3>
-                  <p className="text-gray-500">Get started by adding your first user.</p>
-                </div>
-              )}
             </div>
           </div>
         </div>
