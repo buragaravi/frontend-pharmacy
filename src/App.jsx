@@ -37,6 +37,7 @@ import EquipmentDetailPageWrapper from './pages/EquipmentDetailPageWrapper';
 import EquipmentQRScanPage from './features/equipment/EquipmentQRScanPage';
 import StockCheckPage from './features/equipment/StockCheckPage';
 import StockCheckReportsPage from './features/equipment/StockCheckReportsPage';
+import UnifiedInvoiceForm from './features/invoice/UnifiedInvoiceForm';
 
 import Home from './Home';
 import AllocateEquipmentForm from './features/equipment/AllocateEquipmentForm';
@@ -243,7 +244,7 @@ const App = () => {
             <Route path="/equipment/scan-qr" element={<EquipmentQRScanPage />} />
             <Route path="/equipment/stock-check" element={<StockCheckPage />} />
             <Route path="/equipment/stock-check/reports" element={<StockCheckReportsPage />} />
-            
+            <Route path='/unifiedr' element={<UnifiedInvoiceForm />} />
             {/* 404 Not Found - Must be the last route */}
             <Route path="*" element={<NotFound />} />
           </Routes>

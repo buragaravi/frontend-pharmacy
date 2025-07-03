@@ -9,56 +9,99 @@ import Swal from 'sweetalert2';
 const API_BASE = 'https://backend-pharmacy-5541.onrender.com/api';
 
 const InvoiceForm = () => {
-    // State for vendors, products, voucherId, form, errors
+    // ==================== STATE MANAGEMENT ====================
+    // Vendor and Product Data
     const [vendors, setVendors] = useState([]);
     const [products, setProducts] = useState([]);
     const [voucherId, setVoucherId] = useState('');
+    
+    // Form Data
     const [selectedVendor, setSelectedVendor] = useState(null);
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
     const [lineItems, setLineItems] = useState([
         { productId: '', name: '', unit: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '', expiryDate: '' }
     ]);
+
+    // UI State
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [showOtherForm, setShowOtherForm] = useState(false);
     const [otherCategory, setOtherCategory] = useState('glassware');
+    
+    // File Upload State
     const [csvError, setCsvError] = useState('');
     const [unregisteredProducts, setUnregisteredProducts] = useState([]);
     const [fileType, setFileType] = useState('csv'); // 'csv' or 'excel'
 
-    // Modal state for product registration
+    // Product Registration Modal State
     const [showProductFormModal, setShowProductFormModal] = useState(false);
     const [productFormIndex, setProductFormIndex] = useState(0);
     const [productFormError, setProductFormError] = useState('');
     const [productFormLoading, setProductFormLoading] = useState(false);
 
-    // Fetch vendors
+    // ==================== DATA FETCHING ====================
+
+    // Fetch vendors with error handling
     useEffect(() => {
-        axios.get(`${API_BASE}/vendors`)
-            .then(res => setVendors(res.data.vendors || res.data.data || []))
-            .catch(() => setVendors([]));
+        const fetchVendors = async () => {
+            try {
+                const res = await axios.get(`${API_BASE}/vendors`);
+                const vendorsList = res.data?.vendors || res.data?.data || res.data || [];
+                setVendors(Array.isArray(vendorsList) ? vendorsList : []);
+            } catch (error) {
+                console.error('Error fetching vendors:', error);
+                setVendors([]);
+                setError('Failed to load vendors');
+            }
+        };
+        fetchVendors();
     }, []);
 
-    // Fetch products (chemicals only)
+    // Fetch products (chemicals only) with error handling
     useEffect(() => {
-        axios.get(`${API_BASE}/products/category/chemical`)
-            .then(res => setProducts(res.data.data || []))
-            .catch(() => setProducts([]));
+        const fetchProducts = async () => {
+            try {
+                const res = await axios.get(`${API_BASE}/products/category/chemical`);
+                const productsList = res.data?.data || res.data || [];
+                setProducts(Array.isArray(productsList) ? productsList : []);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                setProducts([]);
+                setError('Failed to load products');
+            }
+        };
+        fetchProducts();
     }, []);
 
-    // Fetch next voucherId for invoice
+    // Fetch next voucherId for invoice with error handling
     useEffect(() => {
-        axios.get(`${API_BASE}/vouchers/next?category=invoice`)
-            .then(res => setVoucherId(res.data.voucherId || res.data.nextVoucherId || ''))
-            .catch(() => setVoucherId(''));
+        const fetchVoucherId = async () => {
+            try {
+                const res = await axios.get(`${API_BASE}/vouchers/next?category=invoice`);
+                setVoucherId(res.data?.voucherId || res.data?.nextVoucherId || '');
+            } catch (error) {
+                console.error('Error fetching voucher ID:', error);
+                setVoucherId('');
+            }
+        };
+        fetchVoucherId();
     }, []);
 
+    // ==================== EVENT HANDLERS ====================
     // Handle vendor select (lock after selection)
     const handleVendorSelect = (e) => {
-        const vendor = vendors.find(v => v._id === e.target.value);
-        setSelectedVendor(vendor);
+        const vendorId = e.target.value;
+        if (!vendorId) {
+            setSelectedVendor(null);
+            return;
+        }
+        const vendor = vendors.find(v => v._id === vendorId);
+        if (vendor) {
+            setSelectedVendor(vendor);
+            setError(''); // Clear any previous errors
+        }
     };
 
     // Handle line item product select
@@ -81,9 +124,11 @@ const InvoiceForm = () => {
         ));
     };
 
+    // ==================== FORM CALCULATIONS ====================
     // Prevent duplicate product selection
     const selectedProductIds = lineItems.map(item => item.productId).filter(Boolean);
 
+    // ==================== LINE ITEM MANAGEMENT ====================
     // Handle line item change
     const handleLineItemChange = (idx, field, value) => {
         setLineItems(items => items.map((item, i) => {
@@ -174,6 +219,62 @@ const InvoiceForm = () => {
         }
     };
 
+    // Helper function to convert date formats
+    const convertDateFormat = (dateValue) => {
+        if (!dateValue) return '';
+        
+        // Convert to string if it's a number (Excel serial date)
+        let dateString = dateValue.toString();
+        
+        // Handle Excel serial numbers (numbers like 45628)
+        if (typeof dateValue === 'number' && dateValue > 1000) {
+            // Excel date serial number - convert to JavaScript date
+            // Excel counts days from January 1, 1900 (with a leap year bug adjustment)
+            const excelEpoch = new Date(1900, 0, 1);
+            const jsDate = new Date(excelEpoch.getTime() + (dateValue - 2) * 24 * 60 * 60 * 1000);
+            if (!isNaN(jsDate.getTime())) {
+                return jsDate.toISOString().split('T')[0];
+            }
+        }
+        
+        // If already in YYYY-MM-DD format, return as is
+        if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            return dateString;
+        }
+        
+        // Handle DD-MM-YYYY format
+        if (typeof dateString === 'string' && dateString.match(/^\d{2}-\d{2}-\d{4}$/)) {
+            const [day, month, year] = dateString.split('-');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Handle DD/MM/YYYY format
+        if (typeof dateString === 'string' && dateString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+            const [day, month, year] = dateString.split('/');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Handle MM/DD/YYYY format (common in Excel)
+        if (typeof dateString === 'string' && dateString.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
+            const [month, day, year] = dateString.split('/');
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+        
+        // Handle DD.MM.YYYY format (European)
+        if (typeof dateString === 'string' && dateString.match(/^\d{2}\.\d{2}\.\d{4}$/)) {
+            const [day, month, year] = dateString.split('.');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Try to parse as Date object (fallback for other formats)
+        const date = new Date(dateValue);
+        if (!isNaN(date.getTime())) {
+            return date.toISOString().split('T')[0];
+        }
+        
+        return dateString; // Return original string if no format matches
+    };
+
     // Process data from either CSV or Excel
     const processFileData = (data) => {
         if (data.length === 0) {
@@ -217,6 +318,9 @@ const InvoiceForm = () => {
             const totalPrice = Number(normalizedRow['totalprice']) || 0;
             const pricePerUnit = quantity && totalPrice ? (totalPrice / quantity).toFixed(2) : '';
             
+            // Convert expiry date to proper format
+            const expiryDate = convertDateFormat(normalizedRow['expirydate'] || '');
+            
             processedItems.push({
                 productId: product._id,
                 name: product.name,
@@ -225,7 +329,7 @@ const InvoiceForm = () => {
                 quantity: quantity.toString(),
                 totalPrice: totalPrice.toString(),
                 pricePerUnit: pricePerUnit,
-                expiryDate: normalizedRow['expirydate'] || ''
+                expiryDate: expiryDate
             });
         });
 
@@ -249,7 +353,10 @@ const InvoiceForm = () => {
         }
         
         if (normalizedFirstRow['invoicenumber']) setInvoiceNumber(normalizedFirstRow['invoicenumber']);
-        if (normalizedFirstRow['invoicedate']) setInvoiceDate(normalizedFirstRow['invoicedate']);
+        if (normalizedFirstRow['invoicedate']) {
+            const convertedDate = convertDateFormat(normalizedFirstRow['invoicedate']);
+            setInvoiceDate(convertedDate);
+        }
     };
 
     // Generate sample file
@@ -474,334 +581,580 @@ const InvoiceForm = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto bg-white/80 rounded-2xl shadow-xl p-8 mt-8 relative">
-            {showDraftPrompt && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-                    <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">
-                        <div className="text-lg font-semibold mb-2">Continue where you left off?</div>
-                        <div className="mb-4 text-gray-600 text-sm">A draft invoice was found. Would you like to continue editing it or discard?</div>
-                        <div className="flex justify-center gap-4">
-                            <button className="px-4 py-2 bg-blue-600 text-white rounded-full" onClick={handleContinueDraft}>Continue</button>
-                            <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded-full" onClick={handleDiscardDraft}>Discard</button>
-                        </div>
-                    </div>
+        <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+            <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
+                {/* Enhanced Background Effects */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 </div>
-            )}
 
-            <div className="flex flex-col md:flex-row justify-end items-start md:items-center mb-6 gap-2 md:gap-4">
-                {/* Voucher ID display (hide if other form is open) */}
-                {!showOtherForm && (
-                    <div className={'text-sm font-mono bg-blue-100 text-blue-700 px-4 py-1 rounded-full shadow z-10 order-2 md:order-1'}>
-                        Voucher ID: {voucherId || '...'}
-                    </div>
-                )}
-                <div className={'order-1 md:order-2'}>
-                    <button
-                        type="button"
-                        className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-full transition text-sm"
-                        onClick={() => setShowOtherForm(v => !v)}
-                    >
-                        {showOtherForm ? 'Back to Chemical Invoice' : 'Create Invoice for Other Products'}
-                    </button>
-                </div>
-            </div>
-
-            {showOtherForm && (
-                <div className="mb-6">
-                    <div className="flex gap-2 mb-2">
-                        <button className={`px-3 py-1 rounded ${otherCategory === 'glassware' ? 'bg-blue-500 text-white' : 'bg-blue-200'}`} onClick={() => setOtherCategory('glassware')}>Glassware</button>
-                        <button className={`px-3 py-1 rounded ${otherCategory === 'equipment' ? 'bg-blue-500 text-white' : 'bg-blue-200'}`} onClick={() => setOtherCategory('equipment')}>Equipment</button>
-                        <button className={`px-3 py-1 rounded ${otherCategory === 'others' ? 'bg-blue-500 text-white' : 'bg-blue-200'}`} onClick={() => setOtherCategory('others')}>Others</button>
-                    </div>
-                    <InvoiceOtherProductsForm category={otherCategory} onSuccess={handleOtherFormSuccess} />
-                </div>
-            )}
-            
-            {!showOtherForm && (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* File Upload Section */}
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                        <label className="block text-sm font-medium text-blue-800 mb-2">Upload from File</label>
-                        
-                        <div className="flex flex-col sm:flex-row gap-4 mb-3">
-                            <div className="flex items-center gap-2">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        className="form-radio"
-                                        name="fileType"
-                                        value="csv"
-                                        checked={fileType === 'csv'}
-                                        onChange={() => setFileType('csv')}
-                                    />
-                                    <span className="ml-2">CSV</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        className="form-radio"
-                                        name="fileType"
-                                        value="excel"
-                                        checked={fileType === 'excel'}
-                                        onChange={() => setFileType('excel')}
-                                    />
-                                    <span className="ml-2">Excel</span>
-                                </label>
-                            </div>
-                            
-                            <button
-                                type="button"
-                                onClick={generateSampleFile}
-                                className="text-sm text-blue-600 hover:text-blue-800 underline whitespace-nowrap"
-                            >
-                                Download Sample {fileType === 'csv' ? 'CSV' : 'Excel'}
-                            </button>
-                        </div>
-                        
-                        <div className="flex items-center gap-4">
-                            <input
-                                type="file"
-                                accept={fileType === 'csv' ? '.csv' : '.xlsx,.xls'}
-                                onChange={handleFileUpload}
-                                className="block w-full text-sm text-gray-500
-                                    file:mr-4 file:py-2 file:px-4
-                                    file:rounded-full file:border-0
-                                    file:text-sm file:font-semibold
-                                    file:bg-blue-50 file:text-blue-700
-                                    hover:file:bg-blue-100"
-                            />
-                        </div>
-                        
-                        {csvError && <div className="mt-2 text-sm text-red-600">{csvError}</div>}
-                        
-                        <div className="mt-3 text-xs text-gray-500">
-                            <p>Required fields: <span className="font-semibold">productName, quantity, totalPrice, expiryDate</span></p>
-                            <p>Optional fields: vendor, invoiceNumber, invoiceDate, pricePerUnit</p>
-                            <p>Extra columns will be ignored.</p>
-                        </div>
-                        
-                        {unregisteredProducts.length > 0 && (
-                            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
-                                <div className="text-red-700 text-sm font-semibold mb-1">
-                                    {unregisteredProducts.length} Unregistered Product(s):
-                                </div>
-                                <ul className="list-disc pl-5 text-red-700 text-xs">
-                                    {unregisteredProducts.map((name, idx) => (
-                                        <li key={idx}>{name}</li>
-                                    ))}
-                                </ul>
-                                <div className="text-xs text-gray-500 mt-1">
-                                    Please register these products before importing, or remove them from the file.
-                                </div>
-                                <button
-                                    type="button"
-                                    className="mt-2 text-xs text-blue-600 hover:text-blue-800 underline"
-                                    onClick={() => {
-                                        setProductFormIndex(0);
-                                        setShowProductFormModal(true);
-                                    }}
-                                >
-                                    Register Missing Products
+                {showDraftPrompt && (
+                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 bg-black/40 backdrop-blur-sm overflow-y-auto">
+                        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center border border-gray-200 my-4">
+                            <div className="text-xl font-bold mb-3 text-gray-800">Continue where you left off?</div>
+                            <div className="mb-6 text-gray-600">A draft invoice was found. Would you like to continue editing it or discard?</div>
+                            <div className="flex justify-center gap-4">
+                                <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105" onClick={handleContinueDraft}>
+                                    Continue Editing
+                                </button>
+                                <button className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl transition-all duration-200 transform hover:scale-105" onClick={handleDiscardDraft}>
+                                    Discard Draft
                                 </button>
                             </div>
-                        )}
+                        </div>
                     </div>
+                )}
 
-                    {/* Vendor selection */}
-                    <div>
-                        <h2 className="text-2xl font-bold text-blue-900 mb-6">Create Purchase Invoice</h2>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
-                        <select
-                            className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/70 focus:ring-blue-500 focus:border-blue-500 text-gray-800"
-                            value={selectedVendor?._id || ''}
-                            onChange={handleVendorSelect}
-                            disabled={!!selectedVendor}
-                            required
-                        >
-                            <option value="">Select a vendor...</option>
-                            {vendors.map(v => (
-                                <option key={v._id} value={v._id}>{v.name}</option>
-                            ))}
-                        </select>
-                        {selectedVendor && (
-                            <div className="mt-2 text-xs text-gray-500">Vendor Code: <span className="font-mono">{selectedVendor.vendorCode}</span></div>
-                        )}
-                        {selectedVendor && (
-                            <button type="button" className="mt-2 text-xs text-blue-600 underline" onClick={() => setSelectedVendor(null)}>Change Vendor</button>
-                        )}
-                    </div>
-                    
-                    {/* Invoice details */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Invoice Number</label>
-                            <input
-                                type="text"
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/70 focus:ring-blue-500 focus:border-blue-500 text-gray-800"
-                                value={invoiceNumber}
-                                onChange={e => setInvoiceNumber(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Invoice Date</label>
-                            <input
-                                type="date"
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/70 focus:ring-blue-500 focus:border-blue-500 text-gray-800"
-                                value={invoiceDate}
-                                onChange={e => setInvoiceDate(e.target.value)}
-                                required
-                            />
-                        </div>
-                    </div>
-                    
-                    {/* Line items */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Line Items (Chemicals)</label>
-                        <div className="space-y-4">
-                            {lineItems.map((item, idx) => (
-                                <div key={idx} className="grid grid-cols-1 md:grid-cols-8 gap-2 items-end bg-white/60 rounded-lg p-3 border border-gray-200 relative">
-                                    {/* Product dropdown */}
-                                    <div className="md:col-span-2">
-                                        <label className="block text-xs text-gray-500">Product</label>
-                                        <select
-                                            className="w-full px-2 py-1 rounded border border-gray-300 bg-white/80 text-gray-800"
-                                            value={item.productId}
-                                            onChange={e => handleProductSelect(idx, e.target.value)}
-                                            required
-                                        >
-                                            <option value="">Select product...</option>
-                                            {products.filter(p => !selectedProductIds.includes(p._id) || p._id === item.productId).map(p => (
-                                                <option key={p._id} value={p._id}>{p.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    
-                                    {/* Unit (auto) */}
-                                    <div>
-                                        <label className="block text-xs text-gray-500">Unit</label>
-                                        <input type="text" className="w-full px-2 py-1 rounded border border-gray-200 bg-gray-100 text-gray-500" value={item.unit} readOnly tabIndex={-1} />
-                                    </div>
-                                    
-                                    {/* Threshold (auto) */}
-                                    <div>
-                                        <label className="block text-xs text-gray-500">Threshold</label>
-                                        <input type="text" className="w-full px-2 py-1 rounded border border-gray-200 bg-gray-100 text-gray-500" value={item.thresholdValue} readOnly tabIndex={-1} />
-                                    </div>
-                                    
-                                    {/* Quantity */}
-                                    <div>
-                                        <label className="block text-xs text-gray-500">Quantity</label>
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            className="w-full px-2 py-1 rounded border border-gray-300 bg-white/80 text-gray-800"
-                                            value={item.quantity}
-                                            onChange={e => handleLineItemChange(idx, 'quantity', e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    
-                                    {/* Total Price */}
-                                    <div>
-                                        <label className="block text-xs text-gray-500">Total Price</label>
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            className="w-full px-2 py-1 rounded border border-gray-300 bg-white/80 text-gray-800"
-                                            value={item.totalPrice}
-                                            onChange={e => handleLineItemChange(idx, 'totalPrice', e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    
-                                    {/* Price Per Unit (auto-calculated, read-only) */}
-                                    <div>
-                                        <label className="block text-xs text-gray-500">Price/Unit</label>
-                                        <input 
-                                            type="text" 
-                                            className="w-full px-2 py-1 rounded border border-gray-200 bg-gray-100 text-gray-500" 
-                                            value={item.pricePerUnit} 
-                                            readOnly 
-                                            tabIndex={-1} 
-                                        />
-                                    </div>
-                                    
-                                    {/* Expiry Date */}
-                                    <div>
-                                        <label className="block text-xs text-gray-500">Expiry Date</label>
-                                        <input
-                                            type="date"
-                                            className="w-full px-2 py-1 rounded border border-gray-300 bg-white/80 text-gray-800"
-                                            value={item.expiryDate}
-                                            onChange={e => handleLineItemChange(idx, 'expiryDate', e.target.value)}
-                                        />
-                                    </div>
-                                    
-                                    {/* Remove button */}
-                                    {lineItems.length > 1 && (
-                                        <button type="button" className="absolute top-2 right-2 text-red-500 hover:text-red-700" onClick={() => removeLineItem(idx)} title="Remove">
-                                            &times;
-                                        </button>
-                                    )}
+                {/* Enhanced Header Section */}
+                <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-8 text-white overflow-hidden">
+                    <div className="absolute inset-0 bg-blue-800/20"></div>
+                    <div className="relative z-10">
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                            <div className="flex items-center gap-4">
+                                <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
+                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
                                 </div>
-                            ))}
-                            <button type="button" className="mt-2 px-4 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 text-sm" onClick={addLineItem}>
-                                + Add Line Item
+                                <div>
+                                    <h1 className="text-3xl lg:text-4xl font-bold mb-2">
+                                        {showOtherForm ? `${otherCategory.charAt(0).toUpperCase() + otherCategory.slice(1)} Invoice` : 'Chemical Invoice'}
+                                    </h1>
+                                    <p className="text-blue-100 text-lg">Create and manage your inventory invoices</p>
+                                </div>
+                            </div>
+                            
+                            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                                {!showOtherForm && (
+                                    <div className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-2xl border border-white/30">
+                                        <div className="text-sm text-blue-100">Voucher ID</div>
+                                        <div className="text-lg font-bold">{voucherId || 'Loading...'}</div>
+                                    </div>
+                                )}
+                                <button
+                                    type="button"
+                                    className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-2xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
+                                    onClick={() => setShowOtherForm(v => !v)}
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showOtherForm ? "M10 19l-7-7m0 0l7-7m-7 7h18" : "M12 6v6m0 0v6m0-6h6m-6 0H6"} />
+                                    </svg>
+                                    {showOtherForm ? 'Back to Chemical Invoice' : 'Create Other Products Invoice'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Decorative elements */}
+                    <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+                        <div className="w-40 h-40 bg-white/10 rounded-full"></div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2">
+                        <div className="w-32 h-32 bg-white/10 rounded-full"></div>
+                    </div>
+                </div>
+
+                {showOtherForm && (
+                    <div className="p-8 border-b border-gray-200 bg-white/70 backdrop-blur-sm">
+                        <div className="flex flex-wrap gap-3 mb-6">
+                            <button 
+                                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${otherCategory === 'glassware' ? 'bg-blue-600 text-white shadow-lg' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`} 
+                                onClick={() => setOtherCategory('glassware')}
+                            >
+                                <span className="flex items-center gap-2">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
+                                    </svg>
+                                    Glassware
+                                </span>
+                            </button>
+                            <button 
+                                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${otherCategory === 'equipment' ? 'bg-blue-600 text-white shadow-lg' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`} 
+                                onClick={() => setOtherCategory('equipment')}
+                            >
+                                <span className="flex items-center gap-2">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    Equipment
+                                </span>
+                            </button>
+                            <button 
+                                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${otherCategory === 'others' ? 'bg-blue-600 text-white shadow-lg' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`} 
+                                onClick={() => setOtherCategory('others')}
+                            >
+                                <span className="flex items-center gap-2">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                    </svg>
+                                    Others
+                                </span>
                             </button>
                         </div>
+                        <InvoiceOtherProductsForm category={otherCategory} onSuccess={handleOtherFormSuccess} />
                     </div>
-                    
-                    {/* Display total invoice price */}
-                    <div className="text-right text-lg font-semibold text-blue-900">
-                        Total Invoice Price: ₹{totalInvoicePrice.toFixed(2)}
-                    </div>
-                    
-                    {/* Error/Success */}
-                    {error && <div className="text-red-600 text-sm font-medium">{error}</div>}
-                    {success && <div className="text-green-600 text-sm font-medium">{success}</div>}
-                    
-                    {/* Submit */}
-                    <div className="flex justify-end">
-                        <button
-                            type="submit"
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-2 rounded-full transition"
-                            disabled={submitting}
-                        >
-                            {submitting ? 'Submitting...' : 'Create Invoice'}
-                        </button>
-                    </div>  
-                </form>
-            )}
+                )}
+                
+                {!showOtherForm && (
+                    <div className="p-6 bg-white/80 backdrop-blur-sm">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Vendor Information, Invoice Details & File Upload Section - All in One Row */}
+                            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                                    
+                                    {/* Vendor Information */}
+                                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <div className="p-2 bg-green-100 rounded-md">
+                                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                </svg>
+                                            </div>
+                                            <h3 className="text-sm font-medium text-green-800">Vendor Info</h3>
+                                        </div>
+                                        
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-2">Select Vendor *</label>
+                                                {selectedVendor ? (
+                                                    <div className="space-y-2">
+                                                        <div className="p-3 bg-green-100 rounded-lg border border-green-200">
+                                                            <div className="font-medium text-gray-800 text-sm">{selectedVendor.name || 'Unknown Vendor'}</div>
+                                                            <div className="text-xs text-gray-600 mt-1">
+                                                                <div>Code: <span className="font-mono font-medium">{selectedVendor.vendorCode || 'N/A'}</span></div>
+                                                                {selectedVendor.companyName && (
+                                                                    <div>Company: {selectedVendor.companyName}</div>
+                                                                )}
+                                                                {selectedVendor.contactNumber && (
+                                                                    <div>Contact: {selectedVendor.contactNumber}</div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setSelectedVendor(null)}
+                                                            className="w-full px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded text-xs"
+                                                        >
+                                                            Change Vendor
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <select
+                                                        className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-800 text-sm"
+                                                        value=""
+                                                        onChange={handleVendorSelect}
+                                                        required
+                                                    >
+                                                        <option value="">Choose vendor...</option>
+                                                        {vendors.length > 0 ? vendors.map(v => (
+                                                            <option key={v._id} value={v._id}>
+                                                                {v.name}{v.companyName ? ` - ${v.companyName}` : ''}
+                                                            </option>
+                                                        )) : (
+                                                            <option value="" disabled>No vendors available</option>
+                                                        )}
+                                                    </select>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
 
-            {/* Product Registration Modal for Missing Products */}
-            {showProductFormModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/30">
-                    <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden relative">
-                        <ProductForm
-                            product={null}
-                            onCreate={handleCreateProductFromInvoice}
-                            onUpdate={() => {}}
-                            onClose={() => setShowProductFormModal(false)}
-                            // Pre-fill with missing product name
-                            initialName={unregisteredProducts[productFormIndex] || ''}
-                        />
-                        {productFormError && (
-                            <div className="absolute bottom-4 left-0 right-0 text-center text-red-600 text-sm">{productFormError}</div>
-                        )}
-                        <div className="absolute top-2 right-2">
-                            <button onClick={() => setShowProductFormModal(false)} className="text-gray-400 hover:text-gray-700 text-xl">&times;</button>
-                        </div>
-                        {unregisteredProducts.length > 1 && (
-                            <div className="absolute bottom-4 right-4 text-xs text-gray-500">
-                                {productFormIndex + 1} of {unregisteredProducts.length}
+                                    {/* Invoice Details */}
+                                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-lg border border-purple-200">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <div className="p-2 bg-purple-100 rounded-md">
+                                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </div>
+                                            <h3 className="text-sm font-medium text-purple-800">Invoice Details</h3>
+                                        </div>
+                                        
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-2">Voucher ID</label>
+                                                <input
+                                                    type="text"
+                                                    value={voucherId}
+                                                    disabled
+                                                    className="w-full px-3 py-2 rounded-md border border-gray-300 bg-gray-50 text-gray-600 font-mono text-sm"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-2">Invoice Number *</label>
+                                                <input
+                                                    type="text"
+                                                    className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                    value={invoiceNumber}
+                                                    onChange={e => setInvoiceNumber(e.target.value)}
+                                                    placeholder="Enter invoice number"
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-2">Invoice Date *</label>
+                                                <input
+                                                    type="date"
+                                                    className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                    value={invoiceDate}
+                                                    onChange={e => setInvoiceDate(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* File Upload Section */}
+                                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <div className="p-2 bg-blue-100 rounded-md">
+                                                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                </svg>
+                                            </div>
+                                            <h3 className="text-sm font-medium text-blue-800">Bulk Import</h3>
+                                        </div>
+                                        
+                                        <div className="space-y-3">
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {/* File Format Options */}
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-700 mb-2">File Format</label>
+                                                    <div className="space-y-1">
+                                                        <label className="inline-flex items-center cursor-pointer">
+                                                            <input
+                                                                type="radio"
+                                                                className="form-radio h-3 w-3 text-blue-600"
+                                                                name="fileType"
+                                                                value="csv"
+                                                                checked={fileType === 'csv'}
+                                                                onChange={() => setFileType('csv')}
+                                                            />
+                                                            <span className="ml-2 text-xs font-medium">CSV</span>
+                                                        </label>
+                                                        <label className="inline-flex items-center cursor-pointer">
+                                                            <input
+                                                                type="radio"
+                                                                className="form-radio h-3 w-3 text-blue-600"
+                                                                name="fileType"
+                                                                value="excel"
+                                                                checked={fileType === 'excel'}
+                                                                onChange={() => setFileType('excel')}
+                                                            />
+                                                            <span className="ml-2 text-xs font-medium">Excel</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                
+                                                {/* Required Fields */}
+                                                <div className="bg-blue-100/50 p-2 rounded-lg">
+                                                    <h4 className="text-xs font-medium text-blue-800 mb-1">Required Fields:</h4>
+                                                    <div className="text-xs text-blue-700">
+                                                        <p>• Product Name, Quantity</p>
+                                                        <p>• Total Price, Expiry Date</p>
+                                                        <p className="text-xs mt-1 text-blue-600">Format: DD-MM-YYYY</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-2">Upload File</label>
+                                                <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                                    <div className="flex flex-col items-center justify-center">
+                                                        <svg className="w-5 h-5 mb-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                        </svg>
+                                                        <p className="text-xs text-blue-600 font-medium">Click to upload</p>
+                                                        <p className="text-xs text-gray-500">{fileType === 'csv' ? 'CSV' : 'XLSX/XLS'}</p>
+                                                    </div>
+                                                    <input
+                                                        type="file"
+                                                        accept={fileType === 'csv' ? '.csv' : '.xlsx,.xls'}
+                                                        onChange={handleFileUpload}
+                                                        className="hidden"
+                                                    />
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        {csvError && (
+                                            <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded-lg flex items-start">
+                                                <svg className="w-4 h-4 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                </svg>
+                                                <div className="text-xs text-red-700">{csvError}</div>
+                                            </div>
+                                        )}
+                                        
+                                        {unregisteredProducts.length > 0 && (
+                                            <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                                <div className="flex items-start">
+                                                    <svg className="w-4 h-4 text-yellow-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                    </svg>
+                                                    <div className="flex-1">
+                                                        <div className="text-yellow-800 text-xs font-medium mb-1">
+                                                            {unregisteredProducts.length} Missing Products
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            className="px-2 py-1 bg-yellow-200 hover:bg-yellow-300 text-yellow-800 font-medium rounded text-xs"
+                                                            onClick={() => {
+                                                                setProductFormIndex(0);
+                                                                setShowProductFormModal(true);
+                                                            }}
+                                                        >
+                                                            Register Products
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                        )}
+                            
+                            {/* Enhanced Line Items Section */}
+                            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="p-2 bg-purple-100 rounded-md">
+                                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-800">Chemical Products</h3>
+                                </div>
+                                
+                                <div className="overflow-x-auto">
+                                    <div className="space-y-3 min-w-[800px]">
+                                        {lineItems.map((item, idx) => (
+                                            <div key={idx} className="grid grid-cols-12 gap-3 items-end bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg p-4 border border-gray-200 relative hover:shadow-md transition-shadow duration-200">
+                                                {/* Product Selection */}
+                                                <div className="col-span-3">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Product</label>
+                                                    <select
+                                                        className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                        value={item.productId}
+                                                        onChange={e => handleProductSelect(idx, e.target.value)}
+                                                        required
+                                                    >
+                                                        <option value="">Select product...</option>
+                                                        {products.filter(p => !selectedProductIds.includes(p._id) || p._id === item.productId).map(p => (
+                                                            <option key={p._id} value={p._id}>{p.name} {p.variant ? `(${p.variant})` : ''}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                
+                                                {/* Unit (readonly) */}
+                                                <div className="col-span-1">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Unit</label>
+                                                    <input 
+                                                        type="text" 
+                                                        className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 text-sm" 
+                                                        value={item.unit} 
+                                                        readOnly 
+                                                    />
+                                                </div>
+                                                
+                                                {/* Threshold (readonly) */}
+                                                <div className="col-span-1">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Threshold</label>
+                                                    <input 
+                                                        type="text" 
+                                                        className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 text-sm" 
+                                                        value={item.thresholdValue} 
+                                                        readOnly 
+                                                    />
+                                                </div>
+                                                
+                                                {/* Quantity */}
+                                                <div className="col-span-2">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.01"
+                                                        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                        value={item.quantity}
+                                                        onChange={e => handleLineItemChange(idx, 'quantity', e.target.value)}
+                                                        placeholder="Enter quantity"
+                                                        required
+                                                    />
+                                                </div>
+                                                
+                                                {/* Total Price */}
+                                                <div className="col-span-2">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Total Price (₹)</label>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.01"
+                                                        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                        value={item.totalPrice}
+                                                        onChange={e => handleLineItemChange(idx, 'totalPrice', e.target.value)}
+                                                        placeholder="Enter total price"
+                                                        required
+                                                    />
+                                                </div>
+                                                
+                                                {/* Price Per Unit (readonly) */}
+                                                <div className="col-span-1">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Unit Price</label>
+                                                    <input 
+                                                        type="text" 
+                                                        className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 text-sm" 
+                                                        value={item.pricePerUnit} 
+                                                        readOnly 
+                                                    />
+                                                </div>
+                                                
+                                                {/* Expiry Date */}
+                                                <div className="col-span-2">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
+                                                    <input
+                                                        type="date"
+                                                        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                        value={item.expiryDate}
+                                                        onChange={e => handleLineItemChange(idx, 'expiryDate', e.target.value)}
+                                                    />
+                                                </div>
+                                                
+                                                {/* Remove button */}
+                                                {lineItems.length > 1 && (
+                                                    <button 
+                                                        type="button" 
+                                                        className="absolute top-3 right-3 p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200" 
+                                                        onClick={() => removeLineItem(idx)} 
+                                                        title="Remove product"
+                                                    >
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Add Product Button - Moved below line items */}
+                                <div className="mt-6 flex justify-center">
+                                    <button
+                                        type="button"
+                                        onClick={addLineItem}
+                                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 shadow-md"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Add Product
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Enhanced Total and Submit Section */}
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200 shadow-sm">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                    <div className="text-2xl font-bold text-blue-800">
+                                        Total: ₹{totalInvoicePrice.toFixed(2)}
+                                    </div>
+                                    
+                                    {/* Error/Success Messages */}
+                                    <div className="flex-1 text-center">
+                                        {error && (
+                                            <div className="p-3 bg-red-50 text-red-600 rounded-lg border border-red-200 mb-3 text-sm">
+                                                {error}
+                                            </div>
+                                        )}
+                                        {success && (
+                                            <div className="p-3 bg-green-50 text-green-600 rounded-lg border border-green-200 mb-3 text-sm">
+                                                {success}
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    {/* Submit Button */}
+                                    <button
+                                        type="submit"
+                                        disabled={submitting}
+                                        className="px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-3 shadow-lg"
+                                    >
+                                        {submitting ? (
+                                            <>
+                                                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                Processing...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Create Invoice
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                )}
+        
+        {/* Product Registration Modal for Missing Products */}
+        {showProductFormModal && (
+                <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 backdrop-blur-sm bg-black/30 overflow-y-auto">
+                    <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden relative my-4">
+                        {/* Modal Header */}
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-t-2xl">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <h3 className="text-lg font-bold">Register Missing Product</h3>
+                                    {unregisteredProducts.length > 1 && (
+                                        <p className="text-blue-100 mt-1 text-sm">
+                                            {productFormIndex + 1} of {unregisteredProducts.length} products
+                                        </p>
+                                    )}
+                                </div>
+                                <button 
+                                    onClick={() => setShowProductFormModal(false)} 
+                                    className="text-white/80 hover:text-white transition-colors duration-200 p-2 hover:bg-white/20 rounded-lg"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-4">
+                            {productFormError && (
+                                <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
+                                    <svg className="w-4 h-4 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                    <div className="text-sm font-medium">{productFormError}</div>
+                                </div>
+                            )}
+
+                            <ProductForm
+                                product={null}
+                                onCreate={handleCreateProductFromInvoice}
+                                onUpdate={() => {}}
+                                onClose={() => setShowProductFormModal(false)}
+                                // Pre-fill with missing product name
+                                initialName={unregisteredProducts[productFormIndex] || ''}
+                                submitting={productFormLoading}
+                            />
+                        </div>
                     </div>
                 </div>
             )}
+        </div>
         </div>
     );
 };

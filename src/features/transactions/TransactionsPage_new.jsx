@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line
 } from 'recharts';
@@ -11,7 +9,7 @@ import { saveAs } from "file-saver";
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiSearch, FiFilter, FiX, FiDownload, FiRefreshCw, FiArrowUp,
-  FiCalendar, FiTrendingUp, FiActivity, FiCheckCircle, FiAlertCircle, FiPrinter
+  FiCalendar, FiTrendingUp, FiActivity, FiCheckCircle, FiAlertCircle
 } from 'react-icons/fi';
 
 const COLORS = ['#0B3861', '#64B5F6', '#1E88E5', '#BCE0FD', '#F5F9FD', '#E1F1FF'];
@@ -173,7 +171,6 @@ const TransactionsPage = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [toast, setToast] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [isPrinting, setIsPrinting] = useState(false);
   const searchInputRef = useRef(null);
 
   // Per-graph filters
@@ -346,125 +343,8 @@ const TransactionsPage = () => {
     }
   };
 
-  // Print all transactions to PDF
-  const handlePrintAllTransactionsPDF = async () => {
-    setIsPrinting(true);
-    try {
-      if (typeof window !== 'undefined' && !window.jspdfAutotable) {
-        const autotable = await import('jspdf-autotable');
-        window.jspdfAutotable = autotable.default || autotable;
-      }
-      
-      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm' });
-      const pageWidth = 297; // A4 landscape width
-      const leftMargin = 15;
-      const rightMargin = 15;
-      const contentWidth = pageWidth - leftMargin - rightMargin;
-      const deepSeaBlue = [11, 56, 97];
-      const skyBlue = [33, 150, 243];
-      const white = [255, 255, 255];
-      
-      // Header
-      doc.setFillColor(...deepSeaBlue);
-      doc.rect(0, 0, pageWidth, 18, 'F');
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(20);
-      doc.setTextColor(...white);
-      doc.text('TRANSACTIONS REPORT', pageWidth / 2, 12, { align: 'center' });
-      
-      // Report details
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(11);
-      doc.setTextColor(...deepSeaBlue);
-      let y = 24;
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, leftMargin, y);
-      doc.text(`Total Transactions: ${filteredTransactions.length}`, leftMargin + 100, y);
-      y += 7;
-      doc.text(`Date Range: ${dateRange.from} to ${dateRange.to}`, leftMargin, y);
-      doc.text(`Lab Filter: ${selectedLabFilter === 'all' ? 'All Labs' : selectedLabFilter === 'central' ? 'Central Lab' : selectedLabFilter}`, leftMargin + 100, y);
-      
-      // Table columns
-      const columns = [
-        { title: 'Chemical', dataKey: 'chemical' },
-        { title: 'Quantity', dataKey: 'quantity' },
-        { title: 'Unit', dataKey: 'unit' },
-        { title: 'Type', dataKey: 'type' },
-        { title: 'From Lab', dataKey: 'fromLab' },
-        { title: 'To Lab', dataKey: 'toLab' },
-        { title: 'Performed By', dataKey: 'performedBy' },
-        { title: 'Date', dataKey: 'date' }
-      ];
-      
-      // Table data
-      const tableData = filteredTransactions.map(tx => ({
-        chemical: tx.chemicalName || 'Unnamed Chemical',
-        quantity: parseInt(tx.quantity).toString(),
-        unit: tx.unit || '-',
-        type: tx.transactionType || '-',
-        fromLab: tx.fromLabId === 'central-lab' ? 'Central Lab' : (tx.fromLabId || '-'),
-        toLab: tx.toLabId === 'central-lab' ? 'Central Lab' : (tx.toLabId || '-'),
-        performedBy: tx.createdBy?.name || 'admin',
-        date: new Date(tx.createdAt).toLocaleDateString()
-      }));
-      
-      if (typeof window !== 'undefined' && window.jspdfAutotable) {
-        window.jspdfAutotable(doc, {
-          head: [columns.map(col => col.title)],
-          body: tableData.map(row => columns.map(col => row[col.dataKey])),
-          startY: y + 6,
-          margin: { left: leftMargin, right: rightMargin },
-          tableWidth: 'auto',
-          styles: {
-            fontSize: 9,
-            cellPadding: 2,
-            overflow: 'linebreak',
-            font: 'helvetica',
-            textColor: [33, 37, 41],
-            lineColor: skyBlue,
-            fillColor: white
-          },
-          headStyles: {
-            fillColor: deepSeaBlue,
-            textColor: 255,
-            fontStyle: 'bold',
-            halign: 'center',
-            lineWidth: 0.5,
-            fontSize: 10
-          },
-          bodyStyles: {
-            halign: 'center',
-            lineWidth: 0.1
-          },
-          alternateRowStyles: {
-            fillColor: [241, 249, 253]
-          },
-          columnStyles: {
-            0: { cellWidth: 'auto', halign: 'left' }, // Chemical name
-            1: { cellWidth: 'auto', halign: 'center' }, // Quantity
-            2: { cellWidth: 'auto', halign: 'center' }, // Unit
-            3: { cellWidth: 'auto', halign: 'center' }, // Type
-            4: { cellWidth: 'auto', halign: 'center' }, // From Lab
-            5: { cellWidth: 'auto', halign: 'center' }, // To Lab
-            6: { cellWidth: 'auto', halign: 'center' }, // Performed By
-            7: { cellWidth: 'auto', halign: 'center' }  // Date
-          }
-        });
-      }
-      
-      // Print dialog
-      doc.autoPrint();
-      window.open(doc.output('bloburl'), '_blank');
-      showToast('Transactions PDF generated successfully!', 'success');
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      showToast('Failed to generate PDF. Please try again.', 'error');
-    } finally {
-      setIsPrinting(false);
-    }
-  };
-
-  // Get current transactions for pagination (sorted by latest first)
-  const filteredTransactions = filterTransactions().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  // Get current transactions for pagination
+  const filteredTransactions = filterTransactions();
   const indexOfLastTransaction = currentPage * transactionsPerPage;
   const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
   const currentTransactions = filteredTransactions.slice(
@@ -608,26 +488,6 @@ const TransactionsPage = () => {
           border: 1px solid rgba(255, 255, 255, 0.2);
         }
       `}</style>
-
-      {/* Breadcrumb Navigation */}
-      <div className="w-full bg-white/70 backdrop-blur-sm border-b border-gray-200/30">
-        <div className="w-full px-4 py-2">
-          <nav className="flex items-center space-x-1.5 text-xs">
-            <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z" />
-            </svg>
-            <span className="text-gray-500">Admin Dashboard</span>
-            <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-            <span className="text-gray-500">Reports</span>
-            <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-            <span className="text-blue-600 font-medium">Transactions</span>
-          </nav>
-        </div>
-      </div>
 
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <motion.div 
@@ -1006,36 +866,8 @@ const TransactionsPage = () => {
                     })}
                   </div>
                 )}
-                {/* Print All Transactions Button */}
-              <div className="mb-4 flex justify-end">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handlePrintAllTransactionsPDF}
-                  disabled={isPrinting || filteredTransactions.length === 0}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
-                    isPrinting || filteredTransactions.length === 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-                  }`}
-                >
-                  {isPrinting ? (
-                    <>
-                      <FiRefreshCw className="h-4 w-4 animate-spin" />
-                      Generating PDF...
-                    </>
-                  ) : (
-                    <>
-                      <FiPrinter className="h-4 w-4" />
-                      Print All Transactions
-                    </>
-                  )}
-                </motion.button>
               </div>
 
-              </div>
-
-              
               {/* Transaction Count */}
               <div className="mb-4 text-xs md:text-sm text-gray-600">
                 Showing {indexOfFirstTransaction + 1}-{Math.min(indexOfLastTransaction, filteredTransactions.length)} of {filteredTransactions.length} transactions
@@ -1100,7 +932,7 @@ const TransactionsPage = () => {
                                 <span className="font-medium text-blue-600">Central Lab</span>
                               ) : tx.toLabId || '-'}
                             </td>
-                            <td className="px-4 md:px-6 py-4 text-gray-700">{tx.createdBy?.name || 'Admin or Central lab'}</td>
+                            <td className="px-4 md:px-6 py-4 text-gray-700">{tx.createdBy?.name || 'N/A'}</td>
                             <td className="px-4 md:px-6 py-4 text-gray-700">
                               {new Date(tx.createdAt).toLocaleString()}
                             </td>
@@ -1174,6 +1006,20 @@ const TransactionsPage = () => {
         </motion.div>
       </div>
 
+      {/* Scroll to top button */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="fixed bottom-8 right-8 z-30 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+          >
+            <FiArrowUp className="h-6 w-6" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Toast notifications */}
       <ToastNotification toast={toast} onClose={() => setToast(null)} />

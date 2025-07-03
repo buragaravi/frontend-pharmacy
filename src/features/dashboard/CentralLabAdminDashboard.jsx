@@ -183,6 +183,8 @@ const CentralLabAdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false); // No dashboard overview - go straight to All Lab Requests
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -200,6 +202,36 @@ const CentralLabAdminDashboard = () => {
       }
     };
     fetchUser();
+  }, []);
+
+  // Scroll detection for scroll buttons
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset;
+      const docHeight = document.documentElement.scrollHeight;
+      const winHeight = window.innerHeight;
+      const scrollPercent = scrollTop / (docHeight - winHeight);
+
+      setShowScrollTop(scrollTop > 200);
+      setShowScrollBottom(scrollPercent < 0.9);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.dropdown-container')) {
+        setExpandedCategory(null);
+      }
+      if (!event.target.closest('.mobile-menu-container')) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   const handleLogout = () => {
@@ -227,16 +259,29 @@ const CentralLabAdminDashboard = () => {
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="space-y-6">
-          <SkeletonLoader type="card" />
-          <SkeletonLoader type="card" />
-          <SkeletonLoader type="card" />
+        <div className="space-y-6 sm:space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <SkeletonLoader type="card" />
+            <SkeletonLoader type="card" />
+            <SkeletonLoader type="card" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <SkeletonLoader type="card" />
+            <SkeletonLoader type="card" />
+          </div>
         </div>
       );
     }
     
     // Always show the selected component, no dashboard overview
-    return selectedChildItem?.component || null;
+    return selectedChildItem?.component || (
+      <div className="flex items-center justify-center h-64 text-gray-500">
+        <div className="text-center">
+          <div className="text-lg font-medium mb-2">Select a section from the navigation</div>
+          <div className="text-sm">Choose from the categories above to get started</div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -247,22 +292,22 @@ const CentralLabAdminDashboard = () => {
       <header className="w-full bg-white shadow-sm backdrop-blur sticky top-0 z-50 border-b border-gray-100">
         {/* First line - Logo, Title, User, Logout */}
         <div className="w-full border-b border-gray-100">
-          <div className="w-full flex items-center justify-between px-4 sm:px-6 py-3 max-w-7xl mx-auto">
-            <div className="flex items-center space-x-3">
-              <img src="/pydah.svg" alt="Logo" className="h-8 w-auto" />
-              <span className="text-xl font-bold text-blue-800 tracking-tight whitespace-nowrap">
+          <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4 max-w-7xl mx-auto">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <img src="/pydah.svg" alt="Logo" className="h-8 w-auto sm:h-10" />
+              <span className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-800 tracking-tight whitespace-nowrap">
                 Central Lab Admin
               </span>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               {user && (
-                <span className="hidden sm:inline text-sm font-medium text-blue-700">
+                <span className="hidden sm:inline text-sm lg:text-base font-medium text-blue-700">
                   Welcome, {user.name}
                 </span>
               )}
               <button
                 onClick={handleLogout}
-                className="px-3 py-2 rounded-lg bg-white text-blue-700 font-medium hover:bg-blue-50 transition-colors whitespace-nowrap border border-blue-200 shadow-sm hover:shadow-md"
+                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg bg-white text-blue-700 font-medium hover:bg-blue-50 transition-colors whitespace-nowrap border border-blue-200 shadow-sm hover:shadow-md text-sm sm:text-base"
               >
                 Logout
               </button>
@@ -271,11 +316,11 @@ const CentralLabAdminDashboard = () => {
         </div>
         {/* Second line - Horizontal Navigation Bar */}
         <nav className="w-full bg-white border-b border-gray-100">
-          <div className="max-w-7xl mx-auto flex items-center px-4 sm:px-6 py-2 relative">
+          <div className="max-w-7xl mx-auto flex items-center px-4 sm:px-6 lg:px-8 py-2 sm:py-3 relative">
             {/* Mobile Menu Button */}
             <div className="md:hidden">
               <button
-                className="flex items-center justify-center p-2 rounded-lg focus:outline-none bg-white border border-gray-200 shadow-sm"
+                className="flex items-center justify-center p-2 sm:p-3 rounded-lg focus:outline-none bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-label="Toggle menu"
               >
@@ -292,25 +337,25 @@ const CentralLabAdminDashboard = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center w-full">
               {/* Parent Categories as horizontal nav */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1 lg:space-x-2">
                 {Object.entries(NAV_CATEGORIES).map(([category, items]) => (
-                  <div key={category} className="relative">
+                  <div key={category} className="relative dropdown-container">
                     <button
-                      className={`px-4 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm whitespace-nowrap flex items-center gap-2 ${
+                      className={`px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors duration-200 text-sm lg:text-base whitespace-nowrap flex items-center gap-1 lg:gap-2 ${
                         expandedCategory === category ? 'bg-blue-100 text-blue-800' : 'hover:bg-blue-50 text-blue-700'
                       }`}
                       onClick={() => handleParentClick(category)}
                     >
                       {category}
-                      <svg className={`w-4 h-4 ml-1 transition-transform ${expandedCategory === category ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                      <svg className={`w-4 h-4 transition-transform ${expandedCategory === category ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
                     </button>
                     {/* Dropdown for child items */}
                     {expandedCategory === category && (
-                      <div className="absolute left-0 mt-2 min-w-[200px] bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                      <div className="absolute left-0 mt-2 min-w-[220px] bg-white border border-gray-200 rounded-lg shadow-lg z-50 fade-in">
                         {items.map((item) => (
                           <button
                             key={item.key}
-                            className={`w-full flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 text-left ${
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm lg:text-base font-medium transition-colors duration-150 text-left hover-scale ${
                               selectedChild === item.key ? 'bg-blue-600 text-white' : 'hover:bg-blue-100 text-blue-700'
                             }`}
                             onClick={() => handleChildClick(item)}
@@ -330,15 +375,15 @@ const CentralLabAdminDashboard = () => {
         
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden w-full bg-white/95 backdrop-blur-lg border-t border-gray-100/50 fade-in">
-            <ul className="flex flex-col gap-1 py-3 px-4">
+          <div className="md:hidden w-full bg-white/95 backdrop-blur-lg border-t border-gray-100/50 fade-in mobile-menu-container">
+            <ul className="flex flex-col gap-1 py-3 sm:py-4 px-4 sm:px-6 max-h-[70vh] overflow-y-auto">
               {Object.values(NAV_CATEGORIES).flat().map((item) => (
                 <li key={item.key}>
                   <button
-                    className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-3 ${
+                    className={`w-full text-left px-4 py-3 sm:py-4 rounded-xl font-medium transition-all duration-200 flex items-center gap-3 sm:gap-4 text-sm sm:text-base hover-scale ${
                       selectedChild === item.key 
-                        ? 'bg-blue-100/50 text-blue-600' 
-                        : 'bg-white text-blue-600 shadow-sm'
+                        ? 'bg-blue-100/80 text-blue-700 shadow-sm' 
+                        : 'bg-white text-blue-600 shadow-sm hover:bg-blue-50'
                     }`}
                     onClick={() => handleChildClick(item)}
                   >
@@ -348,14 +393,14 @@ const CentralLabAdminDashboard = () => {
                 </li>
               ))}
               {user && (
-                <li className="px-4 py-3 mt-2 rounded-xl bg-white shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                <li className="px-4 py-3 sm:py-4 mt-2 rounded-xl bg-white shadow-sm">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
                       {user.name.charAt(0)}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm sm:text-base text-gray-600">
                       <div className="font-medium">Logged in as</div>
-                      <div>{user.name}</div>
+                      <div className="text-blue-700 font-semibold">{user.name}</div>
                     </div>
                   </div>
                 </li>
@@ -366,14 +411,46 @@ const CentralLabAdminDashboard = () => {
       </header>
       
       {/* Main Content */}
-      <main className="flex flex-col items-center justify-start p-4 md:p-6 w-full max-w-7xl mx-auto">
+      <main className="flex flex-col items-center justify-start p-4 sm:p-6 md:p-8 w-full max-w-7xl mx-auto">
         <div
-          className="w-full rounded-xl shadow-sm p-4 md:p-6 border border-gray-100 bg-white mt-4"
-          style={{ minHeight: 'calc(100vh - 100px)' }}
+          className="w-full rounded-xl shadow-sm p-4 sm:p-6 md:p-8 border border-gray-100 bg-white mt-4"
+          style={{ minHeight: 'calc(100vh - 140px)' }}
         >
-          <div className="mt-2 min-h-[400px] w-full">{renderContent()}</div>
+          <div className="mt-2 min-h-[400px] w-full px-4 lg:px-24 md:px-16">{renderContent()}</div>
         </div>
       </main>
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-32 right-4 sm:right-6 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 z-40 group"
+          aria-label="Scroll to top"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+          <span className="absolute right-full mr-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            Scroll to top
+          </span>
+        </button>
+      )}
+
+      {/* Scroll to Bottom Button */}
+      {showScrollBottom && (
+        <button
+          onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })}
+          className="fixed bottom-20 right-4 sm:right-6 p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 z-40 group"
+          aria-label="Scroll to bottom"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V4" />
+          </svg>
+          <span className="absolute right-full mr-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            Scroll to bottom
+          </span>
+        </button>
+      )}
     </div>
   );
 };

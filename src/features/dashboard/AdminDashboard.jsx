@@ -20,45 +20,84 @@ import EquipmentStockList from  '../equipment/EquipmentStockList';
 import RequestCard from '../requests/RequestCard';
 import UnifiedAllocateDialog from '../requests/UnifiedAllocateDialog';
 
-// SVG ICONS
-const ChemicalIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M7 3v6a5 5 0 0 0 10 0V3"/><path d="M5 21h14"/><path d="M8 17h8"/><path d="M12 17v4"/></svg>
+// SVG Icons - Converted to Component Functions for consistency with CentralLabAdminDashboard
+const ChemicalIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+  </svg>
 );
-const ProductIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/></svg>
+
+const ProductIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+  </svg>
 );
-const EquipmentIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+
+const EquipmentIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
 );
-const GlasswareIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 3h12l-1 7a5 5 0 0 1-10 0L6 3z"/><path d="M8 21h8"/></svg>
+
+const GlasswareIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+  </svg>
 );
-const LabRequestIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6"/><path d="M9 13h6"/></svg>
+
+const LabRequestIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+  </svg>
 );
-const QuotationIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M12 12v4"/><path d="M10 14h4"/></svg>
+
+const QuotationIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  </svg>
 );
-const IndentIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8"/><path d="M8 13h6"/></svg>
+
+const IndentIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+  </svg>
 );
-const AllocateIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+
+const AllocateIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+  </svg>
 );
-const ReportIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8"/><path d="M8 13h6"/></svg>
+
+const ReportIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+  </svg>
 );
-const ExperimentIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+
+const ExperimentIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+  </svg>
 );
-const InvoiceIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8"/><path d="M8 13h6"/></svg>
+
+const InvoiceIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  </svg>
 );
-const VendorIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8"/><path d="M8 13h6"/></svg>
+
+const VendorIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+  </svg>
 );
-const UserIcon = (
-  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20v-1a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v1"/></svg>
+
+const UserIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+  </svg>
 );
 
 // Enhanced Navigation with Icons and Categories
@@ -309,6 +348,8 @@ const AdminDashboard = () => {
   const [expandedLab, setExpandedLab] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showDashboard, setShowDashboard] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
   const navigate = useNavigate();
   const [productStats, setProductStats] = useState(null);
   const [requestStats, setRequestStats] = useState(null);
@@ -325,6 +366,36 @@ const AdminDashboard = () => {
   const [allLabRequests, setAllLabRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showFulfillDialog, setShowFulfillDialog] = useState(false);
+
+  // Scroll detection for scroll buttons - Updated to match CentralLabAdminDashboard
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset;
+      const docHeight = document.documentElement.scrollHeight;
+      const winHeight = window.innerHeight;
+      const scrollPercent = scrollTop / (docHeight - winHeight);
+
+      setShowScrollTop(scrollTop > 200);
+      setShowScrollBottom(scrollPercent < 0.9);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close dropdowns when clicking outside - Added from CentralLabAdminDashboard
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.dropdown-container')) {
+        setExpandedCategory(null);
+      }
+      if (!event.target.closest('.mobile-menu-container')) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   // Fetch user data
   useEffect(() => {
@@ -425,6 +496,7 @@ const AdminDashboard = () => {
     setSelectedChild(child.key);
     setShowDashboard(false);
     setMobileMenuOpen(false);
+    setExpandedCategory(null);
   };
 
   // Find the selected child item for rendering
@@ -462,7 +534,7 @@ const AdminDashboard = () => {
     }
     if (showDashboard && !selectedChild) {
       return (
-        <div className="space-y-6">
+        <div className="p-4 space-y-6">
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <h3 className="text-lg font-semibold mb-4">Central Lab Chemical Analytics</h3>
             <ul className="space-y-2 text-lg">
@@ -519,93 +591,205 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen font-sans bg-gray-50">
+      {/* Navigation Bar */}
       <header className="w-full bg-white shadow-sm backdrop-blur sticky top-0 z-50 border-b border-gray-100">
         {/* First line - Logo, Title, User, Logout */}
         <div className="w-full border-b border-gray-100">
-          <div className="w-full flex items-center justify-between px-4 sm:px-6 py-3 max-w-7xl mx-auto">
-            <div className="flex items-center space-x-3">
-              <img src="/pydah.svg" alt="Logo" className="h-8 w-auto" />
-              <span className="text-xl font-bold text-blue-800 tracking-tight whitespace-nowrap">
+          <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <img src="/pydah.svg" alt="Logo" className="h-8 w-auto sm:h-10" />
+              <span className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-800 tracking-tight whitespace-nowrap">
                 Admin Dashboard
               </span>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <NotificationCenter notifications={notifications} onMarkAsRead={markNotificationAsRead} />
               {user && (
-                <span className="hidden sm:inline text-sm font-medium text-blue-700">
+                <span className="hidden sm:inline text-sm lg:text-base font-medium text-blue-700">
                   Welcome, {user.name}
                 </span>
               )}
               <button
                 onClick={handleLogout}
-                className="px-3 py-2 rounded-lg bg-white text-blue-700 font-medium hover:bg-blue-50 transition-colors whitespace-nowrap border border-blue-200 shadow-sm hover:shadow-md"
+                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg bg-white text-blue-700 font-medium hover:bg-blue-50 transition-colors whitespace-nowrap border border-blue-200 shadow-sm hover:shadow-md text-sm sm:text-base"
               >
                 Logout
               </button>
             </div>
           </div>
         </div>
+
         {/* Second line - Horizontal Navigation Bar */}
         <nav className="w-full bg-white border-b border-gray-100">
-          <div className="max-w-7xl mx-auto flex items-center px-4 sm:px-6 py-2 relative">
-            {/* Dashboard Button */}
-            <button
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap flex items-center gap-2 mr-2 ${
-                showDashboard && !selectedChild ? 'bg-blue-50 text-blue-700' : 'hover:bg-blue-50 text-blue-600'
-              }`}
-              onClick={() => {
-                setShowDashboard(true);
-                setSelectedChild(null);
-                setExpandedCategory(null);
-              }}
-            >
-              🏠 Dashboard
-            </button>
-            {/* Parent Categories as horizontal nav */}
-            <div className="flex items-center space-x-2">
-              {Object.entries(NAV_CATEGORIES).map(([category, items]) => (
-                <div key={category} className="relative">
-                  <button
-                    className={`px-4 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm whitespace-nowrap flex items-center gap-2 ${
-                      expandedCategory === category ? 'bg-blue-100 text-blue-800' : 'hover:bg-blue-50 text-blue-700'
-                    }`}
-                    onClick={() => handleParentClick(category)}
-                  >
-                    {category}
-                    <svg className={`w-4 h-4 ml-1 transition-transform ${expandedCategory === category ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
-                  </button>
-                  {/* Dropdown for child items */}
-                  {expandedCategory === category && (
-                    <div className="absolute left-0 mt-2 min-w-[200px] bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                      {items.map((item) => (
-                        <button
-                          key={item.key}
-                          className={`w-full flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 text-left ${
-                            selectedChild === item.key ? 'bg-blue-600 text-white' : 'hover:bg-blue-100 text-blue-700'
-                          }`}
-                          onClick={() => handleChildClick(item)}
-                        >
-                          {item.icon}
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
+          <div className="w-full flex items-center px-4 sm:px-6 lg:px-8 py-2 sm:py-3 relative">
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button
+                className="flex items-center justify-center p-2 sm:p-3 rounded-lg focus:outline-none bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                <svg className="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  {mobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                   )}
-                </div>
-              ))}
+                </svg>
+              </button>
+            </div>
+            
+            {/* Dashboard Button - Desktop */}
+            <div className="hidden md:flex items-center mr-4">
+              <button
+                className={`px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors duration-200 text-sm lg:text-base whitespace-nowrap flex items-center gap-1 lg:gap-2 ${
+                  showDashboard && !selectedChild ? 'bg-blue-100 text-blue-800' : 'hover:bg-blue-50 text-blue-700'
+                }`}
+                onClick={() => {
+                  setShowDashboard(true);
+                  setSelectedChild(null);
+                  setExpandedCategory(null);
+                }}
+              >
+                🏠 Dashboard
+              </button>
+            </div>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center w-full">
+              {/* Parent Categories as horizontal nav */}
+              <div className="flex items-center space-x-1 lg:space-x-2">
+                {Object.entries(NAV_CATEGORIES).map(([category, items]) => (
+                  <div key={category} className="relative dropdown-container">
+                    <button
+                      className={`px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors duration-200 text-sm lg:text-base whitespace-nowrap flex items-center gap-1 lg:gap-2 ${
+                        expandedCategory === category ? 'bg-blue-100 text-blue-800' : 'hover:bg-blue-50 text-blue-700'
+                      }`}
+                      onClick={() => handleParentClick(category)}
+                    >
+                      {category}
+                      <svg className={`w-4 h-4 transition-transform ${expandedCategory === category ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                    {/* Dropdown for child items */}
+                    {expandedCategory === category && (
+                      <div className="absolute left-0 mt-2 min-w-[220px] bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                        {items.map((item) => (
+                          <button
+                            key={item.key}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm lg:text-base font-medium transition-colors duration-150 text-left ${
+                              selectedChild === item.key ? 'bg-blue-600 text-white' : 'hover:bg-blue-100 text-blue-700'
+                            }`}
+                            onClick={() => handleChildClick(item)}
+                          >
+                            <item.icon />
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </nav>
+        
+        {/* Mobile Navigation Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden w-full bg-white/95 backdrop-blur-lg border-t border-gray-100/50 mobile-menu-container">
+            <ul className="flex flex-col gap-1 py-3 sm:py-4 px-4 sm:px-6 max-h-[70vh] overflow-y-auto">
+              {/* Dashboard Button for Mobile */}
+              <li>
+                <button
+                  className={`w-full text-left px-4 py-3 sm:py-4 rounded-xl font-medium transition-all duration-200 flex items-center gap-3 sm:gap-4 text-sm sm:text-base ${
+                    showDashboard && !selectedChild 
+                      ? 'bg-blue-100/80 text-blue-700 shadow-sm' 
+                      : 'bg-white text-blue-600 shadow-sm hover:bg-blue-50'
+                  }`}
+                  onClick={() => {
+                    setShowDashboard(true);
+                    setSelectedChild(null);
+                    setExpandedCategory(null);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  🏠 Dashboard
+                </button>
+              </li>
+              {Object.values(NAV_CATEGORIES).flat().map((item) => (
+                <li key={item.key}>
+                  <button
+                    className={`w-full text-left px-4 py-3 sm:py-4 rounded-xl font-medium transition-all duration-200 flex items-center gap-3 sm:gap-4 text-sm sm:text-base ${
+                      selectedChild === item.key 
+                        ? 'bg-blue-100/80 text-blue-700 shadow-sm' 
+                        : 'bg-white text-blue-600 shadow-sm hover:bg-blue-50'
+                    }`}
+                    onClick={() => handleChildClick(item)}
+                  >
+                    <item.icon />
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+              {user && (
+                <li className="px-4 py-3 sm:py-4 mt-2 rounded-xl bg-white shadow-sm">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                      {user.name.charAt(0)}
+                    </div>
+                    <div className="text-sm sm:text-base text-gray-600">
+                      <div className="font-medium">Logged in as</div>
+                      <div className="text-blue-700 font-semibold">{user.name}</div>
+                    </div>
+                  </div>
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
       </header>
+      
       {/* Main Content */}
-      <main className="flex flex-col items-center justify-start p-4 md:p-6 w-full max-w-7xl mx-auto">
+      <main className="w-full">
         <div
-          className="w-full rounded-xl shadow-sm p-4 md:p-6 border border-gray-100 bg-white mt-4"
-          style={{ minHeight: 'calc(100vh - 100px)' }}
+          className="w-full border border-gray-100 bg-white"
+          style={{ minHeight: 'calc(100vh - 140px)' }}
         >
-          <div className="mt-2 min-h-[400px] w-full">{renderContent()}</div>
+          <div className="w-full px-4 lg:px-24 md:px-16">{renderContent()}</div>
         </div>
       </main>
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-32 right-4 sm:right-6 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 z-40 group"
+          aria-label="Scroll to top"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+          <span className="absolute right-full mr-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            Scroll to top
+          </span>
+        </button>
+      )}
+
+      {/* Scroll to Bottom Button */}
+      {showScrollBottom && (
+        <button
+          onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })}
+          className="fixed bottom-16 right-4 sm:right-6 p-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 z-40 group"
+          aria-label="Scroll to bottom"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V4" />
+          </svg>
+          <span className="absolute right-full mr-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            Scroll to bottom
+          </span>
+        </button>
+      )}
     </div>
   );
 };
