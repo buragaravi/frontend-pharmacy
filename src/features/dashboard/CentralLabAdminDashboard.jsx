@@ -292,7 +292,7 @@ const CentralLabAdminDashboard = () => {
       <header className="w-full bg-white shadow-sm backdrop-blur sticky top-0 z-50 border-b border-gray-100">
         {/* First line - Logo, Title, User, Logout */}
         <div className="w-full border-b border-gray-100">
-          <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4 max-w-7xl mx-auto">
+          <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
             <div className="flex items-center space-x-3 sm:space-x-4">
               <img src="/pydah.svg" alt="Logo" className="h-8 w-auto sm:h-10" />
               <span className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-800 tracking-tight whitespace-nowrap">
@@ -316,7 +316,7 @@ const CentralLabAdminDashboard = () => {
         </div>
         {/* Second line - Horizontal Navigation Bar */}
         <nav className="w-full bg-white border-b border-gray-100">
-          <div className="max-w-7xl mx-auto flex items-center px-4 sm:px-6 lg:px-8 py-2 sm:py-3 relative">
+          <div className="w-full flex items-center px-4 sm:px-6 lg:px-8 py-2 sm:py-3 relative">
             {/* Mobile Menu Button */}
             <div className="md:hidden">
               <button
@@ -411,12 +411,9 @@ const CentralLabAdminDashboard = () => {
       </header>
       
       {/* Main Content */}
-      <main className="flex flex-col items-center justify-start p-4 sm:p-6 md:p-8 w-full max-w-7xl mx-auto">
-        <div
-          className="w-full rounded-xl shadow-sm p-4 sm:p-6 md:p-8 border border-gray-100 bg-white mt-4"
-          style={{ minHeight: 'calc(100vh - 140px)' }}
-        >
-          <div className="mt-2 min-h-[400px] w-full px-4 lg:px-24 md:px-16">{renderContent()}</div>
+      <main className="w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-24 px-4 md:px-16">
+          {renderContent()}
         </div>
       </main>
 

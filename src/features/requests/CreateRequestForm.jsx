@@ -331,30 +331,187 @@ const CreateRequestForm = () => {
     },
   });
 
-  const handleExperimentSelect = (index, experiment) => {
+  const handleExperimentSelect = async (index, experiment) => {
     const newExperiments = [...experiments];
     if (newExperiments[index].experimentId) return; // Prevent reselection
+
+    // Helper function to match and auto-fill chemicals
+    const processDefaultChemicals = async (defaultChemicals) => {
+      if (!defaultChemicals || defaultChemicals.length === 0) {
+        return [{
+          chemicalName: '',
+          quantity: '',
+          unit: '',
+          chemicalMasterId: '',
+          suggestions: [],
+          showSuggestions: false,
+          availableQuantity: null,
+        }];
+      }
+
+      try {
+        // Fetch available chemicals for matching
+        const response = await api.get(`/chemicals/central/available`);
+        const availableChemicals = response.data;
+
+        return defaultChemicals.map(defaultChem => {
+          // Find matching chemical by name (case-insensitive)
+          const matchedChemical = availableChemicals.find(availableChem => 
+            availableChem.chemicalName.toLowerCase().trim() === defaultChem.chemicalName.toLowerCase().trim()
+          );
+
+          if (matchedChemical) {
+            return {
+              chemicalName: defaultChem.chemicalName,
+              quantity: defaultChem.quantity,
+              unit: defaultChem.unit,
+              chemicalMasterId: matchedChemical._id,
+              suggestions: [],
+              showSuggestions: false,
+              availableQuantity: matchedChemical.quantity,
+            };
+          } else {
+            // If no match found, keep the default chemical but without ID
+            return {
+              chemicalName: defaultChem.chemicalName,
+              quantity: defaultChem.quantity,
+              unit: defaultChem.unit,
+              chemicalMasterId: '',
+              suggestions: [],
+              showSuggestions: false,
+              availableQuantity: null,
+            };
+          }
+        });
+      } catch (err) {
+        console.error('Error fetching chemicals for matching:', err);
+        // If error, return default chemicals without matching
+        return defaultChemicals.map(chem => ({
+          chemicalName: chem.chemicalName,
+          quantity: chem.quantity,
+          unit: chem.unit,
+          chemicalMasterId: '',
+          suggestions: [],
+          showSuggestions: false,
+          availableQuantity: null,
+        }));
+      }
+    };
+
+    // Helper function to match and auto-fill glassware
+    const processDefaultGlassware = async (defaultGlassware) => {
+      if (!defaultGlassware || defaultGlassware.length === 0) {
+        return [];
+      }
+
+      try {
+        // Fetch available glassware for matching
+        const response = await api.get(`/glassware/central/available`);
+        const availableGlassware = response.data;
+
+        return defaultGlassware.map(defaultGw => {
+          // Find matching glassware by name (case-insensitive)
+          const matchedGlassware = availableGlassware.find(availableGw => 
+            availableGw.name.toLowerCase().trim() === defaultGw.name.toLowerCase().trim()
+          );
+
+          if (matchedGlassware) {
+            return {
+              glasswareId: matchedGlassware._id,
+              productId: matchedGlassware.productId || '',
+              name: defaultGw.name,
+              variant: matchedGlassware.variant || matchedGlassware.unit,
+              quantity: defaultGw.quantity,
+              unit: defaultGw.unit,
+              suggestions: [],
+              showSuggestions: false,
+              availableQuantity: matchedGlassware.quantity,
+            };
+          } else {
+            // If no match found, keep the default glassware but without ID
+            return {
+              glasswareId: '',
+              productId: '',
+              name: defaultGw.name,
+              variant: '',
+              quantity: defaultGw.quantity,
+              unit: defaultGw.unit,
+              suggestions: [],
+              showSuggestions: false,
+              availableQuantity: null,
+            };
+          }
+        });
+      } catch (err) {
+        console.error('Error fetching glassware for matching:', err);
+        // If error, return default glassware without matching
+        return defaultGlassware.map(gw => ({
+          glasswareId: '',
+          productId: '',
+          name: gw.name,
+          variant: '',
+          quantity: gw.quantity,
+          unit: gw.unit,
+          suggestions: [],
+          showSuggestions: false,
+          availableQuantity: null,
+        }));
+      }
+    };
+
+    // Helper function to match and auto-fill equipment
+    const processDefaultEquipment = (defaultEquipment) => {
+      if (!defaultEquipment || defaultEquipment.length === 0) {
+        return [];
+      }
+
+      return defaultEquipment.map(defaultEq => {
+        // Find matching equipment by name (case-insensitive) using existing equipmentStock
+        const matchedEquipment = equipmentStock.find(availableEq => 
+          availableEq.name.toLowerCase().trim() === defaultEq.name.toLowerCase().trim()
+        );
+
+        if (matchedEquipment) {
+          return {
+            name: defaultEq.name,
+            variant: matchedEquipment.variant,
+            quantity: defaultEq.quantity,
+            unit: defaultEq.unit || '',
+            suggestions: [],
+            showSuggestions: false,
+            available: matchedEquipment.available,
+            issued: matchedEquipment.issued,
+            maxRequestable: matchedEquipment.available,
+          };
+        } else {
+          // If no match found, keep the default equipment but without availability info
+          return {
+            name: defaultEq.name,
+            variant: '',
+            quantity: defaultEq.quantity,
+            unit: defaultEq.unit || '',
+            suggestions: [],
+            showSuggestions: false,
+            available: null,
+            issued: null,
+            maxRequestable: null,
+          };
+        }
+      });
+    };
+
+    // Process all default items
+    const processedChemicals = await processDefaultChemicals(experiment.defaultChemicals);
+    const processedGlassware = await processDefaultGlassware(experiment.defaultGlassware);
+    const processedEquipment = processDefaultEquipment(experiment.defaultEquipment);
+
     newExperiments[index] = {
       ...newExperiments[index],
       experimentId: experiment.experimentId,
       experimentName: experiment.experimentName,
-      chemicals: experiment.defaultChemicals.map(chem => ({
-        chemicalName: chem.chemicalName,
-        quantity: chem.quantity,
-        unit: chem.unit,
-        chemicalMasterId: '',
-        suggestions: [],
-        showSuggestions: false,
-        availableQuantity: null,
-      })) || [{
-        chemicalName: '',
-        quantity: '',
-        unit: '',
-        chemicalMasterId: '',
-        suggestions: [],
-        showSuggestions: false,
-        availableQuantity: null,
-      }],
+      chemicals: processedChemicals,
+      glassware: processedGlassware,
+      equipment: processedEquipment,
     };
     setExperiments(newExperiments);
   };
