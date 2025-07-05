@@ -4,30 +4,55 @@ import RequestCard from './RequestCard';
 import RequestDetailsModal from './RequestDetailsModal';
 import { useNavigate } from 'react-router-dom';
 
+// CSS Animations
+const AnimationStyles = () => (
+  <style jsx>{`
+    @keyframes blob {
+      0% { transform: translate(0px, 0px) scale(1); }
+      33% { transform: translate(30px, -50px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+      100% { transform: translate(0px, 0px) scale(1); }
+    }
+    .animate-blob {
+      animation: blob 7s infinite;
+    }
+    .animation-delay-2000 {
+      animation-delay: 2s;
+    }
+    .animation-delay-4000 {
+      animation-delay: 4s;
+    }
+  `}</style>
+);
+
 // SVG Icons
 const MyRequestsIcon = () => (
-  <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
   </svg>
 );
 
 const LoadingSpinner = () => (
-  <div className="flex justify-center items-center p-4 md:p-8">
-    <div className="animate-spin rounded-full h-8 w-8 md:h-10 md:w-10 border-t-2 border-b-2 border-[#0B3861]"></div>
+  <div className="flex justify-center items-center p-6">
+    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0B3861]"></div>
   </div>
 );
 
 // Constants for theming
 const THEME = {
   background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
-  card: 'bg-white',
-  border: 'border-[#BCE0FD]',
+  card: 'bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl',
+  border: 'border-[#BCE0FD]/20',
   primaryText: 'text-[#0B3861]',
   secondaryText: 'text-[#64B5F6]',
+  mutedText: 'text-gray-600',
   primaryBg: 'bg-[#0B3861]',
   secondaryBg: 'bg-[#64B5F6]',
   hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  inputBg: 'bg-gray-50/80',
+  inputBorder: 'border-[#BCE0FD]/30',
+  inputFocus: 'focus:ring-2 focus:ring-[#0B3861]/20 focus:border-[#0B3861]',
+  cardHover: 'hover:bg-gray-50/50 transition-colors duration-200'
 };
 
 const STATUS_COLORS = {
@@ -113,141 +138,244 @@ const MyRequestsPage = () => {
   };
 
   return (
-    <div className={`p-3 sm:p-4 min-h-screen ${THEME.background}`}>
-      <div className="max-w-7xl mx-auto">
-        <div className={`rounded-lg sm:rounded-xl shadow-xl p-3 sm:p-6 ${THEME.card} ${THEME.border}`}>
-          {/* Header with Status Filter */}
-          <div className={`flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between mb-4 rounded-xl px-4 py-3 ${THEME.border}`}> 
-            <div className="flex items-center">
-              <div className={`${THEME.primaryBg} p-1 sm:p-1.5 rounded-md mr-2`}>
-                <MyRequestsIcon />
-              </div>
-              <h2 className={`text-lg sm:text-xl font-bold ${THEME.primaryText}`}>
-                My Requests
-              </h2>
-            </div>
+    <div className="w-full relative z-30">
+      <AnimationStyles />
+      
+      {/* Background Elements - Lower z-index */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-4000"></div>
+      </div>
 
-            {/* Status Filter */}
-            <div className="relative">
-              {/* Mobile dropdown */}
-              <select 
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className={`md:hidden block w-full pl-7 pr-8 py-1.5 text-sm ${THEME.border} rounded-md ${THEME.card} appearance-none ${THEME.inputFocus}`}
-                value={selectedStatus}
-              >
-                <option value="all">All Status</option>
-                {Object.keys(STATUS_COLORS).map((status) => (
-                  <option key={status} value={status}>
-                    {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
-                  </option>
-                ))}
-              </select>
-              
-              {/* Desktop filter buttons */}
-              <div className="hidden md:flex space-x-1">
-                <button
-                  onClick={() => setSelectedStatus('all')}
-                  className={`px-2.5 py-1 text-xs rounded-full font-medium whitespace-nowrap transition-all ${
-                    selectedStatus === 'all'
-                      ? `${THEME.primaryBg} text-white`
-                      : `${THEME.card} ${THEME.primaryText} hover:bg-[#F5F9FD]`
-                  }`}
-                >
-                  All
-                </button>
-                {Object.keys(STATUS_COLORS).map((status) => (
-                  <button
-                    key={status}
-                    onClick={() => setSelectedStatus(status)}
-                    className={`px-2.5 py-1 text-xs rounded-full font-medium whitespace-nowrap transition-all ${STATUS_COLORS[status]} ${
-                      selectedStatus === status ? 'ring-1 ring-[#0B3861]' : ''
-                    }`}
-                  >
-                    {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+      {/* Main Content Container */}
+      <div className="relative z-30 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className={`rounded-3xl shadow-2xl backdrop-blur-xl bg-white/98 border border-white/40 relative z-40`}>
+            
+            {/* Header Section */}
+            <div className={`bg-gradient-to-r from-blue-50/90 to-indigo-50/90 backdrop-blur-sm border-b border-blue-100/50 relative z-50`}>
+              <div className="px-6 py-6">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  
+                  {/* Title Section */}
+                  <div className="flex items-center space-x-4">
+                    <div className={`bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-lg flex items-center justify-center relative z-60`}>
+                      <MyRequestsIcon />
+                    </div>
+                    <div>
+                      <h1 className={`text-2xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent leading-tight`}>
+                        My Requests
+                      </h1>
+                      <p className="text-sm text-gray-700 font-medium mt-1">Manage and track your submitted requests</p>
+                    </div>
+                  </div>
 
-          {/* Content */}
-          {loading ? (
-            <LoadingSpinner />
-          ) : filteredRequests.length === 0 ? (
-            <div className={`${THEME.background} p-4 rounded-lg ${THEME.border} text-center ${THEME.primaryText}`}>
-              <p className="text-sm font-semibold">No requests found</p>
-              <p className="text-xs mt-1">
-                {selectedStatus === 'all' 
-                  ? "You haven't made any requests yet"
-                  : `No ${selectedStatus.replace('_', ' ')} requests`}
-              </p>
-            </div>
-          ) : (
-            <>
-              {/* Request Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
-                {paginatedRequests.map((req) => (
-                  <RequestCard
-                    key={req._id}
-                    request={req}
-                    showStatus
-                    onClick={() => handleOpenDetails(req)}
-                    className={`shadow ${THEME.border} ${THEME.card} hover:shadow-lg hover:border-[#1E88E5]`}
-                  />
-                ))}
-              </div>
-
-              {/* Pagination Controls */}
-              {totalPages > 1 && (
-                <div className="flex justify-center mt-4">
-                  <nav className="flex items-center space-x-1">
-                    <button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className={`p-1.5 rounded-md disabled:opacity-50 disabled:cursor-not-allowed ${THEME.inputFocus}`}
-                    >
-                      <svg className={`w-5 h-5 ${THEME.secondaryText}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  {/* Status Filter Section */}
+                  <div className="flex flex-col sm:flex-row gap-4 relative z-60">
+                    
+                    {/* Mobile Dropdown */}
+                    <div className="lg:hidden w-full">
+                      <select 
+                        onChange={(e) => setSelectedStatus(e.target.value)}
+                        className={`w-full pl-3 pr-8 py-3 text-sm border border-blue-200/60 rounded-xl bg-white/95 backdrop-blur-md appearance-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 shadow-lg font-medium relative z-70`}
+                        value={selectedStatus}
+                      >
+                        <option value="all">All Status</option>
+                        {Object.keys(STATUS_COLORS).map((status) => (
+                          <option key={status} value={status}>
+                            {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
+                          </option>
+                        ))}
+                      </select>
+                      {/* Dropdown Arrow */}
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    {/* Desktop Filter Buttons */}
+                    <div className="hidden lg:flex flex-wrap gap-3 relative z-70">
                       <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        className={`w-8 h-8 text-sm rounded-md ${
-                          currentPage === page 
-                            ? `${THEME.primaryBg} text-white` 
-                            : `${THEME.primaryText} hover:bg-[#F5F9FD]`
+                        onClick={() => setSelectedStatus('all')}
+                        className={`px-4 py-2 text-xs rounded-xl font-semibold whitespace-nowrap transition-all duration-300 shadow-md relative z-80 ${
+                          selectedStatus === 'all'
+                            ? `bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105 ring-2 ring-blue-300/50`
+                            : `bg-white/95 backdrop-blur-md text-blue-700 hover:bg-blue-50 border border-blue-200/60 hover:shadow-lg hover:scale-105`
                         }`}
                       >
-                        {page}
+                        All Status
                       </button>
-                    ))}
+                      {Object.keys(STATUS_COLORS).map((status) => (
+                        <button
+                          key={status}
+                          onClick={() => setSelectedStatus(status)}
+                          className={`px-4 py-2 text-xs rounded-xl font-semibold whitespace-nowrap transition-all duration-300 shadow-md relative z-80 ${STATUS_COLORS[status]} border border-transparent ${
+                            selectedStatus === status ? 'ring-2 ring-blue-500/70 shadow-lg transform scale-105' : 'hover:shadow-lg hover:scale-105'
+                          }`}
+                        >
+                          {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                    <button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      className={`p-1.5 rounded-md disabled:opacity-50 disabled:cursor-not-allowed ${THEME.inputFocus}`}
+            {/* Main Content Area */}
+            <div className="px-6 py-6 relative z-50">
+              
+              {/* Loading State */}
+              {loading ? (
+                <div className="flex flex-col justify-center items-center py-16 relative z-50">
+                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 shadow-lg mb-4"></div>
+                  <p className="text-base font-medium text-blue-700">Loading your requests...</p>
+                </div>
+              ) : filteredRequests.length === 0 ? (
+                // Empty State
+                <div className={`bg-gradient-to-br from-blue-50/80 to-indigo-50/80 p-12 rounded-2xl border border-blue-100/60 text-center backdrop-blur-md shadow-lg relative z-50 mx-auto max-w-xl`}>
+                  <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center shadow-md">
+                    <div className="w-8 h-8 text-blue-600">
+                      <MyRequestsIcon />
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-blue-900 mb-3">No requests found</h3>
+                  <p className="text-sm text-blue-700 font-medium leading-relaxed">
+                    {selectedStatus === 'all' 
+                      ? "You haven't made any requests yet. Start by creating your first request!"
+                      : `No ${selectedStatus.replace('_', ' ')} requests found. Try selecting a different status filter.`}
+                  </p>
+                  {selectedStatus === 'all' && (
+                    <button 
+                      onClick={() => window.location.reload()} 
+                      className="mt-4 px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-sm"
                     >
-                      <svg className={`w-5 h-5 ${THEME.secondaryText}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
+                      Refresh Page
                     </button>
-                  </nav>
+                  )}
+                </div>
+              ) : (
+                // Content with Requests
+                <div className="space-y-6">
+                  
+                  {/* Stats Summary */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl text-center border border-blue-200/50">
+                      <div className="text-lg font-bold text-blue-600">{requests.length}</div>
+                      <div className="text-xs text-blue-700">Total</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-3 rounded-xl text-center border border-amber-200/50">
+                      <div className="text-lg font-bold text-amber-600">{requests.filter(r => r.status === 'pending').length}</div>
+                      <div className="text-xs text-amber-700">Pending</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 p-3 rounded-xl text-center border border-green-200/50">
+                      <div className="text-lg font-bold text-green-600">{requests.filter(r => r.status === 'approved').length}</div>
+                      <div className="text-xs text-green-700">Approved</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-xl text-center border border-purple-200/50">
+                      <div className="text-lg font-bold text-purple-600">{requests.filter(r => r.status === 'fulfilled').length}</div>
+                      <div className="text-xs text-purple-700">Fulfilled</div>
+                    </div>
+                  </div>
+
+                  {/* Request Cards Grid */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      {selectedStatus === 'all' ? 'All Requests' : `${selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1).replace('_', ' ')} Requests`}
+                      <span className="ml-2 text-xs font-normal text-gray-600">({filteredRequests.length} found)</span>
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 relative z-50">
+                      {paginatedRequests.map((req, index) => (
+                        <div 
+                          key={req._id} 
+                          className="relative z-60"
+                          style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                          <RequestCard
+                            request={req}
+                            showStatus
+                            onClick={() => handleOpenDetails(req)}
+                            className={`shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-500 bg-white/98 backdrop-blur-md border border-white/40 rounded-2xl relative z-70 hover:-translate-y-1`}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-center pt-6 relative z-60">
+                      <nav className="flex items-center space-x-3 bg-white/95 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/40 shadow-lg relative z-70">
+                        
+                        {/* Previous Button */}
+                        <button
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className={`flex items-center justify-center w-8 h-8 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 text-blue-600 hover:bg-blue-50 hover:shadow-md relative z-80 ${
+                            currentPage === 1 ? 'bg-gray-100' : 'bg-white shadow-sm hover:scale-105'
+                          }`}
+                        >
+                          <svg className={`w-4 h-4`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </button>
+
+                        {/* Page Numbers */}
+                        <div className="flex space-x-1">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <button
+                              key={page}
+                              onClick={() => handlePageChange(page)}
+                              className={`w-8 h-8 text-xs rounded-lg font-semibold transition-all duration-300 relative z-80 ${
+                                currentPage === page 
+                                  ? `bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-110 ring-2 ring-blue-300/50` 
+                                  : `text-blue-700 bg-white hover:bg-blue-50 hover:shadow-md hover:scale-105 shadow-sm`
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Next Button */}
+                        <button
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                          className={`flex items-center justify-center w-8 h-8 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 text-blue-600 hover:bg-blue-50 hover:shadow-md relative z-80 ${
+                            currentPage === totalPages ? 'bg-gray-100' : 'bg-white shadow-sm hover:scale-105'
+                          }`}
+                        >
+                          <svg className={`w-4 h-4`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      </nav>
+                    </div>
+                  )}
                 </div>
               )}
-            </>
-          )}
+            </div>
 
-          {/* Modal */}
-          {selectedRequest && (
-            <RequestDetailsModal 
-              open={true} 
-              request={selectedRequest} 
-              onClose={handleCloseDetails} 
-            />
-          )}
+        {/* Modal - Portal-like rendering with highest z-index */}
+        {selectedRequest && (
+          <div 
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={(e) => e.target === e.currentTarget && handleCloseDetails()}
+          >
+            <div className="relative z-[9999] w-full max-w-4xl max-h-[90vh] overflow-auto">
+              <RequestDetailsModal 
+                open={true} 
+                request={selectedRequest} 
+                onClose={handleCloseDetails} 
+              />
+            </div>
+          </div>
+        )}
+          </div>
         </div>
       </div>
     </div>

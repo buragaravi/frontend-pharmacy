@@ -415,6 +415,7 @@ const AllLabRequestsPage = () => {
 
   const isLabAssistant = userRole === 'lab_assistant';
   const isCentralAdmin = userRole === 'central_lab_admin';
+  const isLabAdmin = userRole === 'admin';
 
   if (loading) {
     return <LoadingSpinner />;
@@ -515,7 +516,7 @@ const AllLabRequestsPage = () => {
                 className={`${THEME.card} ${THEME.border} hover:shadow-lg transition-shadow`}
                 actionButton={
                   <>
-                    {(req.status === 'pending' || req.status === 'partially_fulfilled') && isCentralAdmin && (
+                    {(req.status === 'pending' || req.status === 'partially_fulfilled') && (isCentralAdmin || isLabAdmin) && (
                       <button
                         onClick={e => {
                           e.stopPropagation();

@@ -1,21 +1,23 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { jwtDecode } from 'jwt-decode';
 import RequestStatusBadge from './RequestStatusBadge';
-import { Printer, FileText, X } from 'lucide-react';
+import { Printer, FileText, X, RotateCcw } from 'lucide-react';
 import UnifiedReturnDialog from './UnifiedReturnDialog';
 
 // Constants for theming
 const THEME = {
   background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
-  card: 'bg-white',
-  border: 'border-[#BCE0FD]',
+  card: 'bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl',
+  border: 'border-[#BCE0FD]/20',
   primaryText: 'text-[#0B3861]',
   secondaryText: 'text-[#64B5F6]',
+  mutedText: 'text-gray-600',
   primaryBg: 'bg-[#0B3861]',
   secondaryBg: 'bg-[#64B5F6]',
   hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  inputFocus: 'focus:ring-2 focus:ring-[#0B3861]/20 focus:border-[#0B3861]'
 };
 
 // PDF Styles
@@ -355,6 +357,7 @@ const PrintableContent = React.forwardRef(({ request }, ref) => {
 const RequestDetailsModal = ({ request, open, onClose }) => {
   const [isPdfReady, setIsPdfReady] = useState(false);
   const [showReturnDialog, setShowReturnDialog] = useState(false);
+  const [userRole, setUserRole] = useState('');
   const componentRef = useRef();
 
   useEffect(() => {
@@ -364,6 +367,18 @@ const RequestDetailsModal = ({ request, open, onClose }) => {
       setIsPdfReady(false);
     }
   }, [open, request]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserRole(decoded.user.role);
+      } catch (err) {
+        console.error('Error decoding token:', err);
+      }
+    }
+  }, []);
   
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
@@ -384,55 +399,58 @@ const RequestDetailsModal = ({ request, open, onClose }) => {
     (exp.glassware && exp.glassware.some(glass => glass.isAllocated))
   );
 
+  // Show return button only for faculty
+  const isFaculty = userRole === 'faculty';
+  const showReturnButton = isFaculty && (hasAllocatedItems || hasAllocatedEquipmentOrGlassware);
+
   if (!open || !request) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className={`${THEME.card} rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto ${THEME.border}`}>
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-4">
-            <h2 className={`text-2xl font-bold ${THEME.primaryText}`}>Request Details</h2>
-            <div className="flex items-center space-x-3">
+    <div className="w-full max-w-4xl max-h-[95vh] overflow-hidden relative z-[9999]">
+      <div className={`${THEME.card} rounded-xl w-full max-h-[95vh] overflow-hidden relative z-[9999]`}>
+        <div className="p-6 overflow-y-auto max-h-[95vh]">
+          <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200/50">
+            <h2 className={`text-lg font-semibold ${THEME.primaryText}`}>Request Details</h2>
+            <div className="flex items-center space-x-2">
               <button 
                 onClick={handlePrint}
-                className={`flex items-center p-2 text-[#64B5F6] hover:text-[#1E88E5] transition-colors`}
+                className={`flex items-center p-2 rounded-lg ${THEME.secondaryText} hover:text-[#1E88E5] hover:bg-gray-100/80 transition-all`}
                 title="Print Request"
               >
-                <Printer size={20} />
+                <Printer size={18} />
               </button>
               {isPdfReady && (
                 <PDFDownloadLink 
                   document={<RequestPDF request={request} />} 
                   fileName={`Request_${request.labId}.pdf`}
-                  className={`flex items-center p-2 text-[#64B5F6] hover:text-[#1E88E5] transition-colors`}
+                  className={`flex items-center p-2 rounded-lg ${THEME.secondaryText} hover:text-[#1E88E5] hover:bg-gray-100/80 transition-all`}
                   title="Download PDF"
                 >
                   {({ loading }) => (
-                    loading ? <FileText size={20} className="animate-pulse" /> : <FileText size={20} />
+                    loading ? <FileText size={18} className="animate-pulse" /> : <FileText size={18} />
                   )}
                 </PDFDownloadLink>
               )}
+              {/* Return Items button for faculty only */}
+              {showReturnButton && (
+                <button
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg ${THEME.primaryBg} text-white font-medium text-sm hover:bg-[#1A365D] transition-all`}
+                  onClick={() => setShowReturnDialog(true)}
+                  title="Return Items"
+                >
+                  <RotateCcw size={16} />
+                  <span>Return</span>
+                </button>
+              )}
               <button
                 onClick={onClose}
-                className={`flex items-center p-2 text-[#64B5F6] hover:text-[#1E88E5] transition-colors`}
+                className={`flex items-center p-2 rounded-lg ${THEME.secondaryText} hover:text-[#1E88E5] hover:bg-gray-100/80 transition-all`}
                 title="Close"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
           </div>
-
-          {/* Return Items button for faculty if eligible */}
-          {(hasAllocatedItems || hasAllocatedEquipmentOrGlassware ) && (
-            <div className="mb-4 flex justify-end">
-              <button
-                className="px-4 py-2 rounded bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-                onClick={() => setShowReturnDialog(true)}
-              >
-                Return Items
-              </button>
-            </div>
-          )}
 
           <PrintableContent ref={componentRef} request={request} />
         </div>

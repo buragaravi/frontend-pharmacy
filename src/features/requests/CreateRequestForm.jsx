@@ -4,6 +4,27 @@ import axios from 'axios';
 import ExperimentSelector from './ExperimentSelector';
 import { toast } from 'react-toastify';
 
+// CSS Animations
+const AnimationStyles = () => (
+  <style jsx>{`
+    @keyframes blob {
+      0% { transform: translate(0px, 0px) scale(1); }
+      33% { transform: translate(30px, -50px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+      100% { transform: translate(0px, 0px) scale(1); }
+    }
+    .animate-blob {
+      animation: blob 7s infinite;
+    }
+    .animation-delay-2000 {
+      animation-delay: 2s;
+    }
+    .animation-delay-4000 {
+      animation-delay: 4s;
+    }
+  `}</style>
+);
+
 // Create axios instance with default config
 const api = axios.create({
   baseURL: 'https://backend-pharmacy-5541.onrender.com/api',
@@ -29,14 +50,18 @@ api.interceptors.request.use(
 // Constants for theming
 const THEME = {
   background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
-  card: 'bg-white',
-  border: 'border-[#0B3861]',
+  card: 'bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl',
+  border: 'border-[#BCE0FD]/20',
   primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#0B3861 ]',
+  secondaryText: 'text-[#64B5F6]',
+  mutedText: 'text-gray-600',
   primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#0B3861 ]',
+  secondaryBg: 'bg-[#64B5F6]',
   hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  inputBg: 'bg-gray-50/80',
+  inputBorder: 'border-[#BCE0FD]/30',
+  inputFocus: 'focus:ring-2 focus:ring-[#0B3861]/20 focus:border-[#0B3861]',
+  cardHover: 'hover:bg-gray-50/50 transition-colors duration-200'
 };
 
 // Lab IDs array
@@ -1206,27 +1231,47 @@ const CreateRequestForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-blue-200 flex flex-col items-center py-8">
-      <div className="w-full max-w-5xl px-2 md:px-0">
-        <div className={`${CLOUDY_CARD} p-8 md:p-12 mb-10 transition-all duration-500`}>
-          <div className="flex items-center mb-10 gap-4 sticky top-0 z-10 bg-opacity-80 backdrop-blur-md rounded-2xl">
-            <div className="bg-blue-200/60 p-4 rounded-2xl shadow-lg transition-transform duration-500 hover:-translate-y-1">
-              <ExperimentIcon />
+    <div className={`min-h-screen ${THEME.background} relative overflow-hidden`}>
+      {/* Floating bubbles */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-4 -left-4 w-72 h-72 bg-blue-300/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -top-4 -right-4 w-72 h-72 bg-purple-300/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
+
+      {/* Main content */}
+      <div className="relative z-10 w-full p-4 md:p-6">
+        <div className={`${THEME.card} rounded-xl p-6 md:p-8 w-full`}>
+          {/* Header */}
+          <div className="mb-6 pb-4 border-b border-gray-200/50">
+            <div className="flex items-center gap-3">
+              <div className={`${THEME.secondaryBg} p-2 rounded-lg text-white`}>
+                <ExperimentIcon />
+              </div>
+              <h1 className={`text-lg font-semibold ${THEME.primaryText}`}>Create New Request</h1>
             </div>
-            <h2 className={CLOUDY_HEADER}>Create New Request</h2>
           </div>
 
-          {formError && <div className="mb-4 text-red-600 text-center font-semibold animate-pulse">{formError}</div>}
-          {formSuccess && <div className="mb-4 text-green-600 text-center font-semibold animate-pulse">{formSuccess}</div>}
+          {formError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {formError}
+            </div>
+          )}
+          {formSuccess && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+              {formSuccess}
+            </div>
+          )}
 
-          <form onSubmit={handleSubmit} className="space-y-10">
-            <div className={CLOUDY_SECTION}>
-              <label className={CLOUDY_LABEL}>Lab ID</label>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Lab ID Selection */}
+            <div className={`${THEME.inputBg} ${THEME.inputBorder} border rounded-lg p-4`}>
+              <label className={`block text-sm font-medium ${THEME.primaryText} mb-2`}>Lab ID</label>
               <select
                 value={labId}
                 onChange={(e) => setLabId(e.target.value)}
                 required
-                className={`${CLOUDY_INPUT} w-full px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                className={`w-full ${THEME.inputBg} ${THEME.inputBorder} border rounded-md px-3 py-2 text-sm ${THEME.inputFocus} transition-all`}
                 aria-label="Select Lab"
               >
                 <option value="">Select Lab</option>

@@ -246,20 +246,20 @@ const EquipmentQRScanner = ({ onScan, onClose }) => {
     };
   }, [handleScanSuccess]);
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4 border border-gray-100">
+    <div className="fixed inset-0 z-[99999999] flex items-center justify-center bg-black/80 backdrop-blur-lg">
+      <div className="bg-white/95 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-xl font-bold text-gray-800">Scan QR Code</h3>
-            <p className="text-sm text-gray-500">Align equipment QR code within frame</p>
+            <h3 className="text-lg font-semibold text-gray-800">Scan QR Code</h3>
+            <p className="text-sm text-gray-600">Align equipment QR code within frame</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full w-10 h-10 flex items-center justify-center transition-all duration-200"
+            className="text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200"
             aria-label="Close scanner"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>

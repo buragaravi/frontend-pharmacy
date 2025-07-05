@@ -4,14 +4,18 @@ import Swal from 'sweetalert2';
 import EquipmentQRScanner from '../equipment/EquipmentQRScanner';
 
 const THEME = {
-  card: 'bg-white',
-  border: 'border-[#BCE0FD]',
+  card: 'bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl',
+  border: 'border-[#BCE0FD]/20',
   primaryText: 'text-[#0B3861]',
   secondaryText: 'text-[#64B5F6]',
+  mutedText: 'text-gray-600',
   primaryBg: 'bg-[#0B3861]',
   secondaryBg: 'bg-[#64B5F6]',
   hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  inputBg: 'bg-gray-50/80',
+  inputBorder: 'border-[#BCE0FD]/30',
+  inputFocus: 'focus:ring-2 focus:ring-[#0B3861]/20 focus:border-[#0B3861]',
+  cardHover: 'hover:bg-gray-50/50 transition-colors duration-200'
 };
 
 const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
@@ -70,27 +74,37 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
   const renderChemicals = () => (
     <div className="space-y-2">
       {request.experiments.map(exp => (
-        <div key={exp._id} className="mb-2">
-          <div className="font-semibold text-sm mb-1">{exp.experimentName}</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div key={exp._id} className="space-y-2">
+          <div className={`text-xs font-medium ${THEME.secondaryText} uppercase tracking-wide`}>
+            {exp.experimentName}
+          </div>
+          <div className="space-y-2">
             {exp.chemicals?.filter(chem => chem.isAllocated && (chem.allocatedQuantity > 0)).map(chem => (
-              <div key={chem._id} className="flex items-center gap-2 border p-2 rounded">
-                <span className="flex-1">{chem.chemicalName} (Allocated: {chem.allocatedQuantity} {chem.unit})</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={chem.allocatedQuantity}
-                  placeholder="Qty"
-                  className="w-20 border rounded px-2 py-1 text-xs"
-                  value={chemicals.find(c => c.chemicalMasterId === chem.chemicalMasterId && c.experimentId === exp._id)?.quantity || ''}
-                  onChange={e => {
-                    const val = parseFloat(e.target.value) || 0;
-                    setChemicals(prev => {
-                      const filtered = prev.filter(c => !(c.chemicalMasterId === chem.chemicalMasterId && c.experimentId === exp._id));
-                      return val > 0 ? [...filtered, { experimentId: exp._id, chemicalMasterId: chem.chemicalMasterId, quantity: val }] : filtered;
-                    });
-                  }}
-                />
+              <div key={chem._id} className={`flex items-center gap-2 ${THEME.inputBg} ${THEME.inputBorder} border rounded-lg p-3 ${THEME.cardHover}`}>
+                <div className="flex-1">
+                  <div className={`text-sm font-medium ${THEME.primaryText}`}>{chem.chemicalName}</div>
+                  <div className={`text-xs ${THEME.mutedText}`}>
+                    Allocated: {chem.allocatedQuantity} {chem.unit}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={chem.allocatedQuantity}
+                    placeholder="Qty"
+                    className={`w-20 ${THEME.inputBg} ${THEME.inputBorder} border rounded-md px-2 py-1 text-xs ${THEME.inputFocus} transition-all`}
+                    value={chemicals.find(c => c.chemicalMasterId === chem.chemicalMasterId && c.experimentId === exp._id)?.quantity || ''}
+                    onChange={e => {
+                      const val = parseFloat(e.target.value) || 0;
+                      setChemicals(prev => {
+                        const filtered = prev.filter(c => !(c.chemicalMasterId === chem.chemicalMasterId && c.experimentId === exp._id));
+                        return val > 0 ? [...filtered, { experimentId: exp._id, chemicalMasterId: chem.chemicalMasterId, quantity: val }] : filtered;
+                      });
+                    }}
+                  />
+                  <span className={`text-xs ${THEME.mutedText}`}>{chem.unit}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -103,27 +117,37 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
   const renderGlassware = () => (
     <div className="space-y-2">
       {request.experiments.map(exp => (
-        <div key={exp._id} className="mb-2">
-          <div className="font-semibold text-sm mb-1">{exp.experimentName}</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div key={exp._id} className="space-y-2">
+          <div className={`text-xs font-medium ${THEME.secondaryText} uppercase tracking-wide`}>
+            {exp.experimentName}
+          </div>
+          <div className="space-y-2">
             {exp.glassware?.filter(glass => glass.isAllocated && (glass.allocatedQuantity > 0)).map(glass => (
-              <div key={glass._id} className="flex items-center gap-2 border p-2 rounded">
-                <span className="flex-1">{glass.glasswareName} (Allocated: {glass.allocatedQuantity})</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={glass.allocatedQuantity}
-                  placeholder="Qty"
-                  className="w-20 border rounded px-2 py-1 text-xs"
-                  value={glassware.find(g => g.glasswareId === glass.glasswareId && g.experimentId === exp._id)?.quantity || ''}
-                  onChange={e => {
-                    const val = parseInt(e.target.value) || 0;
-                    setGlassware(prev => {
-                      const filtered = prev.filter(g => !(g.glasswareId === glass.glasswareId && g.experimentId === exp._id));
-                      return val > 0 ? [...filtered, { experimentId: exp._id, glasswareId: glass.glasswareId, quantity: val }] : filtered;
-                    });
-                  }}
-                />
+              <div key={glass._id} className={`flex items-center gap-2 ${THEME.inputBg} ${THEME.inputBorder} border rounded-lg p-3 ${THEME.cardHover}`}>
+                <div className="flex-1">
+                  <div className={`text-sm font-medium ${THEME.primaryText}`}>{glass.glasswareName}</div>
+                  <div className={`text-xs ${THEME.mutedText}`}>
+                    Allocated: {glass.allocatedQuantity}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={glass.allocatedQuantity}
+                    placeholder="Qty"
+                    className={`w-20 ${THEME.inputBg} ${THEME.inputBorder} border rounded-md px-2 py-1 text-xs ${THEME.inputFocus} transition-all`}
+                    value={glassware.find(g => g.glasswareId === glass.glasswareId && g.experimentId === exp._id)?.quantity || ''}
+                    onChange={e => {
+                      const val = parseInt(e.target.value) || 0;
+                      setGlassware(prev => {
+                        const filtered = prev.filter(g => !(g.glasswareId === glass.glasswareId && g.experimentId === exp._id));
+                        return val > 0 ? [...filtered, { experimentId: exp._id, glasswareId: glass.glasswareId, quantity: val }] : filtered;
+                      });
+                    }}
+                  />
+                  <span className={`text-xs ${THEME.mutedText}`}>pcs</span>
+                </div>
               </div>
             ))}
           </div>
@@ -136,9 +160,11 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
   const renderEquipment = () => (
     <div className="space-y-2">
       {request.experiments.map(exp => (
-        <div key={exp._id} className="mb-2">
-          <div className="font-semibold text-sm mb-1">{exp.experimentName}</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div key={exp._id} className="space-y-2">
+          <div className={`text-xs font-medium ${THEME.secondaryText} uppercase tracking-wide`}>
+            {exp.experimentName}
+          </div>
+          <div className="space-y-2">
             {exp.equipment?.filter(eq => {
               // Use last allocationHistory for itemIds
               if (Array.isArray(eq.allocationHistory) && eq.allocationHistory.length > 0) {
@@ -158,97 +184,116 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
               }
               const eqState = equipment.find(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant) || { itemIds: [] };
               return (
-                <div key={eq._id} className="border p-2 rounded flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="flex-1">{eq.name} ({eq.variant})</span>
+                <div key={eq._id} className={`${THEME.inputBg} ${THEME.inputBorder} border rounded-lg p-3 space-y-3`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className={`text-sm font-medium ${THEME.primaryText}`}>{eq.name}</div>
+                      <div className={`text-xs ${THEME.mutedText}`}>{eq.variant}</div>
+                    </div>
+                    <div className={`text-xs ${THEME.mutedText} bg-white/50 px-2 py-1 rounded`}>
+                      {itemIdsArr.length} items
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-2 mt-1">
+                  <div className="space-y-2">
                     {itemIdsArr.map((itemId, idx) => (
                       <div key={idx} className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          placeholder={`Return Item ID #${idx + 1}`}
-                          className="w-32 border rounded px-2 py-1 text-xs"
-                          value={eqState.itemIds[idx] || ''}
-                          onChange={e => {
-                            const val = e.target.value.trim();
-                            setEquipment(prev => {
-                              const eqIdx = prev.findIndex(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant);
-                              let newArr = prev.slice();
-                              if (eqIdx === -1) {
-                                const itemIds = Array.from({ length: itemIdsArr.length }, (_, i) => i === idx ? val : '');
-                                newArr.push({ experimentId: exp._id, name: eq.name, variant: eq.variant, itemIds });
-                              } else {
-                                const itemIds = (newArr[eqIdx].itemIds || Array(itemIdsArr.length).fill('')).slice();
-                                itemIds[idx] = val;
-                                newArr[eqIdx] = { ...newArr[eqIdx], itemIds };
-                              }
-                              return newArr;
-                            });
-                          }}
-                        />
-                        <button
-                          className="px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs"
-                          onClick={() => setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: !s[`${eqKey}_${idx}`] }))}
-                        >
-                          {scanning[`${eqKey}_${idx}`] ? 'Stop Scan' : 'Scan QR'}
-                        </button>
-                        {eqState.itemIds[idx] && (
-                          <button
-                            className="ml-1 text-red-500 hover:text-red-700"
-                            onClick={() => setEquipment(prev => {
-                              const eqIdx = prev.findIndex(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant);
-                              if (eqIdx === -1) return prev;
-                              let newArr = prev.slice();
-                              const itemIds = (newArr[eqIdx].itemIds || Array(itemIdsArr.length).fill('')).slice();
-                              itemIds[idx] = '';
-                              newArr[eqIdx] = { ...newArr[eqIdx], itemIds };
-                              return newArr;
-                            })}
-                          >&#215;</button>
-                        )}                        {scanning[`${eqKey}_${idx}`] && (
-                          <div className="mt-2">
-                            <EquipmentQRScanner
-                              onScan={itemId => {
-                                // The EquipmentQRScanner already extracts the itemId string
-                                if (!itemId || typeof itemId !== 'string') {
-                                  Swal.fire({
-                                    icon: 'error',
-                                    title: 'Invalid QR code data',
-                                    text: 'Please scan a valid equipment QR code'
-                                  });
-                                  return;
+                        <div className="flex-1 flex items-center gap-2">
+                          <input
+                            type="text"
+                            placeholder={`Item ID #${idx + 1}`}
+                            className={`flex-1 ${THEME.inputBg} ${THEME.inputBorder} border rounded-md px-3 py-2 text-xs ${THEME.inputFocus} transition-all`}
+                            value={eqState.itemIds[idx] || ''}
+                            onChange={e => {
+                              const val = e.target.value.trim();
+                              setEquipment(prev => {
+                                const eqIdx = prev.findIndex(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant);
+                                let newArr = prev.slice();
+                                if (eqIdx === -1) {
+                                  const itemIds = Array.from({ length: itemIdsArr.length }, (_, i) => i === idx ? val : '');
+                                  newArr.push({ experimentId: exp._id, name: eq.name, variant: eq.variant, itemIds });
+                                } else {
+                                  const itemIds = (newArr[eqIdx].itemIds || Array(itemIdsArr.length).fill('')).slice();
+                                  itemIds[idx] = val;
+                                  newArr[eqIdx] = { ...newArr[eqIdx], itemIds };
                                 }
-                                
-                                // Update the specific input field that triggered the scan
-                                setEquipment(prev => {
-                                  const eqIdx = prev.findIndex(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant);
-                                  let newArr = prev.slice();
-                                  if (eqIdx === -1) {
-                                    const itemIds = Array.from({ length: itemIdsArr.length }, (_, i) => i === idx ? itemId : '');
-                                    newArr.push({ experimentId: exp._id, name: eq.name, variant: eq.variant, itemIds });
-                                  } else {
-                                    const itemIds = (newArr[eqIdx].itemIds || Array(itemIdsArr.length).fill('')).slice();
-                                    itemIds[idx] = itemId;
-                                    newArr[eqIdx] = { ...newArr[eqIdx], itemIds };
+                                return newArr;
+                              });
+                            }}
+                          />
+                          <button
+                            className={`px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                              scanning[`${eqKey}_${idx}`] 
+                                ? 'bg-red-100 text-red-700 hover:bg-red-200' 
+                                : `${THEME.secondaryBg} text-white hover:bg-[#42A5F5]`
+                            }`}
+                            onClick={() => setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: !s[`${eqKey}_${idx}`] }))}
+                          >
+                            {scanning[`${eqKey}_${idx}`] ? 'Stop' : 'QR'}
+                          </button>
+                          {eqState.itemIds[idx] && (
+                            <button
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded p-1 transition-colors"
+                              onClick={() => setEquipment(prev => {
+                                const eqIdx = prev.findIndex(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant);
+                                if (eqIdx === -1) return prev;
+                                let newArr = prev.slice();
+                                const itemIds = (newArr[eqIdx].itemIds || Array(itemIdsArr.length).fill('')).slice();
+                                itemIds[idx] = '';
+                                newArr[eqIdx] = { ...newArr[eqIdx], itemIds };
+                                return newArr;
+                              })}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                        {scanning[`${eqKey}_${idx}`] && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-[999999] rounded-lg">
+                            <div className="bg-white rounded-lg p-4 max-w-md w-full mx-4">
+                              <EquipmentQRScanner
+                                onScan={itemId => {
+                                  // The EquipmentQRScanner already extracts the itemId string
+                                  if (!itemId || typeof itemId !== 'string') {
+                                    Swal.fire({
+                                      icon: 'error',
+                                      title: 'Invalid QR code data',
+                                      text: 'Please scan a valid equipment QR code'
+                                    });
+                                    return;
                                   }
-                                  return newArr;
-                                });
-                                
-                                // Close the scanner for this specific input
-                                setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: false }));
-                                
-                                // Show success message
-                                Swal.fire({
-                                  icon: 'success',
-                                  title: 'Equipment Scanned!',
-                                  text: `Item ID ${itemId} added for return`,
-                                  showConfirmButton: false,
-                                  timer: 2000
-                                });
-                              }}
-                              onClose={() => setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: false }))}
-                            />
+                                  
+                                  // Update the specific input field that triggered the scan
+                                  setEquipment(prev => {
+                                    const eqIdx = prev.findIndex(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant);
+                                    let newArr = prev.slice();
+                                    if (eqIdx === -1) {
+                                      const itemIds = Array.from({ length: itemIdsArr.length }, (_, i) => i === idx ? itemId : '');
+                                      newArr.push({ experimentId: exp._id, name: eq.name, variant: eq.variant, itemIds });
+                                    } else {
+                                      const itemIds = (newArr[eqIdx].itemIds || Array(itemIdsArr.length).fill('')).slice();
+                                      itemIds[idx] = itemId;
+                                      newArr[eqIdx] = { ...newArr[eqIdx], itemIds };
+                                    }
+                                    return newArr;
+                                  });
+                                  
+                                  // Close the scanner for this specific input
+                                  setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: false }));
+                                  
+                                  // Show success message
+                                  Swal.fire({
+                                    icon: 'success',
+                                    title: 'Equipment Scanned!',
+                                    text: `Item ID ${itemId} added for return`,
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                  });
+                                }}
+                                onClose={() => setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: false }))}
+                              />
+                            </div>
                           </div>
                         )}
                       </div>
@@ -264,33 +309,79 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className={`${THEME.card} rounded-xl max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto`}>
-        <div className="flex justify-between items-start mb-6">
-          <h3 className={`text-xl font-bold ${THEME.primaryText}`}>Return Request Items</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div 
+      className="fixed inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center p-4 z-[99999]"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className={`${THEME.card} rounded-xl max-w-5xl w-full p-6 max-h-[95vh] overflow-hidden relative z-[99999]`}>
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200/50">
+          <h3 className={`text-lg font-semibold ${THEME.primaryText}`}>Return Request Items</h3>
+          <button 
+            onClick={onClose} 
+            className="text-gray-500 hover:text-gray-700 hover:bg-gray-100/80 rounded-full p-1 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-        <div className="flex flex-col gap-6">
-          <div>
-            <h4 className="font-semibold mb-2">Chemicals</h4>
-            {renderChemicals()}
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2">Glassware</h4>
-            {renderGlassware()}
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2">Equipment</h4>
-            {renderEquipment()}
+
+        {/* Content */}
+        <div className="overflow-y-auto max-h-[calc(95vh-180px)] pr-2">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            {/* Chemicals Section */}
+            <div className={`${THEME.card} rounded-lg p-4`}>
+              <h4 className={`text-sm font-medium ${THEME.primaryText} mb-3 flex items-center gap-2`}>
+                <div className={`w-2 h-2 rounded-full ${THEME.secondaryBg}`}></div>
+                Chemicals
+              </h4>
+              <div className="space-y-3">
+                {renderChemicals()}
+              </div>
+            </div>
+
+            {/* Glassware Section */}
+            <div className={`${THEME.card} rounded-lg p-4`}>
+              <h4 className={`text-sm font-medium ${THEME.primaryText} mb-3 flex items-center gap-2`}>
+                <div className={`w-2 h-2 rounded-full ${THEME.secondaryBg}`}></div>
+                Glassware
+              </h4>
+              <div className="space-y-3">
+                {renderGlassware()}
+              </div>
+            </div>
+
+            {/* Equipment Section */}
+            <div className={`${THEME.card} rounded-lg p-4`}>
+              <h4 className={`text-sm font-medium ${THEME.primaryText} mb-3 flex items-center gap-2`}>
+                <div className={`w-2 h-2 rounded-full ${THEME.secondaryBg}`}></div>
+                Equipment
+              </h4>
+              <div className="space-y-3">
+                {renderEquipment()}
+              </div>
+            </div>
           </div>
         </div>
-        <div className="flex justify-end mt-8 gap-2">
-          <button onClick={onClose} className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-medium">Cancel</button>
-          <button onClick={handleReturn} disabled={loading} className={`px-4 py-2 rounded ${THEME.primaryBg} text-white font-medium ${loading ? 'opacity-60' : ''}`}>Return</button>
+
+        {/* Footer */}
+        <div className="flex justify-end mt-6 pt-4 border-t border-gray-200/50 gap-3">
+          <button 
+            onClick={onClose} 
+            className={`px-4 py-2 rounded-lg ${THEME.inputBg} ${THEME.mutedText} font-medium text-sm hover:bg-gray-200/80 transition-colors`}
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleReturn} 
+            disabled={loading} 
+            className={`px-6 py-2 rounded-lg ${THEME.primaryBg} text-white font-medium text-sm hover:bg-[#1A365D] transition-colors ${
+              loading ? 'opacity-60 cursor-not-allowed' : ''
+            }`}
+          >
+            {loading ? 'Returning...' : 'Return Items'}
+          </button>
         </div>
       </div>
     </div>
