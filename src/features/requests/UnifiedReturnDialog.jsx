@@ -33,51 +33,49 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
       
       // Prepare chemicals payload with proper chemical identification
       const chemicalsWithName = chemicals.map(c => {
-        // Find the experiment and chemical to get the name
+        // Find the experiment and chemical to get the name and proper IDs
         const exp = request.experiments.find(e => e._id === c.experimentId || e.experimentId === c.experimentId);
-        let chemName = '';
+        let chemName = c.chemicalName || ''; // Use stored name if available
         let finalChemicalMasterId = c.chemicalMasterId;
         
         if (exp && exp.chemicals) {
-          // Try to find by chemicalMasterId first
-          let chem = exp.chemicals.find(chem => chem.chemicalMasterId === c.chemicalMasterId);
-          
-          // If not found, try by chemicalId
-          if (!chem && c.chemicalId) {
-            chem = exp.chemicals.find(chem => chem._id === c.chemicalId);
-            if (chem) {
-              finalChemicalMasterId = chem.chemicalMasterId; // Use the correct chemicalMasterId
+          // If we have uniqueKey, extract the index and find the exact chemical
+          if (c.uniqueKey) {
+            const keyParts = c.uniqueKey.split('_');
+            const chemIndex = parseInt(keyParts[2]) || 0; // Extract index from uniqueKey
+            const targetChem = exp.chemicals.filter(chem => chem.isAllocated && chem.allocatedQuantity > 0)[chemIndex];
+            
+            if (targetChem) {
+              chemName = targetChem.chemicalName;
+              finalChemicalMasterId = targetChem.chemicalMasterId;
             }
           }
           
-          // If still not found, try by uniqueKey
-          if (!chem && c.uniqueKey) {
-            const [expId, chemId] = c.uniqueKey.split('_');
-            chem = exp.chemicals.find(chem => chem._id === chemId);
+          // Fallback: Try to find by chemicalId
+          if (!chemName && c.chemicalId) {
+            const chem = exp.chemicals.find(chem => chem._id === c.chemicalId);
             if (chem) {
-              finalChemicalMasterId = chem.chemicalMasterId; // Use the correct chemicalMasterId
+              chemName = chem.chemicalName;
+              finalChemicalMasterId = chem.chemicalMasterId;
             }
           }
           
-          if (chem) {
-            chemName = chem.chemicalName;
-          }
-        }
-        
-        // Fallback: try to find by allocatedQuantity if still not found
-        if (!chemName && exp && exp.chemicals) {
-          const chem = exp.chemicals.find(chem => chem.isAllocated && chem.allocatedQuantity > 0);
-          if (chem) {
-            chemName = chem.chemicalName;
-            finalChemicalMasterId = chem.chemicalMasterId;
+          // Fallback: Try to find by chemicalMasterId if it exists
+          if (!chemName && c.chemicalMasterId) {
+            const chem = exp.chemicals.find(chem => chem.chemicalMasterId === c.chemicalMasterId);
+            if (chem) {
+              chemName = chem.chemicalName;
+            }
           }
         }
         
         return { 
           experimentId: c.experimentId,
           chemicalMasterId: finalChemicalMasterId,
+          chemicalId: c.chemicalId, // Include chemical ID for backend reference
           quantity: c.quantity,
-          chemicalName: chemName 
+          chemicalName: chemName,
+          uniqueIdentifier: c.uniqueKey // Include unique key for debugging
         };
       });
 
@@ -99,6 +97,13 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
           quantity: g.quantity
         };
       });
+      
+      // Debug: Log the payload before sending
+      console.log('=== RETURN PAYLOAD DEBUG ===');
+      console.log('Chemicals array:', chemicalsWithName);
+      console.log('Glassware array:', glasswarePayload);
+      console.log('Equipment array:', equipment);
+      console.log('===========================');
       
       await axios.put(
         `https://backend-pharmacy-5541.onrender.com/api/requests/${request._id}/return-unified`,
@@ -138,9 +143,9 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
             {exp.experimentName}
           </div>
           <div className="space-y-2">
-            {exp.chemicals?.filter(chem => chem.isAllocated && (chem.allocatedQuantity > 0)).map(chem => {
-              // Create a unique key for each chemical input
-              const uniqueKey = `${exp._id}_${chem._id}_${chem.chemicalMasterId || 'no-master-id'}`;
+            {exp.chemicals?.filter(chem => chem.isAllocated && (chem.allocatedQuantity > 0)).map((chem, chemIndex) => {
+              // Create a unique key for each chemical input using index as well
+              const uniqueKey = `${exp._id}_${chem._id}_${chemIndex}_${chem.chemicalMasterId || 'no-master-id'}`;
               
               return (
                 <div key={uniqueKey} className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-3 ${THEME.inputBg} ${THEME.inputBorder} border rounded-lg p-3 ${THEME.cardHover}`}>
@@ -148,6 +153,10 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
                     <div className={`text-sm font-medium ${THEME.primaryText}`}>{chem.chemicalName}</div>
                     <div className={`text-xs ${THEME.mutedText}`}>
                       Allocated: {chem.allocatedQuantity} {chem.unit}
+                    </div>
+                    {/* Show index for debugging duplicate names */}
+                    <div className={`text-xs ${THEME.mutedText} opacity-60`}>
+                      ID: {chem._id} | Index: #{chemIndex + 1}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-2">
@@ -162,28 +171,25 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
                           c.experimentId === exp._id && 
                           ((c.chemicalMasterId && c.chemicalMasterId === chem.chemicalMasterId) || 
                            (c.chemicalId && c.chemicalId === chem._id) ||
-                           (!c.chemicalMasterId && !c.chemicalId && c.uniqueKey === uniqueKey))
+                           (c.uniqueKey === uniqueKey))
                         )?.quantity || ''
                       }
                       onChange={e => {
                         const val = parseFloat(e.target.value) || 0;
                         setChemicals(prev => {
-                          // Remove any existing entry for this specific chemical
-                          const filtered = prev.filter(c => 
-                            !(c.experimentId === exp._id && 
-                              ((c.chemicalMasterId && c.chemicalMasterId === chem.chemicalMasterId) || 
-                               (c.chemicalId && c.chemicalId === chem._id) ||
-                               (!c.chemicalMasterId && !c.chemicalId && c.uniqueKey === uniqueKey)))
-                          );
+                          // Remove any existing entry for this specific chemical using unique key
+                          const filtered = prev.filter(c => c.uniqueKey !== uniqueKey);
                           
                           // Add new entry if value > 0
                           if (val > 0) {
                             const newEntry = {
                               experimentId: exp._id,
                               chemicalMasterId: chem.chemicalMasterId,
-                              chemicalId: chem._id, // Add chemical ID as backup
-                              uniqueKey: uniqueKey, // Add unique key as fallback
-                              quantity: val
+                              chemicalId: chem._id, // Always use chemical ID as primary identifier
+                              uniqueKey: uniqueKey, // Use unique key as primary matcher
+                              quantity: val,
+                              chemicalName: chem.chemicalName,
+                              chemicalIndex: chemIndex // Add index for additional uniqueness
                             };
                             return [...filtered, newEntry];
                           }
@@ -213,9 +219,22 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
           <div className="space-y-2">
             {exp.glassware?.filter(glass => {
               // More flexible filtering for glassware
-              return glass.isAllocated && 
-                     (glass.allocatedQuantity > 0 || 
-                      (glass.quantity > 0 && glass.allocatedQuantity === undefined));
+              // Check if glass is allocated and has quantity in various places
+              if (!glass.isAllocated) return false;
+              
+              // Check for allocatedQuantity on root object
+              if (glass.allocatedQuantity > 0) return true;
+              
+              // Check for quantity in allocationHistory
+              if (Array.isArray(glass.allocationHistory) && glass.allocationHistory.length > 0) {
+                const lastAllocation = glass.allocationHistory[glass.allocationHistory.length - 1];
+                if (lastAllocation.quantity > 0) return true;
+              }
+              
+              // Fallback to quantity on root object
+              if (glass.quantity > 0 && glass.allocatedQuantity === undefined) return true;
+              
+              return false;
             }).map(glass => {
               // Create a unique key for each glassware input
               const uniqueKey = `${exp._id}_${glass._id}_${glass.glasswareId || glass.glasswareMasterId || 'no-glassware-id'}`;
@@ -225,14 +244,34 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
                   <div className="flex-1">
                     <div className={`text-sm font-medium ${THEME.primaryText}`}>{glass.glasswareName || glass.name}</div>
                     <div className={`text-xs ${THEME.mutedText}`}>
-                      Allocated: {glass.allocatedQuantity || glass.quantity || 0}
+                      Allocated: {(() => {
+                        // Show allocated quantity from various sources
+                        if (glass.allocatedQuantity > 0) return glass.allocatedQuantity;
+                        if (Array.isArray(glass.allocationHistory) && glass.allocationHistory.length > 0) {
+                          const lastAllocation = glass.allocationHistory[glass.allocationHistory.length - 1];
+                          return lastAllocation.quantity || 0;
+                        }
+                        return glass.quantity || 0;
+                      })()}
+                    </div>
+                    {/* Debug info - remove in production */}
+                    <div className={`text-xs ${THEME.mutedText} opacity-60`}>
+                      ID: {glass._id} | History: {Array.isArray(glass.allocationHistory) ? glass.allocationHistory.length : 0} entries
                     </div>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-2">
                     <input
                       type="number"
                       min={0}
-                      max={glass.allocatedQuantity || glass.quantity || 0}
+                      max={(() => {
+                        // Calculate max quantity from various sources
+                        if (glass.allocatedQuantity > 0) return glass.allocatedQuantity;
+                        if (Array.isArray(glass.allocationHistory) && glass.allocationHistory.length > 0) {
+                          const lastAllocation = glass.allocationHistory[glass.allocationHistory.length - 1];
+                          return lastAllocation.quantity || 0;
+                        }
+                        return glass.quantity || 0;
+                      })()}
                       placeholder="Qty"
                       className={`w-20 sm:w-20 ${THEME.inputBg} ${THEME.inputBorder} border rounded-md px-2 py-2 text-xs ${THEME.inputFocus} transition-all min-h-[40px]`}
                       value={
