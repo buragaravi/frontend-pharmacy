@@ -126,7 +126,7 @@ const InvoicePage = () => {
       </div>
 
       {/* Custom Styles for Animations */}
-      <style jsx>{`
+      <style>{`
         .animate-fade-in {
           animation: fadeIn 0.5s ease-in-out;
         }

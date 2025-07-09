@@ -88,7 +88,7 @@ const OfflineIndicator = () => {
       )}
 
       {/* Custom Styles */}
-      <style jsx>{`
+      <style>{`
         .animate-slide-down {
           animation: slideDown 0.3s ease-out;
         }

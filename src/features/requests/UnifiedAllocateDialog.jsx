@@ -259,8 +259,8 @@ const UnifiedAllocateDialog = ({ request, onClose, onSuccess }) => {
                             )}
                           </div>
                           {scanning[`${eqKey}_${idx}`] && (
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-[999999] rounded-lg">
-                              <div className="bg-white rounded-lg p-4 max-w-md w-full mx-4">
+                            <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[999999] p-2 sm:p-4">
+                              <div className="bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl rounded-lg p-3 sm:p-4 max-w-sm sm:max-w-md w-full mx-2 sm:mx-4 max-h-[90vh] overflow-auto">
                                 <EquipmentQRScanner
                                   onScan={itemId => {
                                     // The EquipmentQRScanner already extracts the itemId string
@@ -308,10 +308,11 @@ const UnifiedAllocateDialog = ({ request, onClose, onSuccess }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[99999]"
+      className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 z-[99999]"
       onClick={(e) => e.target === e.currentTarget && onClose()}
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999 }}
     >
-      <div className={`${THEME.card} rounded-xl max-w-5xl w-full p-6 max-h-[95vh] overflow-hidden relative z-[99999]`}>
+      <div className={`${THEME.card} rounded-xl max-w-7xl w-full p-4 sm:p-6 max-h-[95vh] overflow-hidden relative z-[99999]`}>
         {/* Header */}
         <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200/50">
           <h3 className={`text-lg font-semibold ${THEME.primaryText}`}>Allocate Request Items</h3>

@@ -406,8 +406,12 @@ const RequestDetailsModal = ({ request, open, onClose }) => {
   if (!open || !request) return null;
 
   return (
-    <div className="w-full max-w-4xl max-h-[95vh] overflow-hidden relative z-[9999]">
-      <div className={`${THEME.card} rounded-xl w-full max-h-[95vh] overflow-hidden relative z-[9999]`}>
+    <div 
+      className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[999999] p-2 sm:p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999 }}
+    >
+      <div className={`${THEME.card} rounded-xl w-full max-w-4xl max-h-[95vh] overflow-hidden relative z-[999999]`}>
         <div className="p-6 overflow-y-auto max-h-[95vh]">
           <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200/50">
             <h2 className={`text-lg font-semibold ${THEME.primaryText}`}>Request Details</h2>

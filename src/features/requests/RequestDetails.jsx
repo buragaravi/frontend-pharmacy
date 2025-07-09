@@ -43,8 +43,12 @@ const RequestDetails = ({ request, onClose, onStatusUpdate, userRole }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
+    <div 
+      className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-[99999]"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999 }}
+    >
+      <div className="bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl rounded-xl max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto relative z-[99999]">
         <div className="flex justify-between items-start mb-6">
           <h3 className={`text-xl font-bold ${THEME.primaryText}`}>Request Details</h3>
           <button

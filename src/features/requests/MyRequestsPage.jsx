@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 // CSS Animations
 const AnimationStyles = () => (
-  <style jsx>{`
+  <style>{`
     @keyframes blob {
       0% { transform: translate(0px, 0px) scale(1); }
       33% { transform: translate(30px, -50px) scale(1.1); }
@@ -159,15 +159,15 @@ const MyRequestsPage = () => {
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   
                   {/* Title Section */}
-                  <div className="flex items-center space-x-4">
-                    <div className={`bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-lg flex items-center justify-center relative z-60`}>
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    <div className={`bg-gradient-to-br from-blue-500 to-blue-600 p-2 sm:p-3 rounded-lg sm:rounded-xl shadow-lg flex items-center justify-center relative z-60`}>
                       <MyRequestsIcon />
                     </div>
                     <div>
-                      <h1 className={`text-2xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent leading-tight`}>
+                      <h1 className={`text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent leading-tight`}>
                         My Requests
                       </h1>
-                      <p className="text-sm text-gray-700 font-medium mt-1">Manage and track your submitted requests</p>
+                      <p className="text-xs sm:text-sm text-gray-700 font-medium mt-1">Manage and track your submitted requests</p>
                     </div>
                   </div>
 
@@ -262,22 +262,22 @@ const MyRequestsPage = () => {
                 <div className="space-y-6">
                   
                   {/* Stats Summary */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl text-center border border-blue-200/50">
-                      <div className="text-lg font-bold text-blue-600">{requests.length}</div>
-                      <div className="text-xs text-blue-700">Total</div>
+                      <div className="text-xl sm:text-2xl font-bold text-blue-600">{requests.length}</div>
+                      <div className="text-xs sm:text-sm text-blue-700">Total</div>
                     </div>
                     <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-3 rounded-xl text-center border border-amber-200/50">
-                      <div className="text-lg font-bold text-amber-600">{requests.filter(r => r.status === 'pending').length}</div>
-                      <div className="text-xs text-amber-700">Pending</div>
+                      <div className="text-xl sm:text-2xl font-bold text-amber-600">{requests.filter(r => r.status === 'pending').length}</div>
+                      <div className="text-xs sm:text-sm text-amber-700">Pending</div>
                     </div>
                     <div className="bg-gradient-to-br from-green-50 to-green-100 p-3 rounded-xl text-center border border-green-200/50">
-                      <div className="text-lg font-bold text-green-600">{requests.filter(r => r.status === 'approved').length}</div>
-                      <div className="text-xs text-green-700">Approved</div>
+                      <div className="text-xl sm:text-2xl font-bold text-green-600">{requests.filter(r => r.status === 'approved').length}</div>
+                      <div className="text-xs sm:text-sm text-green-700">Approved</div>
                     </div>
                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-xl text-center border border-purple-200/50">
-                      <div className="text-lg font-bold text-purple-600">{requests.filter(r => r.status === 'fulfilled').length}</div>
-                      <div className="text-xs text-purple-700">Fulfilled</div>
+                      <div className="text-xl sm:text-2xl font-bold text-purple-600">{requests.filter(r => r.status === 'fulfilled').length}</div>
+                      <div className="text-xs sm:text-sm text-purple-700">Fulfilled</div>
                     </div>
                   </div>
 
@@ -288,7 +288,7 @@ const MyRequestsPage = () => {
                       <span className="ml-2 text-xs font-normal text-gray-600">({filteredRequests.length} found)</span>
                     </h3>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 relative z-50">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 relative z-50">
                       {paginatedRequests.map((req, index) => (
                         <div 
                           key={req._id} 
@@ -309,13 +309,13 @@ const MyRequestsPage = () => {
                   {/* Pagination Controls */}
                   {totalPages > 1 && (
                     <div className="flex justify-center pt-6 relative z-60">
-                      <nav className="flex items-center space-x-3 bg-white/95 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/40 shadow-lg relative z-70">
+                      <nav className="flex items-center space-x-2 sm:space-x-3 bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 border border-white/40 shadow-lg relative z-70">
                         
                         {/* Previous Button */}
                         <button
                           onClick={() => handlePageChange(currentPage - 1)}
                           disabled={currentPage === 1}
-                          className={`flex items-center justify-center w-8 h-8 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 text-blue-600 hover:bg-blue-50 hover:shadow-md relative z-80 ${
+                          className={`flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 text-blue-600 hover:bg-blue-50 hover:shadow-md relative z-80 ${
                             currentPage === 1 ? 'bg-gray-100' : 'bg-white shadow-sm hover:scale-105'
                           }`}
                         >
@@ -325,12 +325,12 @@ const MyRequestsPage = () => {
                         </button>
 
                         {/* Page Numbers */}
-                        <div className="flex space-x-1">
+                        <div className="flex space-x-1 sm:space-x-1">
                           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                             <button
                               key={page}
                               onClick={() => handlePageChange(page)}
-                              className={`w-8 h-8 text-xs rounded-lg font-semibold transition-all duration-300 relative z-80 ${
+                              className={`w-10 h-10 sm:w-8 sm:h-8 text-xs rounded-lg font-semibold transition-all duration-300 relative z-80 ${
                                 currentPage === page 
                                   ? `bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-110 ring-2 ring-blue-300/50` 
                                   : `text-blue-700 bg-white hover:bg-blue-50 hover:shadow-md hover:scale-105 shadow-sm`
@@ -345,7 +345,7 @@ const MyRequestsPage = () => {
                         <button
                           onClick={() => handlePageChange(currentPage + 1)}
                           disabled={currentPage === totalPages}
-                          className={`flex items-center justify-center w-8 h-8 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 text-blue-600 hover:bg-blue-50 hover:shadow-md relative z-80 ${
+                          className={`flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 text-blue-600 hover:bg-blue-50 hover:shadow-md relative z-80 ${
                             currentPage === totalPages ? 'bg-gray-100' : 'bg-white shadow-sm hover:scale-105'
                           }`}
                         >
@@ -359,25 +359,18 @@ const MyRequestsPage = () => {
                 </div>
               )}
             </div>
-
-        {/* Modal - Portal-like rendering with highest z-index */}
-        {selectedRequest && (
-          <div 
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-            onClick={(e) => e.target === e.currentTarget && handleCloseDetails()}
-          >
-            <div className="relative z-[9999] w-full max-w-4xl max-h-[90vh] overflow-auto">
-              <RequestDetailsModal 
-                open={true} 
-                request={selectedRequest} 
-                onClose={handleCloseDetails} 
-              />
-            </div>
-          </div>
-        )}
           </div>
         </div>
       </div>
+
+      {/* Modal - Rendered outside main container for proper viewport centering */}
+      {selectedRequest && (
+        <RequestDetailsModal 
+          open={true} 
+          request={selectedRequest} 
+          onClose={handleCloseDetails} 
+        />
+      )}
     </div>
   );
 };

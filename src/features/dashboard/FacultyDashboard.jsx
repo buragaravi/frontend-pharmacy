@@ -685,7 +685,7 @@ const FacultyDashboard = () => {
       )}
       
       {/* Navigation Bar */}
-      <header className="w-full bg-white/80 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-100/50 slide-down">
+      <header className="w-full bg-white/80 backdrop-blur-lg sticky top-0 z-10 border-b border-gray-100/50 slide-down">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6">
           {/* Main header line - Logo, Title, Navigation, User, Menu Button, Logout */}
           <div className="flex items-center justify-between py-4">
