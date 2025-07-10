@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+// Glassmorphic theme constants
+const THEME = {
+  background: 'bg-gradient-to-br from-slate-50/90 via-blue-50/80 to-indigo-100/90',
+  card: 'bg-white/20 backdrop-blur-xl border border-white/30',
+  cardHover: 'hover:bg-white/30 hover:border-white/40',
+  text: {
+    primary: 'text-slate-700',
+    secondary: 'text-slate-600',
+    accent: 'text-blue-600',
+  },
+  button: {
+    primary: 'bg-blue-500/80 hover:bg-blue-600/90 text-white backdrop-blur-sm',
+    secondary: 'bg-white/20 hover:bg-white/30 text-slate-700 backdrop-blur-sm border border-white/30',
+    danger: 'bg-red-500/80 hover:bg-red-600/90 text-white backdrop-blur-sm',
+  },
+  input: 'bg-white/20 border border-white/30 text-slate-700 placeholder-slate-500 backdrop-blur-sm',
+  shadow: 'shadow-xl shadow-blue-500/10',
+};
+
 const labOptions = [
   { label: 'Lab 1', value: 'LAB01' },
   { label: 'Lab 2', value: 'LAB02' },
@@ -147,140 +166,284 @@ const AllocateChemicalForm = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-[#0B3861] mb-4">Allocate Chemicals to Lab</h3>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50/90 via-blue-50/80 to-indigo-100/90 relative">
+      {/* Floating bubbles background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-4 -left-4 w-72 h-72 bg-blue-300/20 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+        <div className="absolute -top-4 -right-4 w-72 h-72 bg-purple-300/20 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300/20 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+      </div>
+
+      <style jsx>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
+
+      {/* Breadcrumb Navigation */}
+      <div className="relative z-10 bg-white/20 backdrop-blur-xl border-b border-white/30 px-6 py-3">
+        <div className="flex items-center text-sm text-slate-600">
+          <span className="hover:text-blue-600 cursor-pointer">Admin Dashboard</span>
+          <svg className="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <span className="hover:text-blue-600 cursor-pointer">Allocation</span>
+          <svg className="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <span className="text-slate-800 font-medium">Allocate Chemicals</span>
+        </div>
+      </div>
       
-      {message && (
-        <div className={`p-3 rounded-lg ${message.includes('success') ? 'bg-[#F5F9FD] text-[#0B3861]' : 'bg-red-100 text-red-800'}`}>
-          {message}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-[#0B3861]">Select Lab</label>
-          <select
-            value={labId}
-            onChange={(e) => setLabId(e.target.value)}
-            className="w-full px-3 py-2 border border-[#BCE0FD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B3861]"
-            required
-          >
-            <option value=""> Select Lab</option>
-            {labOptions.map((lab) => (
-              <option key={lab.value} value={lab.value} className="text-[#0B3861]">
-                {lab.label}
-              </option>
-            ))}
-          </select>
+      <div className="relative z-10 w-full max-w-none mx-auto bg-white/20 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden mx-6 mt-6">
+        {/* Enhanced Background Effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
-        <div className="space-y-4">
-          {chemicals.map((chemical, index) => {
-            const isOutOfStock =
-              chemical.chemicalName &&
-              !availableChemicals.some(
+        {/* Enhanced Header Section */}
+        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-6 text-white overflow-hidden">
+          <div className="absolute inset-0 bg-blue-800/20"></div>
+          <div className="relative z-10">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="text-2xl lg:text-3xl font-bold mb-1">Allocate Chemicals to Lab</h1>
+                  <p className="text-blue-100 text-base">Distribute chemicals from central stock to laboratory units</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+            <div className="w-40 h-40 bg-white/10 rounded-full"></div>
+          </div>
+          <div className="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2">
+            <div className="w-32 h-32 bg-white/10 rounded-full"></div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="relative z-10 p-6">
+        {message && (
+          <div className={`w-full p-4 rounded-xl mb-6 ${
+            message.includes('success') 
+              ? 'bg-green-50 border border-green-200 text-green-800' 
+              : 'bg-red-50 border border-red-200 text-red-800'
+          }`}>
+            <div className="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`h-5 w-5 mr-2 ${
+                  message.includes('success') ? 'text-green-500' : 'text-red-500'
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {message.includes('success') ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                )}
+              </svg>
+              {message}
+            </div>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="w-full space-y-6">
+          {/* Lab Selection */}
+          <div className="w-full bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+            <label className="block text-sm font-medium text-gray-700 mb-3">Select Destination Lab</label>
+            <select
+              value={labId}
+              onChange={(e) => setLabId(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              required
+            >
+              <option value="">Choose a laboratory</option>
+              {labOptions.map((lab) => (
+                <option key={lab.value} value={lab.value}>
+                  {lab.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Chemical Selection */}
+          <div className="w-full space-y-4">
+            {chemicals.map((chemical, index) => {
+              const isOutOfStock = chemical.chemicalName && !availableChemicals.some(
                 (chem) =>
                   (chem.displayName || chem.chemicalName).toLowerCase() === chemical.chemicalName.toLowerCase() &&
                   chem.quantity > 0
               );
 
-            return (
-              <div key={index} className="bg-[#F5F9FD] p-4 rounded-xl border border-[#BCE0FD] space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[#0B3861] mb-1">Chemical Name</label>
-                    <input
-                      list={`chemical-list-${index}`}
-                      value={chemical.chemicalName}
-                      onChange={(e) => handleChemicalNameChange(index, e.target.value)}
-                      className="w-full px-3 py-2 border border-[#BCE0FD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B3861]"
-                      placeholder="Search chemical..."
-                      required
-                    />
-                    <datalist id={`chemical-list-${index}`}>
-                      {availableChemicals.map((chem) => (
-                        <option
-                          key={`${chem.chemicalMasterId}-${chem.displayName || chem.chemicalName}-${index}`}
-                          value={chem.displayName || chem.chemicalName}
-                        >
-                          {(chem.displayName || chem.chemicalName)} ({chem.unit}) - {chem.quantity} in stock
-                        </option>
-                      ))}
-                    </datalist>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#0B3861] mb-1">Quantity</label>
-                    <div className="flex items-center gap-2">
+              return (
+                <div key={index} className="w-full bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                  <div className="w-full flex flex-wrap gap-4 items-end">
+                    {/* Chemical Name */}
+                    <div className="flex-1 min-w-[200px] max-w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Chemical Name</label>
                       <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={chemical.quantity}
-                        onChange={(e) => handleQuantityChange(index, e.target.value)}
-                        className="flex-1 px-3 py-2 border border-[#BCE0FD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B3861]"
-                        placeholder="0.00"
+                        list={`chemical-list-${index}`}
+                        value={chemical.chemicalName}
+                        onChange={(e) => handleChemicalNameChange(index, e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        placeholder="Search chemical..."
                         required
                       />
-                      {chemical.unit && (
-                        <span className="text-sm text-[#0B3861] font-medium">{chemical.unit}</span>
-                      )}
+                      <datalist id={`chemical-list-${index}`}>
+                        {availableChemicals.map((chem) => (
+                          <option
+                            key={`${chem.chemicalMasterId}-${chem.displayName || chem.chemicalName}-${index}`}
+                            value={chem.displayName || chem.chemicalName}
+                          >
+                            {(chem.displayName || chem.chemicalName)} ({chem.unit}) - {chem.quantity} in stock
+                          </option>
+                        ))}
+                      </datalist>
                     </div>
-                  </div>
 
-                  <div className="flex items-end">
+                    {/* Quantity */}
+                    <div className="flex-1 min-w-[150px] max-w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={chemical.quantity}
+                          onChange={(e) => handleQuantityChange(index, e.target.value)}
+                          className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                          placeholder="0.00"
+                          required
+                        />
+                        {chemical.unit && (
+                          <span className="text-sm text-blue-600 font-medium px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
+                            {chemical.unit}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Remove Button */}
                     {chemicals.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeChemicalRow(index)}
-                        className="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-                      >
-                        Remove
-                      </button>
+                      <div className="flex-shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => removeChemicalRow(index)}
+                          className="px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl transition-all duration-200 flex items-center"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Remove
+                        </button>
+                      </div>
                     )}
                   </div>
+
+                  {isOutOfStock && (
+                    <div className="mt-4 flex items-center p-3 bg-red-50 border border-red-200 rounded-xl">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-red-500 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-sm text-red-600">This chemical is currently out of stock.</p>
+                    </div>
+                  )}
                 </div>
+              );
+            })}
+          </div>
 
-                {isOutOfStock && (
-                  <p className="text-sm text-red-600 mt-1">This chemical is currently out of stock.</p>
-                )}
-              </div>
-            );
-          })}
+          {/* Action Buttons */}
+          <div className="w-full flex flex-wrap gap-4 justify-between items-center">
+            <button
+              type="button"
+              onClick={addChemicalRow}
+              className="px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 rounded-xl font-medium transition-all duration-200 flex items-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Add Another Chemical
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={`px-8 py-3 rounded-xl font-medium transition-all duration-200 flex items-center ${
+                loading
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 shadow-lg hover:shadow-xl'
+              }`}
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Allocating...
+                </>
+              ) : (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Allocate Chemicals
+                </>
+              )}
+            </button>
+          </div>
+        </form>
         </div>
-
-        <div className="flex flex-wrap gap-4">
-          <button
-            type="button"
-            onClick={addChemicalRow}
-            className="px-4 py-2 bg-[#F5F9FD] text-[#0B3861] rounded-lg font-medium hover:bg-[#BCE0FD] transition-colors"
-          >
-            + Add Another Chemical
-          </button>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              loading
-                ? 'bg-gray-300 text-gray-600'
-                : 'bg-[#0B3861] text-white hover:bg-[#1E88E5]'
-            }`}
-          >
-            {loading ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Allocating...
-              </span>
-            ) : (
-              'Allocate Chemicals'
-            )}
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };

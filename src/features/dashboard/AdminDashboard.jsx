@@ -117,7 +117,6 @@ const NAV_CATEGORIES = {
   'Allocation': [
     { key: 'allocate_equipment', label: 'Allocate Equipment', icon: AllocateIcon, component: <AllocateEquipmentToLabByScanForm /> },
     { key: 'allocate_glassware', label: 'Allocate Glassware', icon: GlasswareIcon, component: <AllocateGlasswareForm /> },
-    { key: 'allocate_other', label: 'Allocate Other Products', icon: ProductIcon, component: <AllocateOtherProductForm /> }
   ],
   'Reports & Analytics': [
     { key: 'transactions', label: 'Reports', icon: ReportIcon, component: <TransactionsPage /> },
