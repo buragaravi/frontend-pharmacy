@@ -133,6 +133,25 @@ const AllocateEquipmentForm = () => {
           </div>
         </div>
 
+        {/* Breadcrumb Navigation */}
+        <div className="relative z-10 px-8 py-4 bg-white/40 backdrop-blur-sm border-b border-white/20">
+          <nav className="flex items-center space-x-2 text-sm">
+            <a href="/dashboard" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+              Dashboard
+            </a>
+            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+            <a href="/equipment" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+              Equipment Management
+            </a>
+            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+            <span className="text-slate-600 font-medium">Allocate Equipment</span>
+          </nav>
+        </div>
+
         {/* Main Content */}
         <div className="relative z-10 p-8">
         {/* Message Display */}

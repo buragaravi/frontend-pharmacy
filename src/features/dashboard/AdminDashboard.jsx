@@ -598,45 +598,59 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen font-sans bg-gray-50">
       {/* Navigation Bar */}
-      <header className="w-full bg-white shadow-sm backdrop-blur sticky top-0 z-50 border-b border-gray-100">
-        {/* First line - Logo, Title, User, Logout */}
-        <div className="w-full border-b border-gray-100">
-          <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <img src="/pydah.svg" alt="Logo" className="h-8 w-auto sm:h-10" />
-              <span className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-800 tracking-tight whitespace-nowrap">
-                Admin Dashboard
-              </span>
+      <header className="w-full bg-gradient-to-br from-slate-50/90 via-blue-50/80 to-indigo-100/90 backdrop-blur-xl sticky top-0 z-50 border-b border-white/30 shadow-xl shadow-blue-500/10">
+        {/* Enhanced Header Section */}
+        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 overflow-hidden">
+          <div className="absolute inset-0 bg-blue-800/20"></div>
+          <div className="relative z-10 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+            <div className="flex items-center gap-4">
+              <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
+                <img src="/pydah.svg" alt="Logo" className="h-6 w-auto sm:h-7" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                  Admin Dashboard
+                </h1>
+                <p className="text-blue-100 text-xs">Management hub</p>
+              </div>
             </div>
             <div className="flex items-center gap-3 sm:gap-4">
               <NotificationCenter notifications={notifications} onMarkAsRead={markNotificationAsRead} />
               {user && (
-                <span className="hidden sm:inline text-sm lg:text-base font-medium text-blue-700">
+                <span className="hidden sm:inline text-sm font-medium text-blue-100">
                   Welcome, {user.name}
                 </span>
               )}
               <button
                 onClick={handleLogout}
-                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg bg-white text-blue-700 font-medium hover:bg-blue-50 transition-colors whitespace-nowrap border border-blue-200 shadow-sm hover:shadow-md text-sm sm:text-base"
+                className="px-4 py-2 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-all duration-200 backdrop-blur-sm border border-white/30 shadow-lg text-sm"
               >
                 Logout
               </button>
             </div>
           </div>
+          
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+            <div className="w-32 h-32 bg-white/10 rounded-full"></div>
+          </div>
+          <div className="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2">
+            <div className="w-24 h-24 bg-white/10 rounded-full"></div>
+          </div>
         </div>
 
-        {/* Second line - Horizontal Navigation Bar */}
-        <nav className="w-full bg-white border-b border-gray-100">
-          <div className="w-full flex items-center px-4 sm:px-6 lg:px-8 py-2 sm:py-3 relative">
+        {/* Modern Navigation Bar */}
+        <nav className="w-full bg-white/40 backdrop-blur-sm border-b border-white/20">
+          <div className="w-full flex items-center px-4 sm:px-6 lg:px-8 py-3 relative">
             {/* Mobile Menu Button */}
             <div className="md:hidden">
               <button
-                className="mobile-menu-toggle flex items-center justify-center p-2 sm:p-3 rounded-lg focus:outline-none bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-blue-50 active:bg-blue-100"
+                className="mobile-menu-toggle flex items-center justify-center p-3.5 rounded-2xl focus:outline-none bg-transparent border border-white/60 transition-all duration-400 hover:bg-white/20 active:bg-white/30 backdrop-blur-sm transform hover:scale-102 focus-enhanced"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-label="Toggle menu"
                 type="button"
               >
-                <svg className="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-blue-700 transition-transform duration-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   {mobileMenuOpen ? (
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   ) : (
@@ -647,10 +661,12 @@ const AdminDashboard = () => {
             </div>
             
             {/* Dashboard Button - Desktop */}
-            <div className="hidden md:flex items-center mr-4">
+            <div className="hidden md:flex items-center mr-6">
               <button
-                className={`px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors duration-200 text-sm lg:text-base whitespace-nowrap flex items-center gap-1 lg:gap-2 ${
-                  showDashboard && !selectedChild ? 'bg-blue-100 text-blue-800' : 'hover:bg-blue-50 text-blue-700'
+                className={`px-5 py-3 rounded-2xl font-medium transition-all duration-400 text-sm backdrop-blur-sm border flex items-center gap-2 transform hover:scale-102 ${
+                  showDashboard && !selectedChild 
+                    ? 'bg-blue-500/20 text-blue-700 border-blue-300/40' 
+                    : 'bg-transparent text-slate-700 hover:bg-blue-50/30 border-blue-200/30 hover:border-blue-300/50'
                 }`}
                 onClick={() => {
                   setShowDashboard(true);
@@ -663,28 +679,34 @@ const AdminDashboard = () => {
             </div>
             
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center w-full">
-              {/* Parent Categories as horizontal nav */}
-              <div className="flex items-center space-x-1 lg:space-x-2">
+            <div className="hidden md:flex items-center justify-center w-full">
+              {/* Parent Categories as horizontal nav - Centered */}
+              <div className="flex items-center justify-center space-x-4 lg:space-x-6">
                 {Object.entries(NAV_CATEGORIES).map(([category, items]) => (
                   <div key={category} className="relative dropdown-container">
                     <button
-                      className={`px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors duration-200 text-sm lg:text-base whitespace-nowrap flex items-center gap-1 lg:gap-2 ${
-                        expandedCategory === category ? 'bg-blue-100 text-blue-800' : 'hover:bg-blue-50 text-blue-700'
+                      className={`px-4 lg:px-5 py-3 lg:py-3.5 rounded-2xl font-medium transition-all duration-400 text-sm whitespace-nowrap flex items-center gap-2 transform hover:scale-102 border ${
+                        expandedCategory === category 
+                          ? 'bg-blue-500/20 text-blue-700 border-blue-300/40 backdrop-blur-sm' 
+                          : 'bg-transparent hover:bg-blue-50/30 text-blue-700 border-blue-200/30 hover:border-blue-300/50'
                       }`}
                       onClick={() => handleParentClick(category)}
                     >
                       {category}
-                      <svg className={`w-4 h-4 transition-transform ${expandedCategory === category ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                      <div className={`transition-all duration-400 ${expandedCategory === category ? 'rotate-180' : 'rotate-0'}`}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                        </svg>
+                      </div>
                     </button>
                     {/* Dropdown for child items */}
                     {expandedCategory === category && (
-                      <div className="absolute left-0 mt-2 min-w-[220px] bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                      <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 min-w-[200px] bg-white/95 backdrop-blur-lg border border-blue-100/60 rounded-2xl z-50 overflow-hidden animate-fadeIn">
                         {items.map((item) => (
                           <button
                             key={item.key}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm lg:text-base font-medium transition-colors duration-150 text-left ${
-                              selectedChild === item.key ? 'bg-blue-600 text-white' : 'hover:bg-blue-100 text-blue-700'
+                            className={`w-full flex items-center gap-3 px-4 py-3.5 text-sm font-medium transition-all duration-300 text-left hover:transform hover:scale-[1.01] ${
+                              selectedChild === item.key ? 'bg-blue-500/90 text-white' : 'hover:bg-blue-50/80 text-blue-700'
                             }`}
                             onClick={() => handleChildClick(item)}
                           >
@@ -703,14 +725,14 @@ const AdminDashboard = () => {
         
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden w-full bg-white/95 backdrop-blur-lg border-t border-gray-100/50 mobile-menu-container">
-            <div className="flex flex-col gap-1 py-3 sm:py-4 px-4 sm:px-6 max-h-[70vh] overflow-y-auto">
+          <div className="md:hidden w-full bg-white/95 backdrop-blur-lg border-b border-blue-100/50 mobile-menu-container">
+            <div className="flex flex-col gap-2 py-4 px-4 max-h-[70vh] overflow-y-auto">
               {/* Dashboard Button for Mobile */}
               <button
-                className={`w-full text-left px-4 py-3 sm:py-4 rounded-xl font-medium transition-all duration-200 flex items-center gap-3 sm:gap-4 text-sm sm:text-base ${
+                className={`w-full text-left px-5 py-4 rounded-2xl font-medium transition-all duration-400 flex items-center gap-3 text-sm ${
                   showDashboard && !selectedChild 
-                    ? 'bg-blue-100/80 text-blue-700 shadow-sm' 
-                    : 'bg-white text-blue-600 shadow-sm hover:bg-blue-50'
+                    ? 'bg-blue-500/20 text-blue-700 backdrop-blur-sm border border-blue-300/40' 
+                    : 'bg-transparent text-blue-600 hover:bg-blue-50/30 border border-blue-200/30 hover:border-blue-300/50'
                 }`}
                 onClick={() => {
                   setShowDashboard(true);
@@ -727,25 +749,19 @@ const AdminDashboard = () => {
               {Object.entries(NAV_CATEGORIES).map(([category, items]) => (
                 <div key={category} className="mb-2">
                   <button
-                    className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-between text-sm sm:text-base ${
+                    className={`w-full text-left px-5 py-4 rounded-2xl font-medium transition-all duration-400 flex items-center justify-between text-sm transform hover:scale-[1.01] ${
                       mobileExpandedCategory === category 
-                        ? 'bg-blue-100/80 text-blue-800 shadow-sm' 
-                        : 'bg-gray-50 text-gray-700 hover:bg-blue-50'
+                        ? 'bg-blue-500/20 text-blue-700 backdrop-blur-sm border border-blue-300/40' 
+                        : 'bg-transparent text-blue-700 hover:bg-blue-50/30 border border-blue-200/30 hover:border-blue-300/50'
                     }`}
                     onClick={() => setMobileExpandedCategory(mobileExpandedCategory === category ? null : category)}
                   >
                     <span>{category}</span>
-                    <svg 
-                      className={`w-4 h-4 transition-transform duration-200 ${
-                        mobileExpandedCategory === category ? 'rotate-90' : ''
-                      }`} 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M9 5l7 7-7 7"/>
-                    </svg>
+                    <div className={`transition-all duration-400 ${mobileExpandedCategory === category ? 'rotate-180' : 'rotate-0'}`}>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                      </svg>
+                    </div>
                   </button>
                   
                   {/* Category Items */}

@@ -51,11 +51,9 @@ const THEME = {
 const statusCategories = [
   { status: 'all', label: 'All Requests', color: 'bg-gray-100 text-gray-800' },
   { status: 'pending', label: 'Pending', color: 'bg-amber-100 text-amber-800' },
-  { status: 'approved', label: 'Approved', color: 'bg-green-100 text-green-800' },
   { status: 'rejected', label: 'Rejected', color: 'bg-red-100 text-red-800' },
   { status: 'fulfilled', label: 'Fulfilled', color: 'bg-blue-100 text-blue-800' },
-  { status: 'partially_fulfilled', label: 'Partially Fulfilled', color: 'bg-purple-100 text-purple-800' },
-  { status: 'completed', label: 'Completed', color: 'bg-gray-200 text-gray-800' }
+  { status: 'partially_fulfilled', label: 'Partially Fulfilled', color: 'bg-purple-100 text-purple-800' }
 ];
 
 const labList = ['LAB01', 'LAB02', 'LAB03', 'LAB04', 'LAB05', 'LAB06', 'LAB07', 'LAB08'];
@@ -418,119 +416,219 @@ const AllLabRequestsPage = () => {
   const isLabAdmin = userRole === 'admin';
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-cyan-50/50 flex items-center justify-center">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border border-blue-100/50">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+            <p className="text-blue-700 font-medium">Loading all lab requests...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="text-red-600 mb-2">⚠️</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Requests</h3>
-          <p className="text-gray-600">{error}</p>
-          <button 
-            onClick={() => fetchAllLabRequests()} 
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Retry
-          </button>
+      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-cyan-50/50 flex items-center justify-center">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border border-red-200/50 max-w-md">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-red-700 mb-2">Error Loading Requests</h3>
+            <p className="text-red-600 mb-4">{error}</p>
+            <button 
+              onClick={() => fetchAllLabRequests()} 
+              className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              Retry Loading
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className={`${THEME.card} rounded-lg md:rounded-xl shadow p-3 md:p-4 ${THEME.border}`}> 
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
-          <div className="flex items-center">
-            <div className={`${THEME.primaryBg} p-2 rounded-lg mr-2`}>
-              <RequestIcon />
+    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-cyan-50/50">
+      {/* Full Width Header with Rounded Top Borders and Water Bubbles */}
+      <div className="w-full bg-gradient-to-r from-blue-600/95 via-blue-700/95 to-cyan-600/95 backdrop-blur-xl border-b border-white/30 relative overflow-hidden rounded-t-3xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-white/10 backdrop-blur-sm"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"></div>
+        
+        {/* Water Bubble Background Effects */}
+        <div className="water-bubbles">
+          <div className="bubble bubble-1"></div>
+          <div className="bubble bubble-2"></div>
+          <div className="bubble bubble-3"></div>
+          <div className="bubble bubble-4"></div>
+          <div className="bubble bubble-5"></div>
+          <div className="bubble bubble-6"></div>
+          <div className="bubble bubble-7"></div>
+          <div className="bubble bubble-8"></div>
+        </div>
+        
+        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
+                <RequestIcon />
+              </div>
+              <div className="text-white">
+                <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">All Lab Requests</h1>
+                <p className="text-blue-100/80 text-sm font-medium">Comprehensive view of all laboratory requests</p>
+              </div>
             </div>
-            <h2 className={`text-lg md:text-xl font-bold ${THEME.secondaryText}`}>All Lab Requests</h2>
-          </div>
-          <div className="flex flex-wrap gap-1">
-            <div className="flex items-center space-x-1">
-              <label className={`text-xs ${THEME.primaryText}`}>From:</label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={e => setStartDate(e.target.value)}
-                className={`border ${THEME.border} rounded px-1 py-0.5 text-xs ${THEME.inputFocus}`}
-              />
+            
+            {/* Header Controls */}
+            <div className="flex flex-wrap gap-3 items-center">
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/20">
+                <CalendarIcon />
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={e => setStartDate(e.target.value)}
+                  className="bg-transparent text-white text-sm placeholder-white/70 border-none outline-none"
+                  placeholder="From"
+                />
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/20">
+                <CalendarIcon />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={e => setEndDate(e.target.value)}
+                  className="bg-transparent text-white text-sm placeholder-white/70 border-none outline-none"
+                  placeholder="To"
+                />
+              </div>
+              <button
+                onClick={generatePDF}
+                className="flex items-center gap-2 px-4 py-2.5 bg-white/15 backdrop-blur-sm text-white font-medium hover:bg-white/25 transition-all duration-300 border border-white/30 rounded-xl hover:scale-105"
+              >
+                <DownloadIcon />
+                Export PDF
+              </button>
             </div>
-            <div className="flex items-center space-x-1">
-              <label className={`text-xs ${THEME.primaryText}`}>To:</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={e => setEndDate(e.target.value)}
-                className={`border ${THEME.border} rounded px-1 py-0.5 text-xs ${THEME.inputFocus}`}
-              />
-            </div>
-            <button
-              onClick={generatePDF}
-              className={`flex items-center px-2 py-1 ${THEME.primaryBg} text-white rounded text-xs ${THEME.hoverBg}`}
-            >
-              <DownloadIcon />
-              Export PDF
-            </button>
           </div>
         </div>
+      </div>
 
-        {/* Status Filter */}
-        <div className="flex flex-wrap gap-1 mb-4">
-          {statusCategories.map(category => (
-            <button
-              key={category.status}
-              onClick={() => handleStatusClick(category.status)}
-              className={`px-2 py-1 rounded-full text-xs font-medium transition-all ${category.color} ${
-                selectedStatus === category.status ? `ring-1 ring-[${THEME.secondaryText}]` : ''
-              }`}
-            >
-              {category.label}
-            </button>
-          ))}
-        </div>
+      {/* Full Width Content Area */}
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+        {/* Active Filter Indicator */}
+        {selectedStatus !== 'all' && (
+          <div className="mb-4">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 border border-blue-100/50 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-blue-700 font-medium">Currently showing:</span>
+                <span className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                  statusCategories.find(cat => cat.status === selectedStatus)?.color || 'bg-gray-100 text-gray-800'
+                }`}>
+                  {statusCategories.find(cat => cat.status === selectedStatus)?.label || selectedStatus}
+                </span>
+                <span className="text-xs text-gray-600">({filteredRequests.length} requests)</span>
+              </div>
+              <button
+                onClick={() => handleStatusClick('all')}
+                className="text-xs text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors duration-200"
+              >
+                Show All
+              </button>
+            </div>
+          </div>
+        )}
 
-        {/* Content */}
+        {/* Content Grid - Full Width */}
         {filteredRequests.length === 0 ? (
-          <div className={`text-center p-4 ${THEME.background} rounded ${THEME.border}`}>
-            <p className={`text-base font-medium ${THEME.primaryText}`}>No requests found</p>
-            <p className="text-xs text-gray-500 mt-1">
-              {selectedStatus === 'all' 
-                ? "There are no requests from any lab at the moment"
-                : `No ${selectedStatus.replace('_', ' ')} requests`}
-            </p>
+          <div className="w-full">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border border-blue-100/50 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-medium text-blue-700 mb-2">No requests found</h3>
+              <p className="text-gray-600">
+                {selectedStatus === 'all' 
+                  ? "There are no requests from any lab at the moment"
+                  : `No ${selectedStatus.replace('_', ' ')} requests found`}
+              </p>
+              {selectedStatus !== 'all' && (
+                <button
+                  onClick={() => handleStatusClick('all')}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm"
+                >
+                  Show All Requests
+                </button>
+              )}
+            </div>
           </div>
         ) : (
-          <div className="grid gap-2">
-            {filteredRequests.map(req => (
-              <RequestCard
-                key={req._id}
-                request={req}
-                onClick={() => handleOpenDetails(req)}
-                showStatus
-                showLabId={true}
-                className={`${THEME.card} ${THEME.border} hover:shadow-lg transition-shadow`}
-                actionButton={
-                  <>
-                    {(req.status === 'pending' || req.status === 'partially_fulfilled') && (isCentralAdmin || isLabAdmin) && (
-                      <button
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleOpenUnifiedDialog(req);
-                        }}
-                        className={`px-3 py-1 ${THEME.primaryBg} text-white rounded-lg font-medium ${THEME.hoverBg} transition-colors text-xs`}
-                      >
-                        Allocate
-                      </button>
-                    )}
-                  </>
-                }
-              />
-            ))}
+          <div className="w-full">
+            {/* Instructions for Status Filtering */}
+            <div className="mb-4 bg-gradient-to-r from-blue-50/80 to-cyan-50/80 backdrop-blur-sm rounded-xl p-3 border border-blue-100/50">
+              <div className="flex items-center gap-2 text-sm text-blue-700">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="font-medium">Tip:</span>
+                <span>Click on the status badges in each request card to filter by that status</span>
+              </div>
+            </div>
+            {/* Statistics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+              {statusCategories.slice(1).map(category => {
+                const count = allRequests.filter(req => req.status === category.status).length;
+                return (
+                  <div
+                    key={category.status}
+                    className="bg-white/90 backdrop-blur-sm rounded-xl p-4 border border-blue-100/50 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+                    onClick={() => handleStatusClick(category.status)}
+                  >
+                    <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg mb-2 ${category.color}`}>
+                      <span className="text-sm font-bold">{count}</span>
+                    </div>
+                    <p className="text-sm font-medium text-gray-700">{category.label}</p>
+                    <p className="text-xs text-gray-500">Click to filter</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Requests Grid - Responsive */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+              {filteredRequests.map(req => (
+                <div key={req._id} className="group">
+                  <RequestCard
+                    request={req}
+                    onClick={() => handleOpenDetails(req)}
+                    onStatusClick={handleStatusClick}
+                    showStatus
+                    showLabId={true}
+                    className="bg-white/90 backdrop-blur-sm border border-blue-100/50 hover:shadow-xl transition-all duration-300 rounded-xl p-4 cursor-pointer transform group-hover:scale-105"
+                    actionButton={
+                      <>
+                        {(req.status === 'pending' || req.status === 'partially_fulfilled') && (isCentralAdmin || isLabAdmin) && (
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleOpenUnifiedDialog(req);
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-300 text-sm shadow-lg hover:shadow-xl transform hover:scale-105"
+                          >
+                            Allocate
+                          </button>
+                        )}
+                      </>
+                    }
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

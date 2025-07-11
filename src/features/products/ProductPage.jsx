@@ -22,7 +22,10 @@ const ProductPage = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(BASE_URL);
+      const token = localStorage.getItem('token');
+      const res = await axios.get(BASE_URL, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setProducts(res.data.data);
       setError(null);
     } catch (err) {
@@ -43,7 +46,10 @@ const ProductPage = () => {
   const handleCreate = async (productData) => {
     setLoading(true);
     try {
-      const res = await axios.post(BASE_URL, productData);
+      const token = localStorage.getItem('token');
+      const res = await axios.post(BASE_URL, productData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setProducts([res.data.data, ...products]);
        await Swal.fire({
         title: 'Success',
@@ -72,7 +78,10 @@ const ProductPage = () => {
   const handleUpdate = async (id, productData) => {
     setLoading(true);
     try {
-      const res = await axios.put(`${BASE_URL}/${id}`, productData);
+      const token = localStorage.getItem('token');
+      const res = await axios.put(`${BASE_URL}/${id}`, productData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setProducts(products.map(p => p._id === id ? res.data.data : p));
         await Swal.fire({
         title: 'Success',
@@ -113,7 +122,10 @@ const ProductPage = () => {
     if (!result.isConfirmed) return;
     setLoading(true);
     try {
-      await axios.delete(`${BASE_URL}/${id}`);
+      const token = localStorage.getItem('token');
+      await axios.delete(`${BASE_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setProducts(products.filter(p => p._id !== id));
       await Swal.fire({
         title: 'Deleted!',

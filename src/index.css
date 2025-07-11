@@ -109,3 +109,421 @@ html {
 .custom-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(59, 130, 246, 0.6);
 }
+
+/* Custom Animation Classes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+/* Enhanced hover effects */
+.hover-scale {
+  transition: all 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Enhanced subtle hover effects */
+.hover-scale-102:hover {
+  transform: scale(1.02);
+}
+
+.hover-scale-101:hover {
+  transform: scale(1.01);
+}
+
+/* Smooth scale transitions */
+.scale-102 {
+  transform: scale(1.02);
+}
+
+.scale-101 {
+  transform: scale(1.01);
+}
+
+/* Improved dropdown container */
+.dropdown-container:hover .absolute {
+  display: block;
+}
+
+/* Better focus styles */
+.focus-enhanced:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+  border-color: rgb(59, 130, 246);
+}
+
+/* Smooth transitions for all interactive elements */
+button, a, .interactive {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced glassmorphism effects */
+.glass-effect {
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced glassmorphism for navigation */
+.nav-glass {
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Centered navigation container */
+.nav-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Soft transitions for all navigation elements */
+.nav-transition {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Mobile menu specific animations */
+.mobile-menu-container {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Navigation arrow improvements */
+.nav-arrow {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-arrow.expanded {
+  transform: rotate(180deg);
+}
+
+/* Soft border radius for modern design */
+.rounded-2xl {
+  border-radius: 1rem;
+}
+
+/* Transparent navigation elements */
+.nav-transparent {
+  background: transparent;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.nav-transparent:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.nav-transparent.active {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* Transparent mobile menu items */
+.mobile-nav-transparent {
+  background: transparent;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.mobile-nav-transparent:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* White transparent for glassmorphic header */
+.header-nav-transparent {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.header-nav-transparent:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.header-nav-transparent.active {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Water bubble background effects */
+@keyframes bubble1 {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px) scale(1.1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-10px) translateX(-15px) scale(0.9);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translateY(-25px) translateX(20px) scale(1.05);
+    opacity: 0.7;
+  }
+}
+
+@keyframes bubble2 {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+    opacity: 0.4;
+  }
+  33% {
+    transform: translateY(-15px) translateX(-10px) scale(1.2);
+    opacity: 0.6;
+  }
+  66% {
+    transform: translateY(-30px) translateX(15px) scale(0.8);
+    opacity: 0.3;
+  }
+}
+
+@keyframes bubble3 {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+    opacity: 0.5;
+  }
+  20% {
+    transform: translateY(-10px) translateX(20px) scale(1.15);
+    opacity: 0.7;
+  }
+  40% {
+    transform: translateY(-20px) translateX(-25px) scale(0.95);
+    opacity: 0.3;
+  }
+  60% {
+    transform: translateY(-5px) translateX(30px) scale(1.1);
+    opacity: 0.6;
+  }
+  80% {
+    transform: translateY(-25px) translateX(-15px) scale(0.9);
+    opacity: 0.4;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* Water bubble container */
+.water-bubbles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Individual bubble styles */
+.bubble {
+  position: absolute;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 70%, transparent 100%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.bubble-1 {
+  width: 40px;
+  height: 40px;
+  top: 20%;
+  left: 10%;
+  animation: bubble1 8s infinite ease-in-out;
+}
+
+.bubble-2 {
+  width: 25px;
+  height: 25px;
+  top: 50%;
+  left: 80%;
+  animation: bubble2 6s infinite ease-in-out 1s;
+}
+
+.bubble-3 {
+  width: 35px;
+  height: 35px;
+  top: 70%;
+  left: 20%;
+  animation: bubble3 10s infinite ease-in-out 2s;
+}
+
+.bubble-4 {
+  width: 20px;
+  height: 20px;
+  top: 30%;
+  left: 70%;
+  animation: bubble1 7s infinite ease-in-out 3s;
+}
+
+.bubble-5 {
+  width: 30px;
+  height: 30px;
+  top: 80%;
+  left: 60%;
+  animation: bubble2 9s infinite ease-in-out 1.5s;
+}
+
+.bubble-6 {
+  width: 15px;
+  height: 15px;
+  top: 10%;
+  left: 50%;
+  animation: float 4s infinite ease-in-out 0.5s;
+}
+
+.bubble-7 {
+  width: 28px;
+  height: 28px;
+  top: 60%;
+  left: 30%;
+  animation: bubble3 8s infinite ease-in-out 2.5s;
+}
+
+.bubble-8 {
+  width: 22px;
+  height: 22px;
+  top: 40%;
+  left: 90%;
+  animation: bubble1 6s infinite ease-in-out 4s;
+}
+
+/* Rounded top borders utility classes */
+.rounded-t-2xl {
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+.rounded-t-3xl {
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+}
+
+.rounded-t-4xl {
+  border-top-left-radius: 2rem;
+  border-top-right-radius: 2rem;
+}
+
+/* Status Chip Interaction Enhancements */
+.status-chip-clickable {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.status-chip-clickable:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.status-chip-clickable:hover:before {
+  left: 100%;
+}
+
+.status-chip-clickable:hover {
+  transform: scale(1.05) translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.status-chip-clickable:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
+}
+
+/* Subtle pulse animation for clickable status chips */
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.status-chip-pulse {
+  animation: subtle-pulse 2s infinite;
+}
+
+.status-chip-pulse:hover {
+  animation: none;
+}
+
+/* Status filter transition animations */
+.filter-transition {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-transition-enter {
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+}
+
+.filter-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.filter-transition-exit {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.filter-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}

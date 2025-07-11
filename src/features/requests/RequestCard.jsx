@@ -23,7 +23,7 @@ const STATUS_COLORS = {
   completed: 'bg-gray-100 text-gray-800',
 };
 
-const RequestCard = ({ request, onClick, actionButton, className = '', showStatus = true }) => {
+const RequestCard = ({ request, onClick, actionButton, className = '', showStatus = true, onStatusClick }) => {
   return (
     <div 
       className={`${THEME.card} p-4 rounded-lg cursor-pointer transition-all ${className}`}
@@ -37,7 +37,16 @@ const RequestCard = ({ request, onClick, actionButton, className = '', showStatu
           </p>
         </div>
         {showStatus && (
-          <span className={`px-2 py-1 text-xs rounded-full font-medium ${STATUS_COLORS[request.status]}`}>
+          <span 
+            className={`px-2 py-1 text-xs rounded-full font-medium cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95 ${STATUS_COLORS[request.status]} ${onStatusClick ? 'animate-pulse hover:animate-none' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onStatusClick) {
+                onStatusClick(request.status);
+              }
+            }}
+            title="Click to filter by this status"
+          >
             {request.status.charAt(0).toUpperCase() + request.status.slice(1).replace('_', ' ')}
           </span>
         )}
@@ -159,12 +168,14 @@ RequestCard.propTypes = {
   actionButton: PropTypes.node,
   className: PropTypes.string,
   showStatus: PropTypes.bool,
+  onStatusClick: PropTypes.func,
 };
 
 RequestCard.defaultProps = {
   actionButton: null,
   className: '',
   showStatus: true,
+  onStatusClick: null,
 };
 
 export default RequestCard;

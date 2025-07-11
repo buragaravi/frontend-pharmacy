@@ -100,10 +100,52 @@ const UserIcon = () => (
   </svg>
 );
 
+// NotificationCenter Component
+const NotificationCenter = ({ notifications = [], onMarkAsRead }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  return (
+    <div className="relative">
+      <button 
+        className="p-2 rounded-full bg-white/10 backdrop-blur-sm shadow hover:scale-105 relative border border-white/20"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 0 1 6 6v4.5l2.25 2.25a1.5 1.5 0 0 1-1.5 2.25h-13.5a1.5 1.5 0 0 1-1.5-2.25L6 14.25V9.75a6 6 0 0 1 6-6z" />
+        </svg>
+        {unreadCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            {unreadCount}
+          </span>
+        )}
+      </button>
+      
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-lg rounded-xl shadow-xl border border-white/30 z-50">
+          <div className="p-4">
+            <h3 className="font-semibold text-gray-800 mb-3">Notifications</h3>
+            {notifications.length > 0 ? (
+              notifications.slice(0, 5).map((notification, index) => (
+                <div key={index} className="p-3 mb-2 bg-blue-50/50 rounded-lg border border-blue-100">
+                  <div className="text-sm text-gray-700">{notification.message}</div>
+                  <div className="text-xs text-gray-500 mt-1">{notification.time}</div>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-500 text-sm">No notifications</div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Navigation Categories - organized like AdminDashboard
 const NAV_CATEGORIES = {
   'Lab Operations': [
-    { key: 'labrequests', label: 'All Lab Requests', icon: LabRequestIcon, component: <AllLabRequestsPage /> },
+    { key: 'all_lab_requests', label: 'All Lab Requests', icon: LabRequestIcon, component: <AllLabRequestsPage /> },
     { key: 'quotations', label: 'Quotations', icon: QuotationIcon, component: <QuotationPage /> },
     { key: 'indents', label: 'Indents', icon: IndentIcon, component: <IndentPage /> }
   ],
@@ -116,7 +158,6 @@ const NAV_CATEGORIES = {
   'Allocation': [
     { key: 'allocate_equipment', label: 'Allocate Equipment', icon: AllocateIcon, component: <AllocateEquipmentToLabByScanForm /> },
     { key: 'allocate_glassware', label: 'Allocate Glassware', icon: GlasswareIcon, component: <AllocateGlasswareForm /> },
-    { key: 'allocate_other', label: 'Allocate Other Products', icon: ProductIcon, component: <AllocateOtherProductForm /> }
   ],
   'Reports & Analytics': [
     { key: 'transactions', label: 'Reports', icon: ReportIcon, component: <TransactionsPage /> },
@@ -124,7 +165,7 @@ const NAV_CATEGORIES = {
   ],
   'Administration': [
     { key: 'invoices', label: 'Invoices', icon: InvoiceIcon, component: <InvoicePage /> },
-    { key: 'vendors', label: 'Vendors', icon: VendorIcon, component: <VendorList /> },
+    { key: 'vendors', label: 'Vendors', icon: VendorIcon, component: <VendorList /> }
   ]
 };
 
@@ -148,32 +189,39 @@ const SkeletonLoader = ({ type = 'card' }) => {
   );
 };
 
+// AnimatedBackground Component
 const AnimatedBackground = () => (
-  <style>{`
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-    .animated-gradient { background-size: 400% 400%; animation: gradientShift 15s ease infinite; }
-    .fade-in { animation: fadeIn 0.3s ease-out forwards; }
-    .slide-down { animation: slideDown 0.4s ease-out forwards; }
-    .scale-in { animation: scaleIn 0.4s ease-out forwards; }
-    .float { animation: float 6s ease-in-out infinite; }
-    .hover-scale { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
-    .hover-scale:hover { transform: translateY(-2px); }
-    .soft-shadow { box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.05), -4px -4px 12px rgba(255, 255, 255, 0.8); }
-    .soft-shadow-inset { box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.05), inset -3px -3px 6px rgba(255, 255, 255, 0.8); }
-    .neumorphic-active { box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.05), inset -2px -2px 4px rgba(255, 255, 255, 0.8); }
-    .skeleton-wave { position: relative; overflow: hidden; }
-    .skeleton-wave::after { position: absolute; top: 0; right: 0; bottom: 0; left: 0; transform: translateX(-100%); background: linear-gradient(90deg,rgba(255,255,255,0) 0,rgba(255,255,255,0.2) 20%,rgba(255,255,255,0.5) 60%,rgba(255,255,255,0)); animation: shimmer 2s infinite; content: ''; }
-    @keyframes shimmer { 100% { transform: translateX(100%); } }
-  `}</style>
+  <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-white/20 to-cyan-50/40"></div>
+    <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl animate-pulse"></div>
+    <div className="absolute top-1/2 -left-24 w-96 h-96 bg-cyan-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+    <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl animate-pulse delay-2000"></div>
+  </div>
 );
+
+// CSS classes that should be added to your global CSS
+const CSS_CLASSES = `
+.hover-scale {
+  transition: transform 0.2s ease-in-out;
+}
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.dropdown-container:hover .dropdown {
+  display: block;
+}
+.mobile-menu-container {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+`;
 
 const CentralLabAdminDashboard = () => {
   const [expandedCategory, setExpandedCategory] = useState(null);
@@ -185,6 +233,7 @@ const CentralLabAdminDashboard = () => {
   const [showDashboard, setShowDashboard] = useState(false); // No dashboard overview - go straight to All Lab Requests
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -284,43 +333,82 @@ const CentralLabAdminDashboard = () => {
     );
   };
 
+  const markNotificationAsRead = (notificationId) => {
+    setNotifications(prev => 
+      prev.map(notification => 
+        notification.id === notificationId 
+          ? { ...notification, read: true }
+          : notification
+      )
+    );
+  };
+
   return (
-    <div className="min-h-screen font-sans bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-cyan-50/50">
       <AnimatedBackground />
       
-      {/* Navigation Bar */}
-      <header className="w-full bg-white shadow-sm backdrop-blur sticky top-0 z-50 border-b border-gray-100">
-        {/* First line - Logo, Title, User, Logout */}
-        <div className="w-full border-b border-gray-100">
-          <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <img src="/pydah.svg" alt="Logo" className="h-8 w-auto sm:h-10" />
-              <span className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-800 tracking-tight whitespace-nowrap">
-                Central Lab Admin
-              </span>
+      {/* Header */}
+      <header className="w-full bg-gradient-to-r from-blue-600/95 via-blue-700/95 to-cyan-600/95 backdrop-blur-xl shadow-2xl border-b border-white/30 relative overflow-hidden sticky top-0 z-50">
+        {/* Glassmorphic overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-white/10 backdrop-blur-sm"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"></div>
+        
+        {/* Primary header line */}
+        <div className="w-full relative z-10 border-b border-white/20">
+          <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30 shadow-lg">
+                  <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <div className="text-white">
+                  <h1 className="text-lg sm:text-xl font-bold tracking-tight">
+                    Central Lab Admin
+                  </h1>
+                  <p className="text-xs text-blue-100/80 font-medium">
+                    Management hub
+                  </p>
+                </div>
+              </div>
+              
+              {/* Notification Center */}
+              <NotificationCenter notifications={notifications} onMarkAsRead={markNotificationAsRead} />
             </div>
+            
             <div className="flex items-center gap-3 sm:gap-4">
               {user && (
-                <span className="hidden sm:inline text-sm lg:text-base font-medium text-blue-700">
-                  Welcome, {user.name}
-                </span>
+                <div className="hidden sm:flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/20 shadow-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white font-semibold text-sm">
+                    {user.name.charAt(0)}
+                  </div>
+                  <div className="text-white">
+                    <div className="text-xs text-blue-100/70 font-medium">Welcome back</div>
+                    <div className="text-sm font-semibold">{user.name}</div>
+                  </div>
+                </div>
               )}
               <button
                 onClick={handleLogout}
-                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg bg-white text-blue-700 font-medium hover:bg-blue-50 transition-colors whitespace-nowrap border border-blue-200 shadow-sm hover:shadow-md text-sm sm:text-base"
+                className="px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-white/15 backdrop-blur-sm text-white font-semibold hover:bg-white/25 transition-all duration-300 border border-white/30 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base flex items-center gap-2"
               >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
                 Logout
               </button>
             </div>
           </div>
         </div>
-        {/* Second line - Horizontal Navigation Bar */}
-        <nav className="w-full bg-white border-b border-gray-100">
-          <div className="w-full flex items-center px-4 sm:px-6 lg:px-8 py-2 sm:py-3 relative">
+        
+        {/* Modern Navigation Bar */}
+        <nav className="w-full bg-white/40 backdrop-blur-sm border-b border-white/20 relative z-10">
+          <div className="w-full flex items-center px-4 sm:px-6 lg:px-8 py-3 relative">
             {/* Mobile Menu Button */}
             <div className="md:hidden">
               <button
-                className="flex items-center justify-center p-2 sm:p-3 rounded-lg focus:outline-none bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                className="mobile-menu-toggle flex items-center justify-center p-2.5 rounded-xl focus:outline-none bg-white/60 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-200 hover:bg-white/80 active:bg-white/90 backdrop-blur-sm"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-label="Toggle menu"
               >
@@ -335,35 +423,45 @@ const CentralLabAdminDashboard = () => {
             </div>
             
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center w-full">
-              {/* Parent Categories as horizontal nav */}
-              <div className="flex items-center space-x-1 lg:space-x-2">
+            <div className="hidden md:flex items-center justify-center w-full">
+              {/* Parent Categories as horizontal nav - Centered */}
+              <div className="flex items-center justify-center space-x-4 lg:space-x-6">
                 {Object.entries(NAV_CATEGORIES).map(([category, items]) => (
                   <div key={category} className="relative dropdown-container">
                     <button
-                      className={`px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors duration-200 text-sm lg:text-base whitespace-nowrap flex items-center gap-1 lg:gap-2 ${
-                        expandedCategory === category ? 'bg-blue-100 text-blue-800' : 'hover:bg-blue-50 text-blue-700'
+                      className={`px-4 lg:px-5 py-3 lg:py-3.5 rounded-2xl font-medium transition-all duration-400 text-sm whitespace-nowrap flex items-center gap-2 backdrop-blur-sm border transform hover:scale-102 ${
+                        expandedCategory === category 
+                          ? 'bg-white/30 text-white border-white/50' 
+                          : 'bg-transparent text-white/90 border-white/30 hover:bg-white/20 hover:border-white/50'
                       }`}
                       onClick={() => handleParentClick(category)}
                     >
                       {category}
-                      <svg className={`w-4 h-4 transition-transform ${expandedCategory === category ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                      <div className={`transition-all duration-400 ${expandedCategory === category ? 'rotate-180' : 'rotate-0'}`}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                      </div>
                     </button>
-                    {/* Dropdown for child items */}
+                    {/* Enhanced Dropdown for child items */}
                     {expandedCategory === category && (
-                      <div className="absolute left-0 mt-2 min-w-[220px] bg-white border border-gray-200 rounded-lg shadow-lg z-50 fade-in">
-                        {items.map((item) => (
-                          <button
-                            key={item.key}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm lg:text-base font-medium transition-colors duration-150 text-left hover-scale ${
-                              selectedChild === item.key ? 'bg-blue-600 text-white' : 'hover:bg-blue-100 text-blue-700'
-                            }`}
-                            onClick={() => handleChildClick(item)}
-                          >
-                            <item.icon />
-                            {item.label}
-                          </button>
-                        ))}
+                      <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 min-w-[220px] bg-white/95 backdrop-blur-lg border border-blue-100/60 rounded-2xl z-50 fade-in overflow-hidden">
+                        <div className="p-1">
+                          {items.map((item) => (
+                            <button
+                              key={item.key}
+                              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-medium transition-all duration-300 text-left hover:transform hover:scale-[1.01] ${
+                                selectedChild === item.key 
+                                  ? 'bg-blue-500/90 text-white' 
+                                  : 'hover:bg-blue-50/80 text-blue-700'
+                              }`}
+                              onClick={() => handleChildClick(item)}
+                            >
+                              <item.icon />
+                              {item.label}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -375,15 +473,15 @@ const CentralLabAdminDashboard = () => {
         
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden w-full bg-white/95 backdrop-blur-lg border-t border-gray-100/50 fade-in mobile-menu-container">
-            <ul className="flex flex-col gap-1 py-3 sm:py-4 px-4 sm:px-6 max-h-[70vh] overflow-y-auto">
+          <div className="md:hidden w-full bg-white/95 backdrop-blur-lg border-b border-blue-100/50 fade-in mobile-menu-container relative z-10">
+            <ul className="flex flex-col gap-2 py-4 px-4 max-h-[70vh] overflow-y-auto">
               {Object.values(NAV_CATEGORIES).flat().map((item) => (
                 <li key={item.key}>
                   <button
-                    className={`w-full text-left px-4 py-3 sm:py-4 rounded-xl font-medium transition-all duration-200 flex items-center gap-3 sm:gap-4 text-sm sm:text-base hover-scale ${
+                    className={`w-full text-left px-5 py-4 rounded-2xl font-medium transition-all duration-400 flex items-center gap-3 text-sm transform hover:scale-[1.01] border backdrop-blur-sm ${
                       selectedChild === item.key 
-                        ? 'bg-blue-100/80 text-blue-700 shadow-sm' 
-                        : 'bg-white text-blue-600 shadow-sm hover:bg-blue-50'
+                        ? 'bg-blue-500/30 text-blue-700 border-blue-300/50' 
+                        : 'bg-transparent text-blue-600 border-blue-200/30 hover:bg-blue-50/20 hover:border-blue-300/50'
                     }`}
                     onClick={() => handleChildClick(item)}
                   >
@@ -393,12 +491,12 @@ const CentralLabAdminDashboard = () => {
                 </li>
               ))}
               {user && (
-                <li className="px-4 py-3 sm:py-4 mt-2 rounded-xl bg-white shadow-sm">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                <li className="px-5 py-4 mt-2 rounded-2xl bg-white/80 backdrop-blur-sm border border-blue-100/60">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
                       {user.name.charAt(0)}
                     </div>
-                    <div className="text-sm sm:text-base text-gray-600">
+                    <div className="text-sm text-gray-600">
                       <div className="font-medium">Logged in as</div>
                       <div className="text-blue-700 font-semibold">{user.name}</div>
                     </div>
