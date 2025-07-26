@@ -85,7 +85,11 @@ const InvoiceList = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`${API_BASE}/invoices`)
+    const token = localStorage.getItem('token');
+    
+    axios.get(`${API_BASE}/invoices`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then(res => {
         const data = Array.isArray(res.data) ? res.data : (res.data.invoices || res.data.data || []);
         setInvoices(data);
