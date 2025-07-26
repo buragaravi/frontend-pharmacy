@@ -350,7 +350,7 @@ const UserManagement = () => {
   }
 
   return (
-    <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 ">
       <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
         {/* Enhanced Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

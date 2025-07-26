@@ -100,37 +100,84 @@ const UserIcon = () => (
   </svg>
 );
 
+// Parent Category Icons
+const LabOperationsIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+  </svg>
+);
+
+const InventoryManagementIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+  </svg>
+);
+
+const AllocationIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+  </svg>
+);
+
+const ReportsAnalyticsIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+  </svg>
+);
+
+const AdministrationIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+
 // Enhanced Navigation with Icons and Categories
 const NAV_CATEGORIES = {
-  'Lab Operations': [
-    { key: 'labrequests', label: 'Lab Requests (Single)', icon: LabRequestIcon, component: <LabRequestListPage /> },
-    { key: 'all_lab_requests', label: 'All Lab Requests', icon: LabRequestIcon, component: <AllLabRequestsPage /> },
-    { key: 'quotations', label: 'Quotations', icon: QuotationIcon, component: <QuotationPage /> },
-    { key: 'indents', label: 'Indents', icon: IndentIcon, component: <IndentPage /> }
-  ],
-  'Inventory Management': [
-    { key: 'chemicals', label: 'Chemicals', icon: ChemicalIcon, component: <ChemicalDashboard /> },
-    { key: 'products', label: 'Products', icon: ProductIcon, component: <ProductList /> },
-    { key: 'equipment_stock', label: 'Equipment Stock', icon: EquipmentIcon, component: <EquipmentStockList /> },
-    { key: 'glassware_stock', label: 'Glassware Stock', icon: GlasswareIcon, component: <GlasswareStockPage /> }
-  ],
-  'Allocation': [
-    { key: 'allocate_equipment', label: 'Allocate Equipment', icon: AllocateIcon, component: <AllocateEquipmentToLabByScanForm /> },
-    { key: 'allocate_glassware', label: 'Allocate Glassware', icon: GlasswareIcon, component: <AllocateGlasswareForm /> },
-  ],
-  'Reports & Analytics': [
-    { key: 'transactions', label: 'Reports', icon: ReportIcon, component: <TransactionsPage /> },
-    { key: 'experiments', label: 'Experiments', icon: ExperimentIcon, component: <ExperimentsPage /> }
-  ],
-  'Administration': [
-    { key: 'invoices', label: 'Invoices', icon: InvoiceIcon, component: <InvoicePage /> },
-    { key: 'vendors', label: 'Vendors', icon: VendorIcon, component: <VendorList /> },
-    { key: 'users', label: 'User Management', icon: UserIcon, component: <UserManagement /> }
-  ]
+  'Lab Operations': {
+    icon: LabOperationsIcon,
+    items: [
+      { key: 'labrequests', label: 'Lab Requests (Single)', icon: LabRequestIcon, component: <LabRequestListPage /> },
+      { key: 'all_lab_requests', label: 'All Lab Requests', icon: LabRequestIcon, component: <AllLabRequestsPage /> },
+      { key: 'quotations', label: 'Quotations', icon: QuotationIcon, component: <QuotationPage /> },
+      { key: 'indents', label: 'Indents', icon: IndentIcon, component: <IndentPage /> }
+    ]
+  },
+  'Inventory Management': {
+    icon: InventoryManagementIcon,
+    items: [
+      { key: 'chemicals', label: 'Chemicals', icon: ChemicalIcon, component: <ChemicalDashboard /> },
+      { key: 'products', label: 'Products', icon: ProductIcon, component: <ProductList /> },
+      { key: 'equipment_stock', label: 'Equipment Stock', icon: EquipmentIcon, component: <EquipmentStockList /> },
+      { key: 'glassware_stock', label: 'Glassware Stock', icon: GlasswareIcon, component: <GlasswareStockPage /> }
+    ]
+  },
+  'Allocation': {
+    icon: AllocationIcon,
+    items: [
+      { key: 'allocate_equipment', label: 'Allocate Equipment', icon: AllocateIcon, component: <AllocateEquipmentToLabByScanForm /> },
+      { key: 'allocate_glassware', label: 'Allocate Glassware', icon: GlasswareIcon, component: <AllocateGlasswareForm /> },
+    ]
+  },
+  'Reports & Analytics': {
+    icon: ReportsAnalyticsIcon,
+    items: [
+      { key: 'transactions', label: 'Reports', icon: ReportIcon, component: <TransactionsPage /> },
+      { key: 'experiments', label: 'Experiments', icon: ExperimentIcon, component: <ExperimentsPage /> }
+    ]
+  },
+  'Administration': {
+    icon: AdministrationIcon,
+    items: [
+      { key: 'invoices', label: 'Invoices', icon: InvoiceIcon, component: <InvoicePage /> },
+      { key: 'vendors', label: 'Vendors', icon: VendorIcon, component: <VendorList /> },
+      { key: 'users', label: 'User Management', icon: UserIcon, component: <UserManagement /> }
+    ]
+  }
 };
 
 // Flatten NAV_ITEMS for backward compatibility
-const NAV_ITEMS = Object.values(NAV_CATEGORIES).flat();
+const NAV_ITEMS = Object.values(NAV_CATEGORIES).flatMap(category => category.items);
 
 const labList = ['LAB01', 'LAB02', 'LAB03', 'LAB04', 'LAB05', 'LAB06', 'LAB07', 'LAB08'];
 
@@ -507,7 +554,7 @@ const AdminDashboard = () => {
 
   // Find the selected child item for rendering
   const selectedChildItem = selectedChild
-    ? Object.values(NAV_CATEGORIES).flat().find((item) => item.key === selectedChild)
+    ? Object.values(NAV_CATEGORIES).flatMap(category => category.items).find((item) => item.key === selectedChild)
     : null;
 
   // Add this function to handle marking notifications as read
@@ -682,7 +729,7 @@ const AdminDashboard = () => {
             <div className="hidden md:flex items-center justify-center w-full">
               {/* Parent Categories as horizontal nav - Centered */}
               <div className="flex items-center justify-center space-x-4 lg:space-x-6">
-                {Object.entries(NAV_CATEGORIES).map(([category, items]) => (
+                {Object.entries(NAV_CATEGORIES).map(([category, categoryData]) => (
                   <div key={category} className="relative dropdown-container">
                     <button
                       className={`px-4 lg:px-5 py-3 lg:py-3.5 rounded-2xl font-medium transition-all duration-400 text-sm whitespace-nowrap flex items-center gap-2 transform hover:scale-102 border ${
@@ -692,17 +739,18 @@ const AdminDashboard = () => {
                       }`}
                       onClick={() => handleParentClick(category)}
                     >
+                      <categoryData.icon />
                       {category}
                       <div className={`transition-all duration-400 ${expandedCategory === category ? 'rotate-180' : 'rotate-0'}`}>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
                     </button>
                     {/* Dropdown for child items */}
                     {expandedCategory === category && (
                       <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 min-w-[200px] bg-white/95 backdrop-blur-lg border border-blue-100/60 rounded-2xl z-50 overflow-hidden animate-fadeIn">
-                        {items.map((item) => (
+                        {categoryData.items.map((item) => (
                           <button
                             key={item.key}
                             className={`w-full flex items-center gap-3 px-4 py-3.5 text-sm font-medium transition-all duration-300 text-left hover:transform hover:scale-[1.01] ${
@@ -746,7 +794,7 @@ const AdminDashboard = () => {
               </button>
               
               {/* Categories with collapsible sections */}
-              {Object.entries(NAV_CATEGORIES).map(([category, items]) => (
+              {Object.entries(NAV_CATEGORIES).map(([category, categoryData]) => (
                 <div key={category} className="mb-2">
                   <button
                     className={`w-full text-left px-5 py-4 rounded-2xl font-medium transition-all duration-400 flex items-center justify-between text-sm transform hover:scale-[1.01] ${
@@ -756,10 +804,13 @@ const AdminDashboard = () => {
                     }`}
                     onClick={() => setMobileExpandedCategory(mobileExpandedCategory === category ? null : category)}
                   >
-                    <span>{category}</span>
+                    <div className="flex items-center gap-3">
+                      <categoryData.icon />
+                      <span>{category}</span>
+                    </div>
                     <div className={`transition-all duration-400 ${mobileExpandedCategory === category ? 'rotate-180' : 'rotate-0'}`}>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
                   </button>
@@ -767,7 +818,7 @@ const AdminDashboard = () => {
                   {/* Category Items */}
                   {mobileExpandedCategory === category && (
                     <div className="mt-1 ml-4 space-y-1">
-                      {items.map((item) => (
+                      {categoryData.items.map((item) => (
                         <button
                           key={item.key}
                           className={`w-full text-left px-4 py-2 sm:py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-3 text-sm sm:text-base ${

@@ -145,15 +145,6 @@ const CreateRequestForm = () => {
           count: liveEquipment.data?.length || 0
         });
         
-        // Get central available equipment
-        console.log('Fetching central available equipment...');
-        const centralAvailable = await api.get('/equipment/central/available');
-        console.log('Central Available Response:', {
-          status: centralAvailable.status,
-          data: centralAvailable.data,
-          count: centralAvailable.data?.length || 0
-        });
-        
         // Get stock data from all labs
         console.log('Fetching lab-specific stock data...');
         const labPromises = LAB_IDS.map(labId => {
@@ -232,14 +223,6 @@ const CreateRequestForm = () => {
         if (liveEquipment.data) {
           liveEquipment.data.forEach(item => {
             addToGrouped(item, 'LIVE');
-          });
-        }
-
-        // Process central available equipment
-        console.log('Processing central equipment data...');
-        if (centralAvailable.data) {
-          centralAvailable.data.forEach(item => {
-            addToGrouped(item, 'CENTRAL');
           });
         }
 
