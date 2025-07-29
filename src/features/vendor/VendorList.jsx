@@ -54,7 +54,13 @@ const VendorList = () => {
         const controller = new AbortController();
         const signal = controller.signal;
         // Start fetch
-        const response = await fetch(`https://backend-pharmacy-5541.onrender.com/api/vendors?page=${currentPage}&limit=${vendorsPerPage}&search=${searchTerm}`, { signal });
+        const response = await fetch(`https://backend-pharmacy-5541.onrender.com/api/vendors?page=${currentPage}&limit=${vendorsPerPage}&search=${searchTerm}`, { 
+          signal,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
           throw new Error('Server did not return JSON. Check backend API URL and server status.');
@@ -86,7 +92,12 @@ const VendorList = () => {
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const res = await axios.get('https://backend-pharmacy-5541.onrender.com/api/invoices');
+        const res = await axios.get('https://backend-pharmacy-5541.onrender.com/api/invoices', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
         setInvoices(res.data || []);
       } catch (err) {
         // ignore for now
@@ -346,7 +357,8 @@ const VendorList = () => {
         const response = await fetch(`https://backend-pharmacy-5541.onrender.com/api/vendors/${id}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
           }
         });
         if (response.ok) {
