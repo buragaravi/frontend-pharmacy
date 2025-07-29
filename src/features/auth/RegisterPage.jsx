@@ -155,26 +155,6 @@ const RegisterPage = () => {
                                     </div>
                                 )}
                                 
-                                <div>
-                                    <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-2">
-                                        User ID
-                                    </label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <svg className="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V4a2 2 0 114 0v2m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                                            </svg>
-                                        </div>
-                                        <input
-                                            id="userId"
-                                            type="text"
-                                            placeholder="Enter your university ID"
-                                            className="w-full pl-12 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-xl text-gray-800 placeholder-gray-400 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300/50 focus:border-blue-400/50 focus:bg-white/90"
-                                            value={userId}
-                                            onChange={(e) => setUserId(e.target.value)}                                            required
-                                        />
-                                    </div>
-                                </div>
                                 
                                 <div>
                                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">

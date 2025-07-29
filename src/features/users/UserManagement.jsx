@@ -408,7 +408,6 @@ const UserManagement = () => {
               <table className="w-full">
                 <thead className="bg-gradient-to-r from-blue-600/90 to-indigo-600/90 text-white">
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">User ID</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Name</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Email</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Role</th>
@@ -420,9 +419,6 @@ const UserManagement = () => {
                 <tbody className="bg-white/60 backdrop-blur-sm divide-y divide-blue-100">
                   {users?.map((user, index) => (
                     <tr key={user._id} className={`transition-colors duration-200 hover:bg-blue-50/70 ${index % 2 === 0 ? 'bg-white/40' : 'bg-blue-50/30'}`}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {user.userId}
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {user.name}
                       </td>
@@ -654,20 +650,6 @@ const UserManagement = () => {
                     </div>
                   </div>
                 )}
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">User ID</label>
-                  <input
-                    type="text"
-                    name="userId"
-                    value={addUserFormData.userId}
-                    onChange={handleAddUserFormChange}
-                    placeholder="Enter university ID"
-                    className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-xl text-gray-800 placeholder-gray-400 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                   <input
