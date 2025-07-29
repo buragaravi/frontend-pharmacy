@@ -8,6 +8,15 @@ import Swal from 'sweetalert2';
 
 const API_BASE = 'https://backend-pharmacy-5541.onrender.com/api';
 
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+    };
+};
+
 const InvoiceForm = () => {
     // ==================== STATE MANAGEMENT ====================
     // Vendor and Product Data
@@ -47,7 +56,9 @@ const InvoiceForm = () => {
     useEffect(() => {
         const fetchVendors = async () => {
             try {
-                const res = await axios.get(`${API_BASE}/vendors`);
+                const res = await axios.get(`${API_BASE}/vendors`, {
+                    headers: getAuthHeaders()
+                });
                 const vendorsList = res.data?.vendors || res.data?.data || res.data || [];
                 setVendors(Array.isArray(vendorsList) ? vendorsList : []);
             } catch (error) {
@@ -63,7 +74,9 @@ const InvoiceForm = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const res = await axios.get(`${API_BASE}/products/category/chemical`);
+                const res = await axios.get(`${API_BASE}/products/category/chemical`, {
+                    headers: getAuthHeaders()
+                });
                 const productsList = res.data?.data || res.data || [];
                 setProducts(Array.isArray(productsList) ? productsList : []);
             } catch (error) {
@@ -79,7 +92,9 @@ const InvoiceForm = () => {
     useEffect(() => {
         const fetchVoucherId = async () => {
             try {
-                const res = await axios.get(`${API_BASE}/vouchers/next?category=invoice`);
+                const res = await axios.get(`${API_BASE}/vouchers/next?category=invoice`, {
+                    headers: getAuthHeaders()
+                });
                 setVoucherId(res.data?.voucherId || res.data?.nextVoucherId || '');
             } catch (error) {
                 console.error('Error fetching voucher ID:', error);
@@ -480,7 +495,9 @@ const InvoiceForm = () => {
         };
         
         try {
-            const res = await axios.post(`${API_BASE}/invoices`, payload);
+            const res = await axios.post(`${API_BASE}/invoices`, payload, {
+                headers: getAuthHeaders()
+            });
             setSuccess(`Invoice created successfully! Invoice ID: ${res.data.invoiceId || res.data.data?.invoiceId || ''}`);
             setLineItems([
                 { productId: '', name: '', unit: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '', expiryDate: '' }
@@ -490,7 +507,9 @@ const InvoiceForm = () => {
             setSelectedVendor(null);
             localStorage.removeItem(DRAFT_KEY); // <-- Clear draft
             // Optionally, fetch new voucherId
-            axios.get(`${API_BASE}/vouchers/next?category=invoice`).then(r => setVoucherId(r.data.voucherId || r.data.nextVoucherId || ''));
+            axios.get(`${API_BASE}/vouchers/next?category=invoice`, { 
+                headers: getAuthHeaders() 
+            }).then(r => setVoucherId(r.data.voucherId || r.data.nextVoucherId || ''));
             // SweetAlert success modal
             Swal.fire({
                 icon: 'success',
@@ -550,7 +569,9 @@ const InvoiceForm = () => {
         setProductFormLoading(true);
         setProductFormError('');
         try {
-            const res = await axios.post('https://backend-pharmacy-5541.onrender.com/api/products', productData);
+            const res = await axios.post('https://backend-pharmacy-5541.onrender.com/api/products', productData, {
+                headers: getAuthHeaders()
+            });
             setProducts(prev => [res.data.data, ...prev]);
             // Move to next unregistered product or close modal
             if (productFormIndex < unregisteredProducts.length - 1) {
@@ -570,7 +591,9 @@ const InvoiceForm = () => {
     const handleOtherFormSuccess = () => {
         setShowOtherForm(false);
         // Fetch new voucherId
-        axios.get(`${API_BASE}/vouchers/next?category=invoice`).then(r => setVoucherId(r.data.voucherId || r.data.nextVoucherId || ''));
+        axios.get(`${API_BASE}/vouchers/next?category=invoice`, { 
+            headers: getAuthHeaders() 
+        }).then(r => setVoucherId(r.data.voucherId || r.data.nextVoucherId || ''));
         Swal.fire({
             icon: 'success',
             title: 'Invoice Created!',
