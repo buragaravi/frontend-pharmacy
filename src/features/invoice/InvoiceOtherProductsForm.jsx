@@ -29,7 +29,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState('');
   const [lineItems, setLineItems] = useState([
-    { productId: '', name: '', variant: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '' }
+    { productId: '', name: '', variant: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '', warranty: '' }
   ]);
   
   // UI State
@@ -165,7 +165,8 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
       thresholdValue: '', 
       quantity: '', 
       totalPrice: '', 
-      pricePerUnit: '' 
+      pricePerUnit: '',
+      warranty: ''  // Add warranty field (optional)
     }]);
   };
 
@@ -304,6 +305,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
       const totalPrice = normalizedRow['totalprice'] || normalizedRow['total'] || 0; // Default to '0' if missing
       const pricePerUnit = normalizedRow['priceperunit'] || 
         (quantity && totalPrice && Number(totalPrice) > 0 ? (Number(totalPrice) / Number(quantity)).toFixed(2) : '0');
+      const warranty = normalizedRow['warranty'] || ''; // Optional warranty field
 
       processedItems.push({
         productId: product._id,
@@ -312,7 +314,8 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
         thresholdValue: product.thresholdValue,
         quantity: quantity.toString(),
         totalPrice: totalPrice.toString(),
-        pricePerUnit: pricePerUnit.toString()
+        pricePerUnit: pricePerUnit.toString(),
+        warranty: warranty // Include warranty in processed items
       });
     });
 
@@ -397,7 +400,8 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
             productId: item.productId,
             quantity: Number(item.quantity),
             totalPrice: Number(item.totalPrice),
-            pricePerUnit: Number(item.pricePerUnit) || 0
+            pricePerUnit: Number(item.pricePerUnit) || 0,
+            warranty: item.warranty || null  // Include warranty field
           })),
         totalAmount: totalInvoicePrice,
         category
@@ -645,46 +649,46 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
             )}
 
             {/* Enhanced Single Row: Vendor, Invoice & File Upload Section */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="bg-white p-2 sm:p-3 md:p-4 rounded-lg border border-gray-200 shadow-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                 
                 {/* Vendor Information */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
+                <div className="order-1">
+                  <div className="flex items-center gap-2 mb-2 sm:mb-3">
                     <div className="p-1 bg-blue-100 rounded-md">
                       <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                       </svg>
                     </div>
-                    <h3 className="text-sm font-medium text-gray-800">Vendor Information</h3>
+                    <h3 className="text-xs sm:text-sm font-medium text-gray-800">Vendor Information</h3>
                   </div>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         Select Vendor *
                       </label>
                       {selectedVendor ? (
                         <div className="space-y-2">
-                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                            <div className="font-medium text-gray-800 text-sm">{selectedVendor.name || 'Unknown Vendor'}</div>
+                          <div className="p-2 sm:p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <div className="font-medium text-gray-800 text-xs sm:text-sm">{selectedVendor.name || 'Unknown Vendor'}</div>
                             <div className="text-xs text-gray-600 mt-1">
                               <div>Vendor Code: <span className="font-mono font-medium">{selectedVendor.vendorCode || 'N/A'}</span></div>
                               {selectedVendor.companyName && (
-                                <div className="mt-1">Company: {selectedVendor.companyName}</div>
+                                <div className="mt-1 hidden sm:block">Company: {selectedVendor.companyName}</div>
                               )}
                               {selectedVendor.contactNumber && (
-                                <div className="mt-1">Contact: {selectedVendor.contactNumber}</div>
+                                <div className="mt-1 hidden md:block">Contact: {selectedVendor.contactNumber}</div>
                               )}
                               {selectedVendor.email && (
-                                <div className="mt-1">Email: {selectedVendor.email}</div>
+                                <div className="mt-1 hidden lg:block">Email: {selectedVendor.email}</div>
                               )}
                             </div>
                           </div>
                           <button
                             type="button"
                             onClick={() => setSelectedVendor(null)}
-                            className="w-full px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md transition-colors duration-200 text-xs"
+                            className="w-full px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md transition-colors duration-200 text-xs"
                           >
                             Change Vendor
                           </button>
@@ -694,7 +698,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                           value=""
                           onChange={handleVendorSelect}
                           required
-                          className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm"
+                          className="w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs sm:text-sm"
                         >
                           <option value="">Choose a vendor...</option>
                           {vendors.length > 0 ? vendors.map(vendor => (
@@ -711,17 +715,17 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                 </div>
 
                 {/* Invoice Details */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
+                <div className="order-2 sm:order-2">
+                  <div className="flex items-center gap-2 mb-2 sm:mb-3">
                     <div className="p-1 bg-green-100 rounded-md">
                       <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
-                    <h3 className="text-sm font-medium text-gray-800">Invoice Details</h3>
+                    <h3 className="text-xs sm:text-sm font-medium text-gray-800">Invoice Details</h3>
                   </div>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         Voucher ID
@@ -730,7 +734,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                         type="text"
                         value={voucherId}
                         disabled
-                        className="w-full px-3 py-2 rounded-md border border-gray-300 bg-gray-50 text-gray-600 font-mono text-sm"
+                        className="w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-md border border-gray-300 bg-gray-50 text-gray-600 font-mono text-xs sm:text-sm"
                       />
                     </div>
                     
@@ -743,7 +747,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                         value={invoiceDate}
                         onChange={(e) => setInvoiceDate(e.target.value)}
                         required
-                        className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-800 text-sm"
+                        className="w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-800 text-xs sm:text-sm"
                       />
                     </div>
                     
@@ -756,7 +760,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                         value={invoiceNumber}
                         onChange={(e) => setInvoiceNumber(e.target.value)}
                         required
-                        className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-800 text-sm"
+                        className="w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-800 text-xs sm:text-sm"
                         placeholder="Enter invoice number"
                       />
                     </div>
@@ -764,17 +768,17 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                 </div>
 
                 {/* File Upload */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
+                <div className="order-3 sm:order-3 sm:col-span-2 lg:col-span-1">
+                  <div className="flex items-center gap-2 mb-2 sm:mb-3">
                     <div className="p-1 bg-purple-100 rounded-md">
                       <svg className="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                       </svg>
                     </div>
-                    <h3 className="text-sm font-medium text-gray-800">Bulk Import from File</h3>
+                    <h3 className="text-xs sm:text-sm font-medium text-gray-800">Bulk Import from File</h3>
                   </div>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">File Format</label>
                       <div className="flex gap-2">
@@ -805,13 +809,13 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                     
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Upload File</label>
-                      <label className="flex flex-col items-center justify-center w-full h-16 border-2 border-purple-300 border-dashed rounded-lg cursor-pointer bg-purple-50 hover:bg-purple-100 transition-colors duration-200">
+                      <label className="flex flex-col items-center justify-center w-full h-12 sm:h-16 border-2 border-purple-300 border-dashed rounded-lg cursor-pointer bg-purple-50 hover:bg-purple-100 transition-colors duration-200">
                         <div className="flex flex-col items-center justify-center pt-2 pb-2">
-                          <svg className="w-4 h-4 mb-1 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 sm:w-4 h-3 sm:h-4 mb-1 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                           </svg>
                           <p className="text-xs text-purple-600 font-medium">Click to upload</p>
-                          <p className="text-xs text-gray-500">{fileType === 'csv' ? 'CSV' : 'XLSX/XLS'} files</p>
+                          <p className="text-xs text-gray-500 hidden sm:block">{fileType === 'csv' ? 'CSV' : 'XLSX/XLS'} files</p>
                         </div>
                         <input
                           type="file"
@@ -822,9 +826,9 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                       </label>
                     </div>
                     
-                    <div>
+                    <div className="hidden md:block">
                       <label className="block text-xs font-medium text-gray-700 mb-1">Template Guide</label>
-                      <div className="bg-purple-100/50 p-2 rounded-lg h-12 flex flex-col justify-center">
+                      <div className="bg-purple-100/50 p-2 rounded-lg h-10 sm:h-12 flex flex-col justify-center">
                         <h4 className="text-xs font-medium text-purple-800 mb-1">Required:</h4>
                         <div className="text-xs text-purple-700">
                           <p>• Name, Quantity, Total Price</p>
@@ -845,41 +849,45 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
               </div>
             </div>
 
-            {/* Enhanced Line Items Section */}
-            <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-1 bg-purple-100 rounded-md">
-                    <svg className="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                  </div>
-                  <h3 className="text-sm font-medium text-gray-800">{category.charAt(0).toUpperCase() + category.slice(1)} Products</h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={addLineItem}
-                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-all duration-200 transform hover:scale-105 flex items-center gap-1 shadow-md text-xs"
-                >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            {/* Fully Responsive Line Items Section */}
+            <div className="bg-white p-2 sm:p-3 md:p-4 rounded-lg border border-gray-200 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-1 bg-purple-100 rounded-md">
+                  <svg className="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
-                  Add Product
-                </button>
+                </div>
+                <h3 className="text-xs sm:text-sm font-medium text-gray-800">{category.charAt(0).toUpperCase() + category.slice(1)} Products</h3>
               </div>
               
-              <div className="overflow-x-auto">
-                <div className="space-y-2 min-w-[800px]">
-                  {lineItems.map((item, idx) => (
-                    <div key={idx} className="grid grid-cols-12 gap-2 items-end bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg p-2 border border-gray-200 relative hover:shadow-md transition-shadow duration-200">
-                      {/* Product Selection */}
-                      <div className="col-span-3">
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Product</label>
+              {/* Mobile Layout (320px - 639px) */}
+              <div className="block sm:hidden space-y-4">
+                {lineItems.map((item, idx) => (
+                  <div key={idx} className="bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg p-3 border border-gray-200 relative shadow-sm">
+                    {/* Remove button for mobile */}
+                    {lineItems.length > 1 && (
+                      <button 
+                        type="button" 
+                        className="absolute top-2 right-2 p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 z-10" 
+                        onClick={() => removeLineItem(idx)} 
+                        title="Remove product"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
+                    
+                    {/* Mobile Grid Layout */}
+                    <div className="grid grid-cols-2 gap-2 pr-6">
+                      {/* Product Selection - Full Width */}
+                      <div className="col-span-2">
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Product *</label>
                         <select
                           value={item.productId}
                           onChange={(e) => handleProductSelect(idx, e.target.value)}
                           required
-                          className="w-full px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
                         >
                           <option value="">Select product...</option>
                           {products
@@ -892,33 +900,32 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                         </select>
                       </div>
                       
-                      {/* Variant */}
-                      <div className="col-span-2">
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Variant/Unit</label>
+                      {/* Variant & Threshold */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Variant</label>
                         <input
                           type="text"
                           value={item.variant}
                           onChange={(e) => handleLineItemChange(idx, 'variant', e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
-                          placeholder="Unit/Variant"
+                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                          placeholder="Variant"
                         />
                       </div>
                       
-                      {/* Threshold */}
-                      <div className="col-span-1">
+                      <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">Threshold</label>
                         <input
                           type="number"
                           value={item.thresholdValue}
                           onChange={(e) => handleLineItemChange(idx, 'thresholdValue', e.target.value)}
-                          className="w-full px-2 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
                           placeholder="Min"
                         />
                       </div>
                       
-                      {/* Quantity */}
-                      <div className="col-span-2">
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Quantity</label>
+                      {/* Quantity & Total Price */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Quantity *</label>
                         <input
                           type="number"
                           value={item.quantity}
@@ -926,14 +933,13 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                           required
                           min="1"
                           step="0.01"
-                          className="w-full px-2 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
-                          placeholder="Enter quantity"
+                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                          placeholder="Qty"
                         />
                       </div>
                       
-                      {/* Total Price */}
-                      <div className="col-span-2">
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Total Price (₹)</label>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Total (₹) *</label>
                         <input
                           type="number"
                           value={item.totalPrice}
@@ -941,71 +947,222 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                           required
                           min="0"
                           step="0.01"
-                          className="w-full px-2 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
-                          placeholder="Enter total price"
+                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                          placeholder="Total"
                         />
                       </div>
                       
-                      {/* Price Per Unit (readonly) */}
+                      {/* Unit Price - Readonly */}
                       <div className="col-span-2">
                         <label className="block text-xs font-medium text-gray-700 mb-1">Unit Price</label>
                         <input 
                           type="text" 
-                          className="w-full px-2 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 text-sm" 
-                          value={item.pricePerUnit} 
+                          className="w-full px-2 py-2 rounded-md border border-gray-200 bg-gray-50 text-gray-600 text-xs" 
+                          value={item.pricePerUnit ? `₹${item.pricePerUnit}` : ''} 
                           readOnly 
+                          placeholder="Auto-calculated"
                         />
                       </div>
                       
-                      {/* Remove button */}
-                      {lineItems.length > 1 && (
-                        <button 
-                          type="button" 
-                          className="absolute top-2 right-2 p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200" 
-                          onClick={() => removeLineItem(idx)} 
-                          title="Remove product"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
+                      {/* Warranty for mobile */}
+                      {(category === 'equipment' || category === 'glassware') && (
+                        <div className="col-span-2">
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Warranty <span className="text-gray-500">(Optional)</span>
+                          </label>
+                          <input
+                            type="date"
+                            value={item.warranty}
+                            onChange={(e) => handleLineItemChange(idx, 'warranty', e.target.value)}
+                            className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                          />
+                        </div>
                       )}
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Tablet and Desktop Layout (640px+) */}
+              <div className="hidden sm:block">
+                <div className="overflow-x-auto">
+                  <div className="space-y-2" style={{ minWidth: (category === 'equipment' || category === 'glassware') ? '1200px' : '1000px' }}>
+                    {lineItems.map((item, idx) => (
+                      <div key={idx} className={`grid gap-1 sm:gap-2 items-end bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg p-2 border border-gray-200 relative hover:shadow-md transition-shadow duration-200 ${
+                        (category === 'equipment' || category === 'glassware') 
+                          ? 'grid-cols-12 md:grid-cols-14 lg:grid-cols-16 xl:grid-cols-18 2xl:grid-cols-20' 
+                          : 'grid-cols-12 md:grid-cols-14 lg:grid-cols-16'
+                      }`}>
+                        
+                        {/* Product Selection */}
+                        <div className={`${(category === 'equipment' || category === 'glassware') ? 'col-span-4 md:col-span-3 lg:col-span-3 xl:col-span-3 2xl:col-span-4' : 'col-span-4 md:col-span-3 lg:col-span-4'}`}>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Product</label>
+                          <select
+                            value={item.productId}
+                            onChange={(e) => handleProductSelect(idx, e.target.value)}
+                            required
+                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                          >
+                            <option value="">Select...</option>
+                            {products
+                              .filter(p => !selectedProductIds.includes(p._id) || p._id === item.productId)
+                              .map(product => (
+                                <option key={product._id} value={product._id}>
+                                  {product.name}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+                        
+                        {/* Variant */}
+                        <div className={`${(category === 'equipment' || category === 'glassware') ? 'col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2' : 'col-span-2 md:col-span-2 lg:col-span-2'}`}>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Variant</label>
+                          <input
+                            type="text"
+                            value={item.variant}
+                            onChange={(e) => handleLineItemChange(idx, 'variant', e.target.value)}
+                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                            placeholder="Variant"
+                          />
+                        </div>
+                        
+                        {/* Threshold */}
+                        <div className={`${(category === 'equipment' || category === 'glassware') ? 'col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1' : 'col-span-1 md:col-span-1 lg:col-span-1'}`}>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Min</label>
+                          <input
+                            type="number"
+                            value={item.thresholdValue}
+                            onChange={(e) => handleLineItemChange(idx, 'thresholdValue', e.target.value)}
+                            className="w-full px-1 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                            placeholder="Min"
+                          />
+                        </div>
+                        
+                        {/* Quantity */}
+                        <div className={`${(category === 'equipment' || category === 'glassware') ? 'col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2' : 'col-span-2 md:col-span-2 lg:col-span-2'}`}>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Quantity</label>
+                          <input
+                            type="number"
+                            value={item.quantity}
+                            onChange={(e) => handleLineItemChange(idx, 'quantity', e.target.value)}
+                            required
+                            min="1"
+                            step="0.01"
+                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                            placeholder="Qty"
+                          />
+                        </div>
+                        
+                        {/* Total Price */}
+                        <div className={`${(category === 'equipment' || category === 'glassware') ? 'col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2' : 'col-span-2 md:col-span-2 lg:col-span-2'}`}>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Total (₹)</label>
+                          <input
+                            type="number"
+                            value={item.totalPrice}
+                            onChange={(e) => handleLineItemChange(idx, 'totalPrice', e.target.value)}
+                            required
+                            min="0"
+                            step="0.01"
+                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                            placeholder="Total"
+                          />
+                        </div>
+                        
+                        {/* Price Per Unit */}
+                        <div className={`${(category === 'equipment' || category === 'glassware') ? 'col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2' : 'col-span-1 md:col-span-2 lg:col-span-2'}`}>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Unit Price</label>
+                          <input 
+                            type="text" 
+                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-200 bg-gray-50 text-gray-600 text-xs" 
+                            value={item.pricePerUnit ? `₹${item.pricePerUnit}` : ''} 
+                            readOnly 
+                            placeholder="Auto"
+                          />
+                        </div>
+                        
+                        {/* Warranty (only for equipment and glassware) */}
+                        {(category === 'equipment' || category === 'glassware') && (
+                          <div className="col-span-12 md:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5 md:col-start-auto">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Warranty <span className="text-gray-500">(Optional)</span>
+                            </label>
+                            <input
+                              type="date"
+                              value={item.warranty}
+                              onChange={(e) => handleLineItemChange(idx, 'warranty', e.target.value)}
+                              className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Remove button */}
+                        {lineItems.length > 1 && (
+                          <button 
+                            type="button" 
+                            className="absolute top-1 sm:top-2 right-1 sm:right-2 p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 z-10" 
+                            onClick={() => removeLineItem(idx)} 
+                            title="Remove product"
+                          >
+                            <svg className="w-3 sm:w-4 h-3 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Enhanced Total and Submit Section */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 shadow-sm">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div className="text-xl font-bold text-blue-800">
+            {/* Fully Responsive Total and Submit Section */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-2 sm:p-3 md:p-4 rounded-xl border border-blue-200 shadow-sm">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3">
+                <div className="text-lg sm:text-xl font-bold text-blue-800 order-2 sm:order-1">
                   Total: ₹{totalInvoicePrice.toFixed(2)}
                 </div>
                 
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={submitting || !selectedVendor || !invoiceNumber || !invoiceDate || lineItems.some(item => !item.productId || !item.quantity || !item.totalPrice)}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 shadow-lg disabled:cursor-not-allowed text-sm"
-                >
-                  {submitting ? (
-                    <>
-                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Creating Invoice...
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Create Invoice
-                    </>
-                  )}
-                </button>
+                {/* Buttons Container - Always side by side */}
+                <div className="flex flex-row gap-2 w-full sm:w-auto order-1 sm:order-2">
+                  {/* Add Product Button - Show on all screens */}
+                  <button
+                    type="button"
+                    onClick={addLineItem}
+                    className="flex-1 sm:flex-none px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg text-xs sm:text-sm"
+                  >
+                    <svg className="w-3 sm:w-4 h-3 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    <span className="hidden xs:inline">Add Product</span>
+                    <span className="xs:hidden">Add</span>
+                  </button>
+                  
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={submitting || !selectedVendor || !invoiceNumber || !invoiceDate || lineItems.some(item => !item.productId || !item.quantity || !item.totalPrice)}
+                    className="flex-1 sm:flex-none px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg disabled:cursor-not-allowed text-xs sm:text-sm"
+                  >
+                    {submitting ? (
+                      <>
+                        <svg className="animate-spin h-3 sm:h-4 w-3 sm:w-4" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span className="hidden xs:inline">Creating Invoice...</span>
+                        <span className="xs:hidden">Creating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-3 sm:w-4 h-3 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="hidden xs:inline">Create Invoice</span>
+                        <span className="xs:hidden">Create</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
