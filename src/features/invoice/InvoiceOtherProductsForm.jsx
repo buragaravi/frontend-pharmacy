@@ -112,7 +112,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
           name: '',
           variant: '',
           thresholdValue: '',
-          quantity: '',
+          quantity: '',  
           totalPrice: '',
           pricePerUnit: ''
         } : item

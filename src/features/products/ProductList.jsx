@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductForm from './ProductForm';
 import BulkProductUpload from './BulkProductUpload';
+import ProductInventoryDetail from '../../components/ProductInventoryDetail';
 
 // Add custom styles for animations
 const customStyles = `
@@ -27,12 +28,29 @@ const customStyles = `
     }
   }
 
+  @keyframes expandDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+      max-height: 0;
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      max-height: 1000px;
+    }
+  }
+
   .animate-fadeInUp {
     animation: fadeInUp 0.6s ease-out forwards;
   }
 
   .animate-slideInRight {
     animation: slideInRight 0.4s ease-out forwards;
+  }
+
+  .animate-expandDown {
+    animation: expandDown 0.5s ease-out forwards;
   }
 
   .scrollbar-hide {
@@ -48,9 +66,13 @@ const customStyles = `
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
+
+  .rotate-180 {
+    transform: rotate(180deg);
+  }
 `;
 
-const BASE_URL = 'https://backend-pharmacy-5541.onrender.com/api/products';
+const BASE_URL = 'https://backend-jits.onrender.com/api/products';
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -61,6 +83,7 @@ const ProductList = () => {
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [currentCategory, setCurrentCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [expandedProductId, setExpandedProductId] = useState(null);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -164,7 +187,16 @@ const ProductList = () => {
 
   const handleCategoryChange = (category) => {
     setCurrentCategory(category);
+    setExpandedProductId(null); // Close any expanded product when changing category
     fetchProductsByCategory(category);
+  };
+
+  const handleToggleExpand = (productId) => {
+    if (expandedProductId === productId) {
+      setExpandedProductId(null); // Close if already expanded
+    } else {
+      setExpandedProductId(productId); // Open this product
+    }
   };
 
   const filteredProducts = (products || []).filter(product => {
@@ -458,78 +490,96 @@ const ProductList = () => {
                     <tbody className="bg-white/50 divide-y divide-gray-200/30">
                       {filteredProducts.map((product, index) => {
                         const categoryStyle = getCategoryStyle(product.category);
+                        const isExpanded = expandedProductId === product._id;
                         return (
-                          <tr 
-                            key={product._id} 
-                            className="hover:bg-white/80 transition-all duration-200 group"
-                            style={{ animationDelay: `${index * 0.05}s` }}
-                          >
-                            <td className="px-6 py-4">
-                              <div className="flex items-center">
-                                <div className={`h-12 w-12 rounded-xl ${categoryStyle.bg} ${categoryStyle.text} flex items-center justify-center text-xl font-bold shadow-md group-hover:shadow-lg transition-all duration-200`}>
-                                  {categoryStyle.icon || product.name.charAt(0).toUpperCase()}
+                          <React.Fragment key={product._id}>
+                            <tr 
+                              className="hover:bg-white/80 transition-all duration-200 group cursor-pointer"
+                              style={{ animationDelay: `${index * 0.05}s` }}
+                              onClick={() => handleToggleExpand(product._id)}
+                            >
+                              <td className="px-6 py-4">
+                                <div className="flex items-center">
+                                  <div className={`h-12 w-12 rounded-xl ${categoryStyle.bg} ${categoryStyle.text} flex items-center justify-center text-xl font-bold shadow-md group-hover:shadow-lg transition-all duration-200`}>
+                                    {categoryStyle.icon || product.name.charAt(0).toUpperCase()}
+                                  </div>
+                                  <div className="ml-4">
+                                    <div className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                                      {product.name}
+                                      {(product.variant || product.unit) && (
+                                        <span className="ml-2 text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                                          {product.variant || product.unit}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="text-sm text-gray-500 font-medium">
+                                      Product ID: {product._id.slice(-6)}
+                                    </div>
+                                  </div>
+                                  {/* Expand/Collapse indicator */}
+                                  <div className="ml-auto">
+                                    <div className={`p-2 rounded-lg transition-all duration-300 ${isExpanded ? 'bg-blue-100 text-blue-600 rotate-180' : 'bg-gray-100 text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500'}`}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                      </svg>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="ml-4">
-                                  <div className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-                                    {product.name}
-                                    {(product.variant || product.unit) && (
-                                      <span className="ml-2 text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
-                                        {product.variant || product.unit}
-                                      </span>
-                                    )}
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${categoryStyle.bg} ${categoryStyle.text}`}>
+                                  <span className="mr-1">{categoryStyle.icon}</span>
+                                  {product.category}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="space-y-1">
+                                  {(product.variant || product.unit) && (
+                                    <div className="text-sm font-semibold text-gray-900">
+                                      Variant: {product.variant || product.unit}
+                                    </div>
+                                  )}
+                                  <div className="text-sm text-gray-500">
+                                    <span className="inline-flex items-center">
+                                      <span className="w-2 h-2 bg-amber-400 rounded-full mr-2"></span>
+                                      Threshold: {product.thresholdValue}
+                                    </span>
                                   </div>
-                                  <div className="text-sm text-gray-500 font-medium">
-                                    Product ID: {product._id.slice(-6)}
-                                  </div>
+                                  {product.description && (
+                                    <div className="text-xs text-gray-400 truncate max-w-xs">
+                                      {product.description}
+                                    </div>
+                                  )}
                                 </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${categoryStyle.bg} ${categoryStyle.text}`}>
-                                <span className="mr-1">{categoryStyle.icon}</span>
-                                {product.category}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="space-y-1">
-                                {(product.variant || product.unit) && (
-                                  <div className="text-sm font-semibold text-gray-900">
-                                    Variant: {product.variant || product.unit}
-                                  </div>
-                                )}
-                                <div className="text-sm text-gray-500">
-                                  <span className="inline-flex items-center">
-                                    <span className="w-2 h-2 bg-amber-400 rounded-full mr-2"></span>
-                                    Threshold: {product.thresholdValue}
-                                  </span>
+                              </td>
+                              <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex justify-end gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setEditingProduct(product);
+                                      setShowForm(true);
+                                    }}
+                                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 hover:shadow-md transition-all duration-200 font-medium"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteProduct(product._id)}
+                                    className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 hover:shadow-md transition-all duration-200 font-medium"
+                                  >
+                                    Delete
+                                  </button>
                                 </div>
-                                {product.description && (
-                                  <div className="text-xs text-gray-400 truncate max-w-xs">
-                                    {product.description}
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 text-right">
-                              <div className="flex justify-end gap-2">
-                                <button
-                                  onClick={() => {
-                                    setEditingProduct(product);
-                                    setShowForm(true);
-                                  }}
-                                  className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 hover:shadow-md transition-all duration-200 font-medium"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteProduct(product._id)}
-                                  className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 hover:shadow-md transition-all duration-200 font-medium"
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
+                              </td>
+                            </tr>
+                            {/* Expanded inventory details */}
+                            {isExpanded && (
+                              <ProductInventoryDetail 
+                                productId={product._id}
+                                onClose={() => setExpandedProductId(null)}
+                              />
+                            )}
+                          </React.Fragment>
                         );
                       })}
                     </tbody>
