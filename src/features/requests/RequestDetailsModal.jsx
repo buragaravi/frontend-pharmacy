@@ -2,9 +2,12 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { jwtDecode } from 'jwt-decode';
+import { toast } from 'react-toastify';
 import RequestStatusBadge from './RequestStatusBadge';
+import CourseInfoBadge from './CourseInfoBadge';
 import { Printer, FileText, X, RotateCcw } from 'lucide-react';
 import UnifiedReturnDialog from './UnifiedReturnDialog';
+import { adminApproveRequest } from '../../utils/requestApi';
 
 // Constants for theming
 const THEME = {
@@ -112,13 +115,39 @@ const RequestPDF = ({ request }) => (
             </View>
           )}
         </View>
+        {/* Course and Batch Information */}
+        {(request.courseId || request.batchId) && (
+          <View style={styles.row}>
+            {request.courseId && (
+              <View style={styles.infoBox}>
+                <Text style={styles.infoLabel}>Course</Text>
+                <Text style={styles.infoValue}>
+                  {request.courseId.courseCode} - {request.courseId.courseName}
+                </Text>
+              </View>
+            )}
+            {request.courseId?.batches && request.batchId && (
+              <View style={styles.infoBox}>
+                <Text style={styles.infoLabel}>Batch</Text>
+                <Text style={styles.infoValue}>
+                  {(() => {
+                    const batch = request.courseId.batches.find(b => b._id.toString() === request.batchId.toString());
+                    return batch ? `${batch.batchCode}${batch.batchName ? ' - ' + batch.batchName : ''}${batch.academicYear ? ' (AY ' + batch.academicYear + ')' : ''}` : 'Unknown Batch';
+                  })()}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
       </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Experiments</Text>
         {request.experiments?.map((exp, index) => (
           <View key={exp._id} style={{ marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#E1F1FF', paddingBottom: 8 }}>
             <Text style={styles.infoValue}>Experiment {index + 1}: {exp.experimentName}</Text>
-            <Text style={styles.infoLabel}>{exp.date} - {exp.session}</Text>
+            <Text style={styles.infoLabel}>
+              {exp.date.split('T')[0]} | Course: {exp.courseId?.courseName} ({exp.courseId?.courseCode}) | Batch: {exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.batchName} ({exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.batchCode}) - {exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.academicYear}
+            </Text>
             {/* Chemicals Table */}
             {exp.chemicals && exp.chemicals.length > 0 && (
               <View style={styles.table}>
@@ -223,6 +252,14 @@ const PrintableContent = React.forwardRef(({ request }, ref) => {
         )}
       </div>
 
+      {/* Course and Batch Information */}
+      {(request.courseId || request.batchId) && (
+        <div className={`${THEME.card} p-4 rounded-lg ${THEME.border} mb-6`}>
+          <h3 className={`text-lg font-semibold ${THEME.primaryText} mb-3`}>Course & Batch Details</h3>
+          <CourseInfoBadge request={request} className="flex-wrap" />
+        </div>
+      )}
+
       <div className={`${THEME.card} p-4 rounded-lg ${THEME.border} mb-6`}>
         <h3 className={`text-lg font-semibold ${THEME.primaryText} mb-3`}>Experiments</h3>
         <div className="space-y-4">
@@ -232,7 +269,7 @@ const PrintableContent = React.forwardRef(({ request }, ref) => {
                 Experiment {index + 1}: {exp.experimentName}
               </p>
               <p className={`text-sm ${THEME.secondaryText} mb-2`}>
-                {exp.date} - {exp.session}
+                {exp.date.split('T')[0]} | Course: {exp.courseId?.courseName} ({exp.courseId?.courseCode}) | Batch: {exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.batchName} ({exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.batchCode}) - {exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.academicYear}
               </p>
               {/* Chemicals Table */}
               {exp.chemicals && exp.chemicals.length > 0 && (
@@ -354,10 +391,13 @@ const PrintableContent = React.forwardRef(({ request }, ref) => {
   );
 });
 
-const RequestDetailsModal = ({ request, open, onClose }) => {
+const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
   const [isPdfReady, setIsPdfReady] = useState(false);
   const [showReturnDialog, setShowReturnDialog] = useState(false);
   const [userRole, setUserRole] = useState('');
+  const [approvalReason, setApprovalReason] = useState('');
+  const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
   const componentRef = useRef();
 
   useEffect(() => {
@@ -379,6 +419,39 @@ const RequestDetailsModal = ({ request, open, onClose }) => {
       }
     }
   }, []);
+
+  // Admin approval functions
+  const handleAdminApproval = async (action) => {
+    if (action === 'approve') {
+      setIsApproving(true);
+    } else {
+      setIsRejecting(true);
+    }
+
+    try {
+      const data = await adminApproveRequest(request._id, action, approvalReason);
+      
+      // Show success message
+      toast.success(`Request ${action}d successfully!`);
+      
+      // Reset form
+      setApprovalReason('');
+      
+      // Notify parent component to refresh data
+      if (onRequestUpdate) {
+        onRequestUpdate();
+      }
+      
+      // Close modal
+      onClose();
+    } catch (error) {
+      console.error(`Error ${action}ing request:`, error);
+      toast.error(`Failed to ${action} request: ${error.message}`);
+    } finally {
+      setIsApproving(false);
+      setIsRejecting(false);
+    }
+  };
   
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
@@ -457,6 +530,95 @@ const RequestDetailsModal = ({ request, open, onClose }) => {
           </div>
 
           <PrintableContent ref={componentRef} request={request} />
+
+          {/* Admin Approval Section */}
+          {userRole === 'admin' && request.status === 'pending' && (
+            <div className={`${THEME.card} p-6 rounded-lg ${THEME.border} mt-6`}>
+              <h3 className={`text-lg font-semibold ${THEME.primaryText} mb-4`}>Admin Approval</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className={`block text-sm font-medium ${THEME.secondaryText} mb-2`}>
+                    Reason (Optional)
+                  </label>
+                  <textarea
+                    value={approvalReason}
+                    onChange={(e) => setApprovalReason(e.target.value)}
+                    placeholder="Enter reason for approval/rejection (optional)"
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-lg ${THEME.inputFocus} resize-none`}
+                    rows={3}
+                    maxLength={500}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {approvalReason.length}/500 characters
+                  </p>
+                </div>
+                
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => handleAdminApproval('approve')}
+                    disabled={isApproving || isRejecting}
+                    className={`flex-1 flex items-center justify-center px-4 py-2 rounded-lg bg-green-600 text-white font-medium text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all`}
+                  >
+                    {isApproving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Approving...
+                      </>
+                    ) : (
+                      'Approve Request'
+                    )}
+                  </button>
+                  
+                  <button
+                    onClick={() => handleAdminApproval('reject')}
+                    disabled={isApproving || isRejecting}
+                    className={`flex-1 flex items-center justify-center px-4 py-2 rounded-lg bg-red-600 text-white font-medium text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all`}
+                  >
+                    {isRejecting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Rejecting...
+                      </>
+                    ) : (
+                      'Reject Request'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Approval History Section */}
+          {request.approvalHistory && request.approvalHistory.length > 0 && (
+            <div className={`${THEME.card} p-6 rounded-lg ${THEME.border} mt-6`}>
+              <h3 className={`text-lg font-semibold ${THEME.primaryText} mb-4`}>Approval History</h3>
+              <div className="space-y-3">
+                {request.approvalHistory.map((approval, index) => (
+                  <div key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div className={`flex-shrink-0 w-2 h-2 rounded-full mt-2 ${approval.action === 'approve' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className={`font-medium text-sm ${approval.action === 'approve' ? 'text-green-700' : 'text-red-700'}`}>
+                          {approval.action === 'approve' ? 'Approved' : 'Rejected'}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          by {approval.approvedBy?.name || 'Admin'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        {new Date(approval.date).toLocaleString()}
+                      </p>
+                      {approval.reason && (
+                        <p className="text-sm text-gray-700 mt-2 italic">
+                          "{approval.reason}"
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       {/* Unified Return Dialog */}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import CourseInfoBadge from './CourseInfoBadge';
 
 // Constants for theming
 const THEME = {
@@ -16,25 +17,38 @@ const THEME = {
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-800',
-  approved: 'bg-green-100 text-green-800',
+  approved: 'bg-blue-100 text-blue-800',
   rejected: 'bg-red-100 text-red-800',
-  fulfilled: 'bg-blue-100 text-blue-800',
+  fulfilled: 'bg-green-100 text-green-800',
   partially_fulfilled: 'bg-purple-100 text-purple-800',
   completed: 'bg-gray-100 text-gray-800',
 };
 
-const RequestCard = ({ request, onClick, actionButton, className = '', showStatus = true, onStatusClick }) => {
+const STATUS_LABELS = {
+  pending: 'Pending Admin Approval',
+  approved: 'Approved - Ready for Allocation',
+  rejected: 'Rejected by Admin',
+  fulfilled: 'Fulfilled',
+  partially_fulfilled: 'Partially Fulfilled',
+  completed: 'Completed',
+};
+
+const RequestCard = ({ request, onClick, actionButton, className = '', showStatus = true, onStatusClick, userRole }) => {
   return (
     <div 
       className={`${THEME.card} p-4 rounded-lg cursor-pointer transition-all ${className}`}
       onClick={onClick}
     >
       <div className="flex justify-between items-start mb-3">
-        <div>
+        <div className="flex-1">
           <h3 className={`text-sm font-medium ${THEME.primaryText}`}>Lab {request.labId}</h3>
           <p className="text-xs text-gray-500">
             {new Date(request.createdAt).toLocaleDateString()}
           </p>
+          {/* Course and Batch Information */}
+          <div className="mt-2">
+            <CourseInfoBadge request={request} />
+          </div>
         </div>
         {showStatus && (
           <span 
@@ -45,9 +59,9 @@ const RequestCard = ({ request, onClick, actionButton, className = '', showStatu
                 onStatusClick(request.status);
               }
             }}
-            title="Click to filter by this status"
+            title={STATUS_LABELS[request.status] || "Click to filter by this status"}
           >
-            {request.status.charAt(0).toUpperCase() + request.status.slice(1).replace('_', ' ')}
+            {STATUS_LABELS[request.status] || request.status.charAt(0).toUpperCase() + request.status.slice(1).replace('_', ' ')}
           </span>
         )}
       </div>
@@ -57,7 +71,13 @@ const RequestCard = ({ request, onClick, actionButton, className = '', showStatu
           <div key={exp._id || index} className="bg-gray-50 p-3 rounded">
             <div className="flex justify-between items-start mb-2">
               <h4 className={`text-sm font-medium ${THEME.secondaryText}`}>{exp.experimentName}</h4>
-              <span className="text-xs text-gray-500">{exp.session}</span>
+              <div className="text-xs text-gray-500">
+                {exp.courseId?.courseName && exp.courseId?.batches?.find(batch => batch._id === exp.batchId) && (
+                  <span>
+                    {exp.courseId.courseName} - {exp.courseId.batches.find(batch => batch._id === exp.batchId)?.batchName}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="space-y-1">
               {exp.chemicals && exp.chemicals.length > 0 && (
@@ -130,7 +150,8 @@ RequestCard.propTypes = {
       PropTypes.shape({
         experimentName: PropTypes.string.isRequired,
         date: PropTypes.string.isRequired,
-        session: PropTypes.string.isRequired,
+        courseId: PropTypes.object,
+        batchId: PropTypes.string,
         chemicals: PropTypes.arrayOf(
           PropTypes.shape({
             chemicalName: PropTypes.string.isRequired,
@@ -169,6 +190,7 @@ RequestCard.propTypes = {
   className: PropTypes.string,
   showStatus: PropTypes.bool,
   onStatusClick: PropTypes.func,
+  userRole: PropTypes.string,
 };
 
 RequestCard.defaultProps = {
@@ -176,6 +198,7 @@ RequestCard.defaultProps = {
   className: '',
   showStatus: true,
   onStatusClick: null,
+  userRole: null,
 };
 
 export default RequestCard;

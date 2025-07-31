@@ -24,6 +24,7 @@ import PasswordResetFlow from './features/auth/PasswordResetFlow';
 import OutOfStockChemicals from './features/chemicals/OutOfStockChemicals';
 import NotFound from './pages/NotFound';
 import OfflineIndicator from './components/OfflineIndicator';
+import CourseList from './features/courses/CourseList';
 
 import { AllocateGlasswareForm, GlasswareStockPage } from './features/glassware';
 import { AllocateOtherProductForm } from './features/other';
@@ -165,6 +166,18 @@ const App = () => {
                         <h1 className="text-2xl font-bold">Lab Management System</h1>
                       </div>
                       <ExperimentsPage />
+                    </div>
+                  </div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/courses"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'central_lab_admin']}>
+                  <div className="p-6">
+                    <div className="bg-white rounded-2xl shadow-sm border border-[#E8D8E1] p-6">
+                      <CourseList />
                     </div>
                   </div>
                 </ProtectedRoute>

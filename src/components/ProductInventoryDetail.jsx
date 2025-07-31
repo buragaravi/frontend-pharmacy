@@ -10,7 +10,7 @@ const ProductInventoryDetail = ({ productId, onClose }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`https://backend-jits.onrender.com/api/products/${productId}/inventory`, {
+      const response = await axios.get(`https://backend-pharmacy-5541.onrender.com/api/products/${productId}/inventory`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setInventoryData(response.data.data);
@@ -32,11 +32,11 @@ const ProductInventoryDetail = ({ productId, onClose }) => {
   if (loading) {
     return (
       <tr className="animate-fadeInUp">
-        <td colSpan="4" className="px-6 py-8">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
-            <div className="flex items-center justify-center space-x-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-              <span className="text-blue-600 font-medium">Loading inventory details...</span>
+        <td colSpan="4" className="px-4 py-4">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+            <div className="flex items-center justify-center space-x-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <span className="text-blue-600 text-sm font-medium">Loading inventory details...</span>
             </div>
           </div>
         </td>
@@ -47,22 +47,22 @@ const ProductInventoryDetail = ({ productId, onClose }) => {
   if (error) {
     return (
       <tr className="animate-fadeInUp">
-        <td colSpan="4" className="px-6 py-6">
-          <div className="bg-red-50 rounded-2xl p-6 border border-red-200">
+        <td colSpan="4" className="px-4 py-4">
+          <div className="bg-red-50 rounded-lg p-4 border border-red-200">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
                 <div className="flex-shrink-0">
-                  <svg className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <span className="text-red-600 font-medium">{error}</span>
+                <span className="text-red-600 text-sm font-medium">{error}</span>
               </div>
               <button
                 onClick={onClose}
                 className="text-red-400 hover:text-red-600 transition-colors"
               >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -128,89 +128,89 @@ const ProductInventoryDetail = ({ productId, onClose }) => {
 
   return (
     <tr className="animate-fadeInUp">
-      <td colSpan="4" className="px-6 py-6">
-        <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 border border-gray-200 shadow-inner">
+      <td colSpan="4" className="px-4 py-4">
+        <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-4 border border-gray-200 shadow-inner">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <div className={`p-3 rounded-xl ${getCategoryColor(product.category)}`}>
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className={`p-2 rounded-lg ${getCategoryColor(product.category)}`}>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
-                <p className="text-sm text-gray-600">Complete Inventory Details</p>
+                <h3 className="text-lg font-bold text-gray-900">{product.name}</h3>
+                <p className="text-xs text-gray-600">Complete Inventory Details</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white hover:shadow-md rounded-xl transition-all duration-200 text-gray-400 hover:text-gray-600"
+              className="p-1 hover:bg-white hover:shadow-md rounded-lg transition-all duration-200 text-gray-400 hover:text-gray-600"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+              <div className="flex items-center space-x-2">
+                <div className="p-1 bg-blue-100 rounded-lg">
+                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Total Stock</p>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-xs text-gray-600">Total Stock</p>
+                  <p className="text-sm font-bold text-gray-900">
                     {summary.totalStock} {product.unit || (product.category === 'equipment' ? 'items' : 'units')}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+              <div className="flex items-center space-x-2">
+                <div className="p-1 bg-green-100 rounded-lg">
+                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs text-gray-600">
                     {product.category === 'chemical' ? 'Active Batches' : 'Items/Batches'}
                   </p>
-                  <p className="text-lg font-bold text-gray-900">{summary.activeBatches}</p>
+                  <p className="text-sm font-bold text-gray-900">{summary.activeBatches}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+              <div className="flex items-center space-x-2">
+                <div className="p-1 bg-purple-100 rounded-lg">
+                  <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Labs</p>
-                  <p className="text-lg font-bold text-gray-900">{summary.labsCount}</p>
+                  <p className="text-xs text-gray-600">Labs</p>
+                  <p className="text-sm font-bold text-gray-900">{summary.labsCount}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <div className="flex items-center space-x-3">
-                <div className={`p-2 rounded-lg ${summary.belowThreshold ? 'bg-red-100' : 'bg-green-100'}`}>
-                  <svg className={`w-5 h-5 ${summary.belowThreshold ? 'text-red-600' : 'text-green-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+              <div className="flex items-center space-x-2">
+                <div className={`p-1 rounded-lg ${summary.belowThreshold ? 'bg-red-100' : 'bg-green-100'}`}>
+                  <svg className={`w-4 h-4 ${summary.belowThreshold ? 'text-red-600' : 'text-green-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Status</p>
-                  <p className={`text-sm font-bold ${summary.belowThreshold ? 'text-red-600' : 'text-green-600'}`}>
+                  <p className="text-xs text-gray-600">Status</p>
+                  <p className={`text-xs font-bold ${summary.belowThreshold ? 'text-red-600' : 'text-green-600'}`}>
                     {summary.belowThreshold ? 'Below Threshold' : 'Stock OK'}
                   </p>
                 </div>
@@ -219,25 +219,25 @@ const ProductInventoryDetail = ({ productId, onClose }) => {
           </div>
 
           {/* Lab Distribution */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+              <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
                 Lab Distribution
               </h4>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {Object.entries(labDistribution).map(([labId, data]) => (
-                  <div key={labId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
+                  <div key={labId} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-2">
                       {getLabIcon(labId)}
-                      <span className="font-medium text-gray-900">
+                      <span className="text-xs font-medium text-gray-900">
                         {labId === 'central-lab' ? 'Central Lab' : labId.toUpperCase()}
                       </span>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900">
+                      <p className="text-xs font-semibold text-gray-900">
                         {data.quantity} {product.unit || (product.category === 'equipment' ? 'items' : 'units')}
                       </p>
                       {data.batches && (
@@ -253,36 +253,36 @@ const ProductInventoryDetail = ({ productId, onClose }) => {
             </div>
 
             {/* Batch/Item Details */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+              <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                <svg className="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 {product.category === 'chemical' ? 'Batch Details' : 
                  product.category === 'equipment' ? 'Equipment Items' : 'Item Details'}
               </h4>
-              <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-hide">
+              <div className="space-y-2 max-h-60 overflow-y-auto scrollbar-hide">
                 {batchDetails.map((item, index) => (
-                  <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <div key={index} className="p-2 bg-gray-50 rounded-lg border border-gray-100">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
+                        <div className="flex items-center space-x-2 mb-1">
                           {getLabIcon(item.labId)}
-                          <span className="text-sm font-medium text-gray-900">
+                          <span className="text-xs font-medium text-gray-900">
                             {item.batchId || item.itemId || 'N/A'}
                           </span>
                           {item.status && (
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
+                            <span className={`px-1 py-0.5 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
                               {item.status}
                             </span>
                           )}
                           {item.condition && (
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.condition)}`}>
+                            <span className={`px-1 py-0.5 rounded-full text-xs font-medium ${getStatusColor(item.condition)}`}>
                               {item.condition}
                             </span>
                           )}
                         </div>
-                        <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                        <div className="grid grid-cols-2 gap-1 text-xs text-gray-600">
                           <div>Lab: {item.labId === 'central-lab' ? 'Central Lab' : item.labId.toUpperCase()}</div>
                           <div>
                             Qty: {item.quantity || '1'} {item.unit || (product.category === 'equipment' ? 'item' : 'units')}

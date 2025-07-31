@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 import RequestCard from './RequestCard';
 import RequestDetailsModal from './RequestDetailsModal';
 import { useNavigate } from 'react-router-dom';
@@ -73,9 +74,22 @@ const MyRequestsPage = () => {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [userRole, setUserRole] = useState('');
   const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
+
+  // Get user role from token
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserRole(decoded.user.role);
+      } catch (error) {
+        console.error('Error decoding token:', error);
+      }
+    }
+  }, [token]);
 
   // Sort requests by date (newest first)
   const sortRequestsByDate = (requests) => {
@@ -131,6 +145,10 @@ const MyRequestsPage = () => {
 
   const handleCloseDetails = () => {
     setSelectedRequest(null);
+  };
+
+  const handleRequestUpdate = () => {
+    fetchMyRequests(); // Refresh the data
   };
 
   const handlePageChange = (page) => {
@@ -298,6 +316,7 @@ const MyRequestsPage = () => {
                           <RequestCard
                             request={req}
                             showStatus
+                            userRole={userRole}
                             onClick={() => handleOpenDetails(req)}
                             className={`shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-500 bg-white/98 backdrop-blur-md border border-white/40 rounded-2xl relative z-70 hover:-translate-y-1`}
                           />
@@ -368,7 +387,8 @@ const MyRequestsPage = () => {
         <RequestDetailsModal 
           open={true} 
           request={selectedRequest} 
-          onClose={handleCloseDetails} 
+          onClose={handleCloseDetails}
+          onRequestUpdate={handleRequestUpdate}
         />
       )}
     </div>

@@ -109,7 +109,7 @@ const RequestDetails = ({ request, onClose, onStatusUpdate, userRole }) => {
                     <div>
                       <h5 className={`font-medium ${THEME.primaryText}`}>{experiment.experimentName}</h5>
                       <p className={`text-sm ${THEME.secondaryText}`}>
-                        {format(new Date(experiment.date), 'MMM dd, yyyy')} ({experiment.session})
+                        {format(new Date(experiment.date), 'MMM dd, yyyy')} | Course: {experiment.courseId?.courseName} ({experiment.courseId?.courseCode}) | Batch: {experiment.courseId?.batches?.find(batch => batch._id === experiment.batchId)?.batchName} ({experiment.courseId?.batches?.find(batch => batch._id === experiment.batchId)?.batchCode}) - {experiment.courseId?.batches?.find(batch => batch._id === experiment.batchId)?.academicYear}
                       </p>
                     </div>
                   </div>

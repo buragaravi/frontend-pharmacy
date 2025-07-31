@@ -27,7 +27,6 @@ const ExperimentSelector = ({ onExperimentsSelect, selectedExperiments = [] }) =
         experimentId,
         experimentName: experiments.find(exp => exp._id === experimentId).name,
         date: new Date().toISOString().split('T')[0],
-        session: 'morning',
         chemicals: suggestedChemicals.map(chem => ({
           chemicalName: chem.chemicalName,
           quantity: chem.suggestedQuantity,
@@ -122,9 +121,6 @@ const ExperimentSelector = ({ onExperimentsSelect, selectedExperiments = [] }) =
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium">{exp.experimentName}</p>
-                        <p className="text-sm text-gray-600">
-                          Date: {exp.date} | Session: {exp.session}
-                        </p>
                       </div>
                       <button
                         onClick={() => handleRemoveExperiment(exp.experimentId)}
@@ -140,7 +136,7 @@ const ExperimentSelector = ({ onExperimentsSelect, selectedExperiments = [] }) =
           </div>
         </div>
       )}
-    </Box>
+    </div>
   );
 };
 

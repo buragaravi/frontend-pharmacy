@@ -14,6 +14,7 @@ const RequestApprovalPage = () => {
   const [showFulfillDialog, setShowFulfillDialog] = useState(false);
   const [showFulfillRemainingDialog, setShowFulfillRemainingDialog] = useState(false); // New state
   const [availableChemicals, setAvailableChemicals] = useState([]);
+  const [userRole, setUserRole] = useState('');
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
   const [labId, setLabId] = React.useState('');
@@ -25,6 +26,7 @@ const RequestApprovalPage = () => {
         const decoded = jwtDecode(token);
         const { labId } = decoded.user;
         setLabId(labId);
+        setUserRole(decoded.user.role);
       } catch (err) {
         console.error('Error decoding token:', err);
       } 
@@ -75,6 +77,10 @@ const RequestApprovalPage = () => {
 
   const handleCloseDetails = () => {
     setSelectedRequest(null);
+  };
+
+  const handleRequestUpdate = () => {
+    fetchLabRequests(); // Refresh the data
   };
 
   const handleOpenFulfill = (request) => {
@@ -150,6 +156,7 @@ const RequestApprovalPage = () => {
             <RequestCard
               key={req._id}
               request={req}
+              userRole={userRole}
               showStatus
               onClick={() => handleOpenDetails(req)}
               actionButton={getActionButtons(req)}
@@ -163,6 +170,7 @@ const RequestApprovalPage = () => {
           open={true} 
           request={selectedRequest} 
           onClose={handleCloseDetails} 
+          onRequestUpdate={handleRequestUpdate}
           actionButton={getActionButtons(selectedRequest)}
         />
       )}

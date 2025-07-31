@@ -450,6 +450,7 @@ const LabRequestListPage = ({ labId: propLabId }) => {
                 <RequestCard
                   key={req._id}
                   request={req}
+                  userRole={userRole}
                   onClick={() => handleOpenDetails(req)}
                   showStatus
                   className={`${THEME.card} ${THEME.border} hover:shadow-lg transition-shadow`}
@@ -479,6 +480,7 @@ const LabRequestListPage = ({ labId: propLabId }) => {
               open={true}
               request={selectedRequest}
               onClose={handleCloseDetails}
+              onRequestUpdate={handleRequestUpdated}
             />
           )}
 

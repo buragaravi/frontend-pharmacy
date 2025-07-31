@@ -103,7 +103,7 @@ const FulfillRemainingRequestDialog = ({
               <div key={expIdx} className="mb-4 last:mb-0">
                 <h4 className="font-semibold">{exp.experimentName}</h4>
                 <p className="text-sm text-gray-600 mb-2">
-                  {new Date(exp.date).toLocaleDateString()} - {exp.session}
+                  {new Date(exp.date).toLocaleDateString()} | Course: {exp.courseId?.courseName} ({exp.courseId?.courseCode}) | Batch: {exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.batchName} ({exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.batchCode}) - {exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.academicYear}
                 </p>
                 
                 <ul className="space-y-3">

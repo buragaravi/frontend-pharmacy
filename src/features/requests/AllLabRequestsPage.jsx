@@ -202,6 +202,11 @@ const AllLabRequestsPage = () => {
     setModalOpen(false);
   };
 
+  const handleRequestUpdate = () => {
+    // Refresh the requests after approval/rejection
+    fetchAllLabRequests();
+  };
+
   const handleOpenFulfill = (request) => {
     setSelectedRequest(request);
     setShowFulfillDialog(true);
@@ -609,10 +614,12 @@ const AllLabRequestsPage = () => {
                     onStatusClick={handleStatusClick}
                     showStatus
                     showLabId={true}
+                    userRole={userRole}
                     className="bg-white/90 backdrop-blur-sm border border-blue-100/50 hover:shadow-xl transition-all duration-300 rounded-xl p-4 cursor-pointer transform group-hover:scale-105"
                     actionButton={
                       <>
-                        {(req.status === 'pending' || req.status === 'partially_fulfilled') && (isCentralAdmin || isLabAdmin) && (
+                        {/* Only show allocate button for approved requests */}
+                        {req.status === 'approved' && (isCentralAdmin || isLabAdmin) && (
                           <button
                             onClick={e => {
                               e.stopPropagation();
@@ -620,7 +627,17 @@ const AllLabRequestsPage = () => {
                             }}
                             className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-300 text-sm shadow-lg hover:shadow-xl transform hover:scale-105"
                           >
-                            Allocate
+                            Allocate Resources
+                          </button>
+                        )}
+                        {/* Disabled button for non-approved requests */}
+                        {req.status !== 'approved' && (req.status === 'pending' || req.status === 'partially_fulfilled') && (isCentralAdmin || isLabAdmin) && (
+                          <button
+                            disabled
+                            className="px-4 py-2 bg-gray-400 text-white rounded-lg font-medium cursor-not-allowed transition-all duration-300 text-sm opacity-50"
+                            title={req.status === 'pending' ? 'Pending admin approval' : 'Request not approved'}
+                          >
+                            {req.status === 'pending' ? 'Awaiting Approval' : 'Allocate Resources'}
                           </button>
                         )}
                       </>
@@ -638,6 +655,7 @@ const AllLabRequestsPage = () => {
             open={true}
             request={selectedRequest}
             onClose={handleCloseDetails}
+            onRequestUpdate={handleRequestUpdate}
           />
         )}
 

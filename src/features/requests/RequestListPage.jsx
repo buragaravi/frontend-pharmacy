@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { format } from 'date-fns';
+import { jwtDecode } from 'jwt-decode';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import RequestCard from './RequestCard';
@@ -13,6 +14,21 @@ const RequestListPage = () => {
   const [startDate, setStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [endDate, setEndDate] = useState('');
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState('');
+
+  const token = localStorage.getItem('token');
+
+  // Get user role from token
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserRole(decoded.user.role);
+      } catch (error) {
+        console.error('Error decoding token:', error);
+      }
+    }
+  }, [token]);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -64,6 +80,24 @@ const RequestListPage = () => {
   const openModal = (req) => {
     setSelectedRequest(req);
     setModalOpen(true);
+  };
+
+  const handleRequestUpdate = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('https://backend-pharmacy-5541.onrender.com/api/requests/', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      setRequests(data);
+      filterRequestsByDate(data, startDate, endDate);
+    } catch (error) {
+      console.error('Error fetching requests:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const calculateAllocationStats = (request) => {
@@ -210,7 +244,7 @@ const RequestListPage = () => {
           {/* Requests list */}
           <div className="space-y-4">
             {filteredRequests.map((req) => (
-              <RequestCard key={req._id} request={req} onClick={openModal} />
+              <RequestCard key={req._id} request={req} userRole={userRole} onClick={openModal} />
             ))}
           </div>
         </>
@@ -220,6 +254,7 @@ const RequestListPage = () => {
         request={selectedRequest}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
+        onRequestUpdate={handleRequestUpdate}
       />
     </div>
   );

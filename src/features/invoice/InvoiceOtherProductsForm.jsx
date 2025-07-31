@@ -112,9 +112,10 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
           name: '',
           variant: '',
           thresholdValue: '',
-          quantity: '',  
+          quantity: '',
           totalPrice: '',
-          pricePerUnit: ''
+          pricePerUnit: '',
+          warranty: item.warranty || ''  // Preserve warranty when clearing product
         } : item
       ));
       return;
@@ -135,7 +136,8 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
         thresholdValue: product.thresholdValue || '',
         quantity: '',
         totalPrice: '',
-        pricePerUnit: ''
+        pricePerUnit: '',
+        warranty: item.warranty || ''  // Preserve warranty when setting new product
       } : item
     ));
   };
@@ -321,7 +323,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
 
     setLineItems(processedItems.length > 0 ? 
       processedItems : 
-      [{ productId: '', name: '', variant: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '' }]
+      [{ productId: '', name: '', variant: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '', warranty: '' }]
     );
     
     setUnregisteredProducts([...new Set(missingProducts)]); // Remove duplicates
@@ -422,7 +424,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
       setInvoiceDate('');
       setLineItems([{
         productId: '', name: '', variant: '', thresholdValue: '', 
-        quantity: '', totalPrice: '', pricePerUnit: ''
+        quantity: '', totalPrice: '', pricePerUnit: '', warranty: ''
       }]);
       
       // Clear draft
@@ -534,7 +536,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
     setSelectedVendor(null);
     setInvoiceNumber('');
     setInvoiceDate('');
-    setLineItems([{ productId: '', name: '', variant: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '' }]);
+    setLineItems([{ productId: '', name: '', variant: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '', warranty: '' }]);
   };
 
   // Warn on tab close if draft exists
@@ -609,7 +611,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                   setSelectedVendor(null);
                   setInvoiceNumber('');
                   setInvoiceDate('');
-                  setLineItems([{ productId: '', name: '', variant: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '' }]);
+                  setLineItems([{ productId: '', name: '', variant: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '', warranty: '' }]);
                 }}
               >
                 Discard Draft

@@ -105,8 +105,9 @@ const CreateRequestForm = () => {
     {
       experimentId: '',
       experimentName: '',
+      courseId: '',
+      batchId: '',
       date: '',
-      session: 'morning',
       chemicals: [
         {
           chemicalName: '',
@@ -303,6 +304,15 @@ const CreateRequestForm = () => {
     fetchEquipment();
   }, []);
 
+  // Fetch active courses
+  const { data: coursesData = [] } = useQuery({
+    queryKey: ['courses', 'active'],
+    queryFn: async () => {
+      const response = await api.get('/courses/active');
+      return response.data.data;
+    },
+  });
+
   // Create request mutation
   const createRequestMutation = useMutation({
     mutationFn: async (requestData) => {
@@ -318,7 +328,8 @@ const CreateRequestForm = () => {
           experimentId: '',
           experimentName: '',
           date: '',
-          session: 'morning',
+          courseId: '',
+          batchId: '',
           chemicals: [{
             chemicalName: '',
             quantity: '',
@@ -528,6 +539,20 @@ const CreateRequestForm = () => {
     const newExperiments = [...experiments];
     newExperiments[index][field] = value;
     setExperiments(newExperiments);
+  };
+
+  // Handle course change and reset batch
+  const handleCourseChange = (expIndex, courseId) => {
+    const newExperiments = [...experiments];
+    newExperiments[expIndex].courseId = courseId;
+    newExperiments[expIndex].batchId = ''; // Reset batch when course changes
+    setExperiments(newExperiments);
+  };
+
+  // Get batches for a specific course
+  const getBatchesForCourse = (courseId) => {
+    const course = coursesData.find(c => c._id === courseId);
+    return course ? course.batches : [];
   };
 
   const handleChemicalChange = (expIndex, chemIndex, field, value) => {
@@ -770,8 +795,9 @@ const CreateRequestForm = () => {
         {
           experimentId: '',
           experimentName: '',
+          courseId: '',
+          batchId: '',
           date: '',
-          session: 'morning',
           chemicals: [{
             chemicalName: '',
             quantity: '',
@@ -814,9 +840,9 @@ const CreateRequestForm = () => {
 
     // Validate each experiment
     for (const exp of experiments) {
-      if (!exp.experimentId || !exp.date || !exp.session) {
-        setFormError('Please fill in all experiment details');
-        toast.error('Please fill in all experiment details');
+      if (!exp.experimentId || !exp.date || !exp.courseId || !exp.batchId) {
+        setFormError('Please fill in all experiment details including course and batch');
+        toast.error('Please fill in all experiment details including course and batch');
         return;
       }
 
@@ -840,7 +866,9 @@ const CreateRequestForm = () => {
           return;
         }
       }
-    }    const formatted = {
+    }
+
+    const formatted = {
       labId,
       experiments: experiments.map((exp, expIndex) => {
         console.log(`Processing experiment ${expIndex}:`, exp); // Debug log
@@ -849,8 +877,9 @@ const CreateRequestForm = () => {
         return {
           experimentId: exp.experimentId,
           experimentName: exp.experimentName,
+          courseId: exp.courseId,
+          batchId: exp.batchId,
           date: exp.date,
-          session: exp.session,
           chemicals: exp.chemicals.map(chem => ({
             chemicalMasterId: chem.chemicalMasterId,
             quantity: Number(chem.quantity),
@@ -1263,7 +1292,6 @@ const CreateRequestForm = () => {
                 ))}
               </select>
             </div>
-
             {experiments.map((experiment, expIndex) => (
               <div
                 key={`experiment-${expIndex}`}
@@ -1305,13 +1333,30 @@ const CreateRequestForm = () => {
                 )}
                 {experiment.experimentId && (
                   <div className="mb-6 transition-all duration-500">
-                    <div className="flex items-center gap-2 text-blue-700 font-semibold text-lg">
-                      <span className="bg-blue-100 px-3 py-1 rounded-xl shadow-inner">{experiment.experimentName}</span>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 text-blue-700 font-semibold text-lg">
+                        <span className="bg-blue-100 px-3 py-1 rounded-xl shadow-inner">{experiment.experimentName}</span>
+                      </div>
+                      {(experiment.courseId || experiment.batchId) && (
+                        <div className="text-sm text-gray-600 ml-1">
+                          {experiment.courseId && (
+                            <span>
+                              Course: {coursesData.find(c => c._id === experiment.courseId)?.courseName} ({coursesData.find(c => c._id === experiment.courseId)?.courseCode})
+                            </span>
+                          )}
+                          {experiment.courseId && experiment.batchId && <span className="mx-2">|</span>}
+                          {experiment.batchId && (
+                            <span>
+                              Batch: {getBatchesForCourse(experiment.courseId).find(b => b._id === experiment.batchId)?.batchName} ({getBatchesForCourse(experiment.courseId).find(b => b._id === experiment.batchId)?.batchCode}) - {getBatchesForCourse(experiment.courseId).find(b => b._id === experiment.batchId)?.academicYear}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div>
                     <label className={CLOUDY_LABEL}>Date</label>
                     <input
@@ -1324,15 +1369,38 @@ const CreateRequestForm = () => {
                     />
                   </div>
                   <div>
-                    <label className={CLOUDY_LABEL}>Session</label>
+                    <label className={CLOUDY_LABEL}>Course</label>
                     <select
-                      value={experiment.session}
-                      onChange={(e) => handleExperimentChange(expIndex, 'session', e.target.value)}
+                      value={experiment.courseId}
+                      onChange={(e) => handleCourseChange(expIndex, e.target.value)}
+                      required
                       className={`${CLOUDY_INPUT} w-full px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-400`}
-                      aria-label="Session"
+                      aria-label="Course"
                     >
-                      <option value="morning">Morning</option>
-                      <option value="afternoon">Afternoon</option>
+                      <option value="">Select Course</option>
+                      {coursesData.map((course) => (
+                        <option key={course._id} value={course._id}>
+                          {course.courseName} ({course.courseCode})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={CLOUDY_LABEL}>Batch</label>
+                    <select
+                      value={experiment.batchId}
+                      onChange={(e) => handleExperimentChange(expIndex, 'batchId', e.target.value)}
+                      required
+                      disabled={!experiment.courseId}
+                      className={`${CLOUDY_INPUT} w-full px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 ${!experiment.courseId ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                      aria-label="Batch"
+                    >
+                      <option value="">Select Batch</option>
+                      {getBatchesForCourse(experiment.courseId).map((batch) => (
+                        <option key={batch._id} value={batch._id}>
+                          {batch.batchName} ({batch.batchCode}) - {batch.academicYear}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
