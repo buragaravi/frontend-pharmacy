@@ -4,6 +4,9 @@ import Swal from 'sweetalert2';
 import CourseForm from './CourseForm';
 import CourseCard from './CourseCard';
 import CourseStats from './CourseStats';
+import { useResponsiveColors } from '../../utils/colorUtils';
+import { getSafeBackground, getSafeBackdrop } from '../../utils/colorUtils';
+import SafeButton from '../../components/SafeButton';
 
 // Enhanced animations and styles
 const customStyles = `
@@ -132,6 +135,7 @@ const customStyles = `
 const BASE_URL = 'https://backend-pharmacy-5541.onrender.com/api/courses';
 
 const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
+  const colors = useResponsiveColors();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -432,8 +436,14 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
       <div className="w-full p-4 sm:p-6">
         {/* Floating background elements */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-indigo-200/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-200/30 to-purple-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div 
+            className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl animate-pulse"
+            style={{ backgroundColor: colors.background.light }}
+          ></div>
+          <div 
+            className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl animate-pulse delay-1000"
+            style={{ backgroundColor: colors.accent.light }}
+          ></div>
         </div>
 
         <div className="relative w-full ">
@@ -445,14 +455,26 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
           )}
 
           {/* Main Content Card */}
-          <div className="glass-effect bg-white/90 rounded-2xl shadow-xl border border-white/20 overflow-hidden animate-slideInBottom">
+          <div 
+            className="rounded-2xl shadow-xl border border-white/20 overflow-hidden animate-slideInBottom"
+            style={{ ...getSafeBackdrop('12px', 'rgba(255, 255, 255, 0.9)') }}
+          >
             {/* Enhanced Header */}
-            <div className="relative p-6 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-800/20 to-indigo-800/20"></div>
+            <div 
+              className="relative p-6 text-white overflow-hidden"
+              style={{ backgroundColor: getSafeBackground('header', '#1d4ed8') }}
+            >
+              <div 
+                className="absolute inset-0"
+                style={{ backgroundColor: getSafeBackground('overlay', 'rgba(29, 78, 216, 0.2)') }}
+              ></div>
               <div className="relative z-10">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                    <div 
+                      className="p-3 rounded-xl"
+                      style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.2)') }}
+                    >
                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
@@ -464,18 +486,19 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                   </div>
                   
                   {canManageCourses && (
-                    <button
+                    <SafeButton
                       onClick={() => {
                         setEditingCourse(null);
                         setShowForm(true);
                       }}
-                      className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-xl text-white font-semibold hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover-lift"
+                      variant="secondary"
+                      className="flex items-center gap-2 hover-lift"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
                       Add Course
-                    </button>
+                    </SafeButton>
                   )}
                 </div>
               </div>
@@ -490,7 +513,10 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
             </div>
 
             {/* Controls Section */}
-            <div className="p-6 border-b border-gray-200/50 bg-white/80 backdrop-blur-sm">
+            <div 
+              className="p-6 border-b border-gray-200/50"
+              style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.8)') }}
+            >
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 {/* Search and Filters */}
                 <div className="flex flex-col sm:flex-row gap-4 flex-1 mobile-stack">
@@ -579,14 +605,20 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
             </div>
 
             {/* Main Content Area */}
-            <div className="p-6 bg-white/60 backdrop-blur-sm min-h-[400px]">
+            <div 
+              className="p-6 min-h-[400px]"
+              style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.6)') }}
+            >
               {loading ? (
                 <div className="animate-fadeInScale">
                   {viewMode === 'cards' ? <CourseCardSkeleton /> : <CourseTableSkeleton />}
                 </div>
               ) : filteredCourses.length === 0 ? (
                 <div className="text-center py-16 animate-fadeInScale">
-                  <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mb-6">
+                  <div 
+                    className="mx-auto w-24 h-24 rounded-2xl flex items-center justify-center mb-6"
+                    style={{ backgroundColor: getSafeBackground('light', '#dbeafe') }}
+                  >
                     <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
@@ -599,15 +631,16 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                     }
                   </p>
                   {canManageCourses && (
-                    <button
+                    <SafeButton
                       onClick={() => {
                         setEditingCourse(null);
                         setShowForm(true);
                       }}
-                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl text-white font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                      variant="primary"
+                      className="transform hover:scale-105"
                     >
                       Create Your First Course
-                    </button>
+                    </SafeButton>
                   )}
                 </div>
               ) : (
@@ -636,7 +669,7 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                     // Table View Implementation will go here
                     <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-lg bg-white">
                       <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <thead style={{ backgroundColor: getSafeBackground('light', '#eff6ff') }}>
                           <tr>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Course</th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider mobile-hide">Department</th>
@@ -656,7 +689,10 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                             >
                               <td className="px-6 py-4">
                                 <div className="flex items-center">
-                                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                  <div 
+                                    className="h-12 w-12 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg"
+                                    style={{ backgroundColor: getSafeBackground('primary', '#3b82f6') }}
+                                  >
                                     {course.courseCode.charAt(0)}
                                   </div>
                                   <div className="ml-4">
@@ -724,7 +760,8 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
         {canManageCourses && showForm && (
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto">
             <div 
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0"
+              style={{ ...getSafeBackdrop('4px', 'rgba(0, 0, 0, 0.6)') }}
               onClick={() => {
                 setShowForm(false);
                 setEditingCourse(null);

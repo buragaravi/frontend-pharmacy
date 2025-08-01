@@ -4,6 +4,8 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import Swal from 'sweetalert2';
+import { useResponsiveColors } from '../../hooks/useResponsiveColors';
+import SafeButton from '../../components/SafeButton';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -76,6 +78,7 @@ const DeleteIcon = () => (
 );
 
 const UserManagement = () => {
+  const { getSafeBackground, getSafeBackdrop, deviceInfo } = useResponsiveColors();
   const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -350,8 +353,14 @@ const UserManagement = () => {
   }
 
   return (
-    <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 ">
-      <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
+    <div 
+      className="w-full"
+      style={getSafeBackground('light', '#eff6ff')}
+    >
+      <div 
+        className="w-full max-w-none mx-auto rounded-3xl shadow-2xl overflow-hidden relative"
+        style={getSafeBackdrop('12px', 'rgba(255, 255, 255, 0.9)')}
+      >
         {/* Enhanced Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
@@ -360,13 +369,19 @@ const UserManagement = () => {
         </div>
 
         {/* Enhanced Header Section */}
-        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-6 md:p-8 text-white overflow-hidden">
+        <div 
+          className="relative p-6 md:p-8 text-white overflow-hidden"
+          style={getSafeBackground('header', '#1d4ed8')}
+        >
           <div className="absolute inset-0 bg-blue-800/20"></div>
           <div className="relative z-10">
             <div className="flex flex-col gap-4 md:gap-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-center gap-3 md:gap-4">
-                  <div className="p-3 md:p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
+                  <div 
+                    className="p-3 md:p-4 rounded-2xl border border-white/30"
+                    style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
+                  >
                     <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
@@ -377,15 +392,16 @@ const UserManagement = () => {
                   </div>
                 </div>
                 
-                <button
+                <SafeButton
                   onClick={handleAddUser}
-                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold px-4 md:px-6 py-2.5 md:py-3 rounded-2xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                  variant="success"
+                  className="w-full sm:w-auto"
                 >
                   <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                   <span className="text-sm md:text-base">Add User</span>
-                </button>
+                </SafeButton>
               </div>
             </div>
           </div>
@@ -401,12 +417,18 @@ const UserManagement = () => {
 
         {/* Content Section */}
         <div className="relative z-10 p-4 md:p-8">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-100/50 overflow-hidden">
+          <div 
+            className="rounded-2xl shadow-xl border border-blue-100/50 overflow-hidden"
+            style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.8)')}
+          >
             
             {/* Desktop Table View - Hidden on mobile */}
             <div className="hidden md:block">
               <table className="w-full">
-                <thead className="bg-gradient-to-r from-blue-600/90 to-indigo-600/90 text-white">
+                <thead 
+                  className="text-white"
+                  style={getSafeBackground('header', '#2563eb')}
+                >
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Name</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Email</th>
@@ -416,7 +438,10 @@ const UserManagement = () => {
                     <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white/60 backdrop-blur-sm divide-y divide-blue-100">
+                <tbody 
+                  className="divide-y divide-blue-100"
+                  style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.6)')}
+                >
                   {users?.map((user, index) => (
                     <tr key={user._id} className={`transition-colors duration-200 hover:bg-blue-50/70 ${index % 2 === 0 ? 'bg-white/40' : 'bg-blue-50/30'}`}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
