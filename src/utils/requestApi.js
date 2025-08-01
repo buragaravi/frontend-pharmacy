@@ -1,6 +1,6 @@
 // API utilities for request management
 
-const API_BASE_URL = 'https://backend-pharmacy-5541.onrender.com/api';
+const API_BASE_URL = 'https://backend-jits.onrender.com/api';
 
 // Get authorization headers
 const getAuthHeaders = () => {
