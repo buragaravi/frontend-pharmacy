@@ -15,21 +15,8 @@ const CourseForm = ({ course, onCreate, onUpdate, onClose }) => {
         academicYear: '',
         numberOfStudents: '',
         description: '',
-        isActive:          <div className="flex-1">
-            {currentStep > 1 && (
-              <SafeButton
-                type="button"
-                onClick={handlePrevious}
-                variant="secondary"
-                className="flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Previous
-              </SafeButton>
-            )}
-          </div>  }
+        isActive: true
+      }
     ],
     isActive: true
   });
@@ -598,15 +585,19 @@ const CourseForm = ({ course, onCreate, onUpdate, onClose }) => {
 
         {/* Form Actions */}
         <div className="flex justify-between items-center pt-6 border-t border-gray-200 mt-8">
-          <div className="flex gap-3">
+          <div className="flex-1">
             {currentStep > 1 && (
-              <button
+              <SafeButton
                 type="button"
                 onClick={handlePrevious}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200"
+                variant="secondary"
+                className="flex items-center gap-2"
               >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
                 Previous
-              </button>
+              </SafeButton>
             )}
           </div>
 
