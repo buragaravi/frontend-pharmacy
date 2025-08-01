@@ -840,9 +840,7 @@ const InvoiceList = () => {
                                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                   Unit
                                 </th>
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                  Threshold
-                                </th>
+                                {/* Threshold column removed as requested */}
                                 <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                   Quantity
                                 </th>
@@ -869,9 +867,7 @@ const InvoiceList = () => {
                                   <td className="px-6 py-4 text-sm text-gray-700">
                                     {item.unit}
                                   </td>
-                                  <td className="px-6 py-4 text-sm text-gray-700">
-                                    {item.thresholdValue || '-'}
-                                  </td>
+                                  {/* Threshold cell removed as requested */}
                                   <td className="px-6 py-4 text-sm text-center font-medium text-gray-900">
                                     {item.quantity}
                                   </td>

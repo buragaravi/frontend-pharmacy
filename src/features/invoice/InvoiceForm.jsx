@@ -1022,7 +1022,7 @@ const InvoiceForm = () => {
                                                 </div>
                                                 
                                                 {/* Unit (readonly) */}
-                                                <div className="col-span-1">
+                                                <div className="col-span-2">
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">Unit</label>
                                                     <input 
                                                         type="text" 
@@ -1032,16 +1032,7 @@ const InvoiceForm = () => {
                                                     />
                                                 </div>
                                                 
-                                                {/* Threshold (readonly) */}
-                                                <div className="col-span-1">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Threshold</label>
-                                                    <input 
-                                                        type="text" 
-                                                        className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 text-sm" 
-                                                        value={item.thresholdValue} 
-                                                        readOnly 
-                                                    />
-                                                </div>
+                                                {/* Threshold field removed as requested */}
                                                 
                                                 {/* Quantity */}
                                                 <div className="col-span-2">

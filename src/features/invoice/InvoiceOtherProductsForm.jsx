@@ -902,7 +902,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                         </select>
                       </div>
                       
-                      {/* Variant & Threshold */}
+                      {/* Variant field */}
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">Variant</label>
                         <input
@@ -914,16 +914,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                         />
                       </div>
                       
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Threshold</label>
-                        <input
-                          type="number"
-                          value={item.thresholdValue}
-                          onChange={(e) => handleLineItemChange(idx, 'thresholdValue', e.target.value)}
-                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
-                          placeholder="Min"
-                        />
-                      </div>
+                      {/* Threshold field removed as requested */}
                       
                       {/* Quantity & Total Price */}
                       <div>
@@ -1028,20 +1019,10 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                           />
                         </div>
                         
-                        {/* Threshold */}
-                        <div className={`${(category === 'equipment' || category === 'glassware') ? 'col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1' : 'col-span-1 md:col-span-1 lg:col-span-1'}`}>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Min</label>
-                          <input
-                            type="number"
-                            value={item.thresholdValue}
-                            onChange={(e) => handleLineItemChange(idx, 'thresholdValue', e.target.value)}
-                            className="w-full px-1 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
-                            placeholder="Min"
-                          />
-                        </div>
+                        {/* Threshold field removed as requested */}
                         
                         {/* Quantity */}
-                        <div className={`${(category === 'equipment' || category === 'glassware') ? 'col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2' : 'col-span-2 md:col-span-2 lg:col-span-2'}`}>
+                        <div className={`${(category === 'equipment' || category === 'glassware') ? 'col-span-3 md:col-span-3 lg:col-span-3 xl:col-span-3 2xl:col-span-3' : 'col-span-3 md:col-span-3 lg:col-span-3'}`}>
                           <label className="block text-xs font-medium text-gray-700 mb-1">Quantity</label>
                           <input
                             type="number"
