@@ -9,6 +9,9 @@ import RequestDetailsModal from './RequestDetailsModal';
 import FulfillRequestDialog from './FulfillRequestDialog';
 import UnifiedAllocateDialog from './UnifiedAllocateDialog';
 import { useNavigate } from 'react-router-dom';
+import { useResponsiveColors } from '../../utils/colorUtils';
+import { getSafeBackground, getSafeBackdrop } from '../../utils/colorUtils';
+import SafeButton from '../../components/SafeButton';
 
 // SVG Icons
 const RequestIcon = () => (
@@ -59,6 +62,7 @@ const statusCategories = [
 const labList = ['LAB01', 'LAB02', 'LAB03', 'LAB04', 'LAB05', 'LAB06', 'LAB07', 'LAB08'];
 
 const AllLabRequestsPage = () => {
+  const colors = useResponsiveColors();
   const [allRequests, setAllRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -422,8 +426,14 @@ const AllLabRequestsPage = () => {
 
   if (loading) {
     return (
-      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-cyan-50/50 flex items-center justify-center">
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border border-blue-100/50">
+      <div 
+        className="w-full min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: getSafeBackground('light', '#eff6ff') }}
+      >
+        <div 
+          className="rounded-2xl p-8 border border-blue-100/50"
+          style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.9)') }}
+        >
           <div className="flex flex-col items-center gap-4">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
             <p className="text-blue-700 font-medium">Loading all lab requests...</p>
@@ -435,8 +445,14 @@ const AllLabRequestsPage = () => {
 
   if (error) {
     return (
-      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-cyan-50/50 flex items-center justify-center">
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border border-red-200/50 max-w-md">
+      <div 
+        className="w-full min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: getSafeBackground('light', '#eff6ff') }}
+      >
+        <div 
+          className="rounded-2xl p-8 border border-red-200/50 max-w-md"
+          style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.9)') }}
+        >
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
               <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -445,12 +461,13 @@ const AllLabRequestsPage = () => {
             </div>
             <h3 className="text-lg font-medium text-red-700 mb-2">Error Loading Requests</h3>
             <p className="text-red-600 mb-4">{error}</p>
-            <button 
-              onClick={() => fetchAllLabRequests()} 
-              className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
+            <SafeButton
+              onClick={() => fetchAllLabRequests()}
+              variant="danger"
+              className="transform hover:scale-105"
             >
               Retry Loading
-            </button>
+            </SafeButton>
           </div>
         </div>
       </div>
@@ -458,11 +475,23 @@ const AllLabRequestsPage = () => {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-cyan-50/50">
+    <div 
+      className="w-full min-h-screen"
+      style={{ backgroundColor: getSafeBackground('light', '#eff6ff') }}
+    >
       {/* Full Width Header with Rounded Top Borders and Water Bubbles */}
-      <div className="w-full bg-gradient-to-r from-blue-600/95 via-blue-700/95 to-cyan-600/95 backdrop-blur-xl border-b border-white/30 relative overflow-hidden rounded-t-3xl">
-        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-white/10 backdrop-blur-sm"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"></div>
+      <div 
+        className="w-full border-b border-white/30 relative overflow-hidden rounded-t-3xl"
+        style={{ backgroundColor: getSafeBackground('header', '#1d4ed8') }}
+      >
+        <div 
+          className="absolute inset-0"
+          style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.1)') }}
+        ></div>
+        <div 
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to bottom, transparent, transparent, rgba(0,0,0,0.05))' }}
+        ></div>
         
         {/* Water Bubble Background Effects */}
         <div className="water-bubbles">
