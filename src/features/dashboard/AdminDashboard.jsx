@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
+import { useResponsiveColors } from '../../hooks/useResponsiveColors';
+import SafeButton from '../../components/SafeButton';
 import UserDetails from '../../components/UserDetails';
 import QuotationPage from '../quotations/QuotationPage';
 import ChemicalDashboard from '../chemicals/ChemicalDashboard';
@@ -190,110 +192,147 @@ const NAV_ITEMS = Object.values(NAV_CATEGORIES).flatMap(category => category.ite
 
 const labList = ['LAB01', 'LAB02', 'LAB03', 'LAB04', 'LAB05', 'LAB06', 'LAB07', 'LAB08'];
 
-// Quick Stats Component
-const QuickStats = ({ productStats, requestStats, pendingRequests }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold">{productStats?.total ?? '—'}</div>
-          <div className="text-blue-100 text-sm">Total Products</div>
-        </div>
-        <div className="text-3xl">📦</div>
-      </div>
-    </div>
-    <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold">{productStats?.chemical ?? '—'}</div>
-          <div className="text-green-100 text-sm">Chemicals</div>
-        </div>
-        <div className="text-3xl">🧪</div>
-      </div>
-    </div>
-    <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold">{productStats?.equipment ?? '—'}</div>
-          <div className="text-purple-100 text-sm">Equipment</div>
-        </div>
-        <div className="text-3xl">🔧</div>
-      </div>
-    </div>
-    <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold">{productStats?.glassware ?? '—'}</div>
-          <div className="text-orange-100 text-sm">Glassware</div>
-        </div>
-        <div className="text-3xl">🥛</div>
-      </div>
-    </div>
-    <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold">{productStats?.others ?? '—'}</div>
-          <div className="text-yellow-100 text-sm">Other Products</div>
-        </div>
-        <div className="text-3xl">📦</div>
-      </div>
-    </div>
-    <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold">{requestStats?.active ?? '—'}</div>
-          <div className="text-cyan-100 text-sm">Active Requests</div>
-        </div>
-        <div className="text-3xl">📋</div>
-      </div>
-    </div>
-    <div className="bg-gradient-to-br from-gray-500 to-gray-600 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold">{requestStats?.pending ?? '—'}</div>
-          <div className="text-gray-100 text-sm">Pending</div>
-        </div>
-        <div className="text-3xl">⏳</div>
-      </div>
-    </div>
-    <div className="bg-gradient-to-br from-pink-500 to-pink-600 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold">{requestStats?.partially_fulfilled ?? '—'}</div>
-          <div className="text-pink-100 text-sm">Partially Fulfilled</div>
-        </div>
-        <div className="text-3xl">🟠</div>
-      </div>
-    </div>
-    <div className="bg-gradient-to-br from-green-700 to-green-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold">{requestStats?.fulfilled ?? '—'}</div>
-          <div className="text-green-100 text-sm">Fulfilled</div>
-        </div>
-        <div className="text-3xl">✅</div>
-      </div>
-    </div>
-    <div className="bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold">{requestStats?.rejected ?? '—'}</div>
-          <div className="text-red-100 text-sm">Rejected</div>
-        </div>
-        <div className="text-3xl">❌</div>
-      </div>
-    </div>
-    <div className="bg-gradient-to-br from-blue-700 to-blue-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold">{pendingRequests?.length ?? '—'}</div>
-          <div className="text-blue-100 text-sm">Pending/Partial Requests</div>
-        </div>
-        <div className="text-3xl">🔄</div>
-      </div>
-    </div>
-  </div>
-);
+// // Quick Stats Component
+// const QuickStats = ({ productStats, requestStats, pendingRequests }) => {
+//   const { getSafeBackground } = useResponsiveColors();
+  
+//   return (
+//     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+//       <div 
+//         className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+//         style={getSafeBackground('primary', '#3b82f6')}
+//       >
+//         <div className="flex items-center justify-between">
+//           <div>
+//             <div className="text-2xl font-bold">{productStats?.total ?? '—'}</div>
+//             <div className="text-blue-100 text-sm">Total Products</div>
+//           </div>
+//           <div className="text-3xl">📦</div>
+//         </div>
+//       </div>
+//       <div 
+//         className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+//         style={getSafeBackground('success', '#10b981')}
+//       >
+//         <div className="flex items-center justify-between">
+//           <div>
+//             <div className="text-2xl font-bold">{productStats?.chemical ?? '—'}</div>
+//             <div className="text-green-100 text-sm">Chemicals</div>
+//           </div>
+//           <div className="text-3xl">🧪</div>
+//         </div>
+//       </div>
+//       <div 
+//         className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+//         style={getSafeBackground('secondary', '#8b5cf6')}
+//       >
+//         <div className="flex items-center justify-between">
+//           <div>
+//             <div className="text-2xl font-bold">{productStats?.equipment ?? '—'}</div>
+//             <div className="text-purple-100 text-sm">Equipment</div>
+//           </div>
+//           <div className="text-3xl">🔧</div>
+//         </div>
+//       </div>
+//       <div 
+//         className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+//         style={getSafeBackground('warning', '#f59e0b')}
+//       >
+//         <div className="flex items-center justify-between">
+//           <div>
+//             <div className="text-2xl font-bold">{productStats?.glassware ?? '—'}</div>
+//             <div className="text-orange-100 text-sm">Glassware</div>
+//           </div>
+//           <div className="text-3xl">🥛</div>
+//         </div>
+//       </div>
+//     </div>
+//     <div 
+//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+//       style={getSafeBackground('warning', '#eab308')}
+//     >
+//       <div className="flex items-center justify-between">
+//         <div>
+//           <div className="text-2xl font-bold">{productStats?.others ?? '—'}</div>
+//           <div className="text-yellow-100 text-sm">Other Products</div>
+//         </div>
+//         <div className="text-3xl">📦</div>
+//       </div>
+//     </div>
+//     <div 
+//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+//       style={getSafeBackground('info', '#06b6d4')}
+//     >
+//       <div className="flex items-center justify-between">
+//         <div>
+//           <div className="text-2xl font-bold">{requestStats?.active ?? '—'}</div>
+//           <div className="text-cyan-100 text-sm">Active Requests</div>
+//         </div>
+//         <div className="text-3xl">📋</div>
+//       </div>
+//     </div>
+//     <div 
+//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+//       style={getSafeBackground('neutral', '#6b7280')}
+//     >
+//       <div className="flex items-center justify-between">
+//         <div>
+//           <div className="text-2xl font-bold">{requestStats?.pending ?? '—'}</div>
+//           <div className="text-gray-100 text-sm">Pending</div>
+//         </div>
+//         <div className="text-3xl">⏳</div>
+//       </div>
+//     </div>
+//     <div 
+//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+//       style={getSafeBackground('accent', '#ec4899')}
+//     >
+//       <div className="flex items-center justify-between">
+//         <div>
+//           <div className="text-2xl font-bold">{requestStats?.partially_fulfilled ?? '—'}</div>
+//           <div className="text-pink-100 text-sm">Partially Fulfilled</div>
+//         </div>
+//         <div className="text-3xl">🟠</div>
+//       </div>
+//     </div>
+//     <div 
+//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+//       style={getSafeBackground('success', '#059669')}
+//     >
+//       <div className="flex items-center justify-between">
+//         <div>
+//           <div className="text-2xl font-bold">{requestStats?.fulfilled ?? '—'}</div>
+//           <div className="text-green-100 text-sm">Fulfilled</div>
+//         </div>
+//         <div className="text-3xl">✅</div>
+//       </div>
+//     </div>
+//     <div 
+//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+//       style={getSafeBackground('danger', '#dc2626')}
+//     >
+//       <div className="flex items-center justify-between">
+//         <div>
+//           <div className="text-2xl font-bold">{requestStats?.rejected ?? '—'}</div>
+//           <div className="text-red-100 text-sm">Rejected</div>
+//         </div>
+//         <div className="text-3xl">❌</div>
+//       </div>
+//     </div>
+//     <div 
+//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+//       style={getSafeBackground('primary', '#1e40af')}
+//     >
+//       <div className="flex items-center justify-between">
+//         <div>
+//           <div className="text-2xl font-bold">{pendingRequests?.length ?? '—'}</div>
+//           <div className="text-blue-100 text-sm">Pending/Partial Requests</div>
+//         </div>
+//         <div className="text-3xl">🔄</div>
+//       </div>
+//     </div>
+//   );
+// };
 
 // Recent Activity Component
 const RecentActivity = ({ requests }) => (
@@ -395,6 +434,7 @@ const NotificationCenter = ({ notifications = [], onMarkAsRead }) => {
 };
 
 const AdminDashboard = () => {
+  const { getSafeBackground, getSafeBackdrop, deviceInfo } = useResponsiveColors();
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [selectedChild, setSelectedChild] = useState(null);
   const [selected, setSelected] = useState('AllLabRequestsPage');
@@ -668,15 +708,27 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen font-sans bg-gray-50">
+    <div 
+      className="min-h-screen font-sans"
+      style={getSafeBackground('light', '#f9fafb')}
+    >
       {/* Navigation Bar */}
-      <header className="w-full bg-gradient-to-br from-slate-50/90 via-blue-50/80 to-indigo-100/90 backdrop-blur-xl sticky top-0 z-50 border-b border-white/30 shadow-xl shadow-blue-500/10">
+      <header 
+        className="w-full sticky top-0 z-50 border-b border-white/30 shadow-xl shadow-blue-500/10"
+        style={getSafeBackdrop('12px', 'rgba(248, 250, 252, 0.9)')}
+      >
         {/* Enhanced Header Section */}
-        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 overflow-hidden">
+        <div 
+          className="relative overflow-hidden"
+          style={getSafeBackground('header', '#1d4ed8')}
+        >
           <div className="absolute inset-0 bg-blue-800/20"></div>
           <div className="relative z-10 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
             <div className="flex items-center gap-4">
-              <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
+              <div 
+                className="p-2.5 rounded-xl border border-white/30"
+                style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
+              >
                 <img src="/pydah.svg" alt="Logo" className="h-6 w-auto sm:h-7" />
               </div>
               <div>
@@ -693,12 +745,14 @@ const AdminDashboard = () => {
                   Welcome, {user.name}
                 </span>
               )}
-              <button
+              <SafeButton
                 onClick={handleLogout}
-                className="px-4 py-2 rounded-lg bg-white/20 text-white font-medium hover:bg-white/30 transition-all duration-200 backdrop-blur-sm border border-white/30 shadow-lg text-sm"
+                variant="secondary"
+                size="sm"
+                className="text-white border border-white/30"
               >
                 Logout
-              </button>
+              </SafeButton>
             </div>
           </div>
           
@@ -712,15 +766,19 @@ const AdminDashboard = () => {
         </div>
 
         {/* Modern Navigation Bar */}
-        <nav className="w-full bg-white/40 backdrop-blur-sm border-b border-white/20">
+        <nav 
+          className="w-full border-b border-white/20"
+          style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.4)')}
+        >
           <div className="w-full flex items-center px-4 sm:px-6 lg:px-8 py-3 relative">
             {/* Mobile Menu Button */}
             <div className="md:hidden">
-              <button
-                className="mobile-menu-toggle flex items-center justify-center p-3.5 rounded-2xl focus:outline-none bg-transparent border border-white/60 transition-all duration-400 hover:bg-white/20 active:bg-white/30 backdrop-blur-sm transform hover:scale-102 focus-enhanced"
+              <SafeButton
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                variant="secondary"
+                size="sm"
+                className="border border-white/60"
                 aria-label="Toggle menu"
-                type="button"
               >
                 <svg className="w-5 h-5 text-blue-700 transition-transform duration-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   {mobileMenuOpen ? (
@@ -729,16 +787,17 @@ const AdminDashboard = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                   )}
                 </svg>
-              </button>
+              </SafeButton>
             </div>
             
             {/* Dashboard Button - Desktop */}
             <div className="hidden md:flex items-center mr-6">
-              <button
-                className={`px-5 py-3 rounded-2xl font-medium transition-all duration-400 text-sm backdrop-blur-sm border flex items-center gap-2 transform hover:scale-102 ${
-                  showDashboard && !selectedChild 
-                    ? 'bg-blue-500/20 text-blue-700 border-blue-300/40' 
-                    : 'bg-transparent text-slate-700 hover:bg-blue-50/30 border-blue-200/30 hover:border-blue-300/50'
+              <SafeButton
+                variant={showDashboard && !selectedChild ? 'primary' : 'secondary'}
+                size="sm"
+                className={`border ${showDashboard && !selectedChild 
+                  ? 'border-blue-300/40' 
+                  : 'border-blue-200/30 hover:border-blue-300/50'
                 }`}
                 onClick={() => {
                   setShowDashboard(true);
@@ -747,7 +806,7 @@ const AdminDashboard = () => {
                 }}
               >
                 🏠 Dashboard
-              </button>
+              </SafeButton>
             </div>
             
             {/* Desktop Navigation */}
