@@ -9,8 +9,7 @@ import RequestDetailsModal from './RequestDetailsModal';
 import FulfillRequestDialog from './FulfillRequestDialog';
 import UnifiedAllocateDialog from './UnifiedAllocateDialog';
 import { useNavigate } from 'react-router-dom';
-import { useResponsiveColors } from '../../utils/colorUtils';
-import { getSafeBackground, getSafeBackdrop } from '../../utils/colorUtils';
+import { useResponsiveColors, getSafeBackground, getSafeBackdrop } from '../../utils/colorUtils';
 import SafeButton from '../../components/SafeButton';
 
 // SVG Icons

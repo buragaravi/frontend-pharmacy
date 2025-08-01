@@ -4,8 +4,7 @@ import Swal from 'sweetalert2';
 import CourseForm from './CourseForm';
 import CourseCard from './CourseCard';
 import CourseStats from './CourseStats';
-import { useResponsiveColors } from '../../utils/colorUtils';
-import { getSafeBackground, getSafeBackdrop } from '../../utils/colorUtils';
+import { useResponsiveColors, getSafeBackground, getSafeBackdrop } from '../../utils/colorUtils';
 import SafeButton from '../../components/SafeButton';
 
 // Enhanced animations and styles

@@ -356,3 +356,63 @@ export const testColorSupport = () => {
   console.log('🎨 Color Support Test Results:', results);
   return results;
 };
+
+// React hook for responsive colors
+export const useResponsiveColors = () => {
+  const supportsGradients = colorSupport.supportsGradients();
+  const supportsBackdrop = colorSupport.supportsBackdropFilter();
+  
+  return {
+    primary: supportsGradients ? colorPalette.blue : { main: '#3b82f6', light: '#60a5fa', dark: '#1d4ed8' },
+    secondary: supportsGradients ? colorPalette.indigo : { main: '#6366f1', light: '#818cf8', dark: '#4338ca' },
+    accent: supportsGradients ? colorPalette.purple : { main: '#8b5cf6', light: '#a78bfa', dark: '#6d28d9' },
+    background: {
+      main: '#ffffff',
+      light: '#f8fafc',
+      dark: '#1e293b'
+    },
+    supportsGradients,
+    supportsBackdrop
+  };
+};
+
+// Safe background function
+export const getSafeBackground = (type = 'default', fallbackColor = '#3b82f6') => {
+  const supportsGradients = colorSupport.supportsGradients();
+  
+  if (!supportsGradients) {
+    return { backgroundColor: fallbackColor };
+  }
+  
+  switch (type) {
+    case 'primary':
+      return { backgroundColor: '#3b82f6' };
+    case 'secondary':
+      return { backgroundColor: '#6366f1' };
+    case 'header':
+      return { backgroundColor: '#1d4ed8' };
+    case 'light':
+      return { backgroundColor: '#f8fafc' };
+    case 'overlay':
+      return { backgroundColor: fallbackColor };
+    default:
+      return { backgroundColor: fallbackColor };
+  }
+};
+
+// Safe backdrop function
+export const getSafeBackdrop = (blurAmount = '4px', backgroundColor = 'rgba(255, 255, 255, 0.8)') => {
+  const supportsBackdrop = colorSupport.supportsBackdropFilter();
+  
+  if (!supportsBackdrop) {
+    return { 
+      backgroundColor: backgroundColor.replace(/rgba?\([^)]+\)/, 'rgba(255, 255, 255, 0.9)')
+    };
+  }
+  
+  return {
+    backgroundColor,
+    backdropFilter: `blur(${blurAmount})`,
+    WebkitBackdropFilter: `blur(${blurAmount})`
+  };
+};
