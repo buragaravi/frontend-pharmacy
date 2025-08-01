@@ -293,20 +293,24 @@ const CourseForm = ({ course, onCreate, onUpdate, onClose }) => {
       {/* Header */}
       <div 
         className="sticky top-0 z-10 text-white p-6 border-b"
-        style={{ backgroundColor: getSafeBackground('header', '#1d4ed8') }}
+        style={{
+          ...getSafeBackground('header', '#1d4ed8'),
+          position: 'relative',
+          overflow: 'hidden'
+        }}
       >
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">
+            <h2 className="text-2xl font-bold text-white">
               {isEditing ? 'Edit Course' : 'Create New Course'}
             </h2>
-            <p className="text-blue-100 text-sm mt-1">
+            <p className="text-white/80 text-sm mt-1">
               {currentStep === 1 ? 'Basic course information' : 'Manage course batches'}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors duration-200"
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors duration-200 text-white"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
