@@ -903,7 +903,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
       }
       
       // Call the unified allocation endpoint
-      const response = await fetch(`https://backend-jits.onrender.com/api/requests/${request._id}/allocate-unified`, {
+      const response = await fetch(`https://backend-pharmacy-5541.onrender.com/api/requests/${request._id}/allocate-unified`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

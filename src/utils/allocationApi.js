@@ -2,7 +2,7 @@
  * API service functions for date-aware request allocation system
  */
 
-const API_BASE_URL = 'https://backend-jits.onrender.com/api';
+const API_BASE_URL = 'https://backend-pharmacy-5541.onrender.com/api';
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
