@@ -134,7 +134,7 @@ const customStyles = `
 const BASE_URL = 'https://backend-pharmacy-5541.onrender.com/api/courses';
 
 const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
-  const colors = useResponsiveColors();
+  const colors = useResponsiveColors() || {};
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -437,11 +437,11 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div 
             className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl animate-pulse"
-            style={{ backgroundColor: colors.background.light }}
+            style={{ backgroundColor: colors?.background?.light || '#e0f2fe' }}
           ></div>
           <div 
             className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl animate-pulse delay-1000"
-            style={{ backgroundColor: colors.accent.light }}
+            style={{ backgroundColor: colors?.accent?.light || '#f3e8ff' }}
           ></div>
         </div>
 
@@ -461,26 +461,31 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
             {/* Enhanced Header */}
             <div 
               className="relative p-6 text-white overflow-hidden"
-              style={{ backgroundColor: getSafeBackground('header', '#1d4ed8') }}
+              style={{ 
+                backgroundColor: getSafeBackground('header', '#1d4ed8').backgroundColor || getSafeBackground('header', '#1d4ed8')
+              }}
             >
               <div 
-                className="absolute inset-0"
-                style={{ backgroundColor: getSafeBackground('overlay', 'rgba(29, 78, 216, 0.2)') }}
+                className="absolute inset-0 opacity-20"
+                style={{ backgroundColor: 'rgba(29, 78, 216, 0.1)' }}
               ></div>
               <div className="relative z-10">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="flex items-center gap-4">
                     <div 
-                      className="p-3 rounded-xl"
-                      style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.2)') }}
+                      className="p-3 rounded-xl border border-white/30"
+                      style={{ 
+                        ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.2)'),
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                      }}
                     >
                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
                     </div>
                     <div>
-                      <h1 className="text-3xl font-bold mb-1">Course Management</h1>
-                      <p className="text-blue-100 text-sm">Manage courses and academic batches</p>
+                      <h1 className="text-3xl font-bold mb-1 text-white">Course Management</h1>
+                      <p className="text-white/80 text-sm">Manage courses and academic batches</p>
                     </div>
                   </div>
                   
@@ -491,7 +496,11 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                         setShowForm(true);
                       }}
                       variant="secondary"
-                      className="flex items-center gap-2 hover-lift"
+                      className="flex items-center gap-2 hover-lift text-white"
+                      style={{ 
+                        backgroundColor: colors.secondary?.main || '#6366f1',
+                        color: 'white'
+                      }}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -725,21 +734,25 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                               {canManageCourses && (
                                 <td className="px-6 py-4 text-right">
                                   <div className="flex justify-end gap-2">
-                                    <button
+                                    <SafeButton
                                       onClick={() => {
                                         setEditingCourse(course);
                                         setShowForm(true);
                                       }}
-                                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all duration-200 text-xs font-medium hover-lift"
+                                      variant="info"
+                                      size="small"
+                                      className="hover-lift"
                                     >
                                       Edit
-                                    </button>
-                                    <button
+                                    </SafeButton>
+                                    <SafeButton
                                       onClick={() => handleDeleteCourse(course._id)}
-                                      className="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-all duration-200 text-xs font-medium hover-lift"
+                                      variant="danger"
+                                      size="small"
+                                      className="hover-lift"
                                     >
                                       Delete
-                                    </button>
+                                    </SafeButton>
                                   </div>
                                 </td>
                               )}

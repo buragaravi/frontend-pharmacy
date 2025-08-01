@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useResponsiveColors, getSafeBackground } from '../../utils/colorUtils';
+import SafeButton from '../../components/SafeButton';
 
 const CourseForm = ({ course, onCreate, onUpdate, onClose }) => {
+  const colors = useResponsiveColors();
   const [formData, setFormData] = useState({
     courseName: '',
     courseCode: '',
@@ -253,17 +256,31 @@ const CourseForm = ({ course, onCreate, onUpdate, onClose }) => {
       <div className="flex items-center space-x-4">
         {[1, 2].map((step) => (
           <React.Fragment key={step}>
-            <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
-              currentStep >= step 
-                ? 'bg-blue-600 border-blue-600 text-white' 
-                : 'border-gray-300 text-gray-400'
-            }`}>
+            <div 
+              className="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
+              style={currentStep >= step 
+                ? { 
+                    backgroundColor: getSafeBackground('primary', '#2563eb').backgroundColor || getSafeBackground('primary', '#2563eb'),
+                    borderColor: getSafeBackground('primary', '#2563eb').backgroundColor || getSafeBackground('primary', '#2563eb'),
+                    color: 'white'
+                  }
+                : { 
+                    borderColor: '#d1d5db',
+                    color: '#9ca3af'
+                  }
+              }
+            >
               <span className="text-sm font-semibold">{step}</span>
             </div>
             {step < 2 && (
-              <div className={`w-16 h-1 rounded-full transition-all duration-300 ${
-                currentStep > step ? 'bg-blue-600' : 'bg-gray-300'
-              }`}></div>
+              <div 
+                className="w-16 h-1 rounded-full transition-all duration-300"
+                style={{ 
+                  backgroundColor: currentStep > step 
+                    ? (getSafeBackground('primary', '#2563eb').backgroundColor || getSafeBackground('primary', '#2563eb'))
+                    : '#d1d5db'
+                }}
+              ></div>
             )}
           </React.Fragment>
         ))}
@@ -274,7 +291,10 @@ const CourseForm = ({ course, onCreate, onUpdate, onClose }) => {
   return (
     <div className="max-h-[90vh] overflow-y-auto">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 border-b">
+      <div 
+        className="sticky top-0 z-10 text-white p-6 border-b"
+        style={{ backgroundColor: getSafeBackground('header', '#1d4ed8') }}
+      >
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">
@@ -569,30 +589,32 @@ const CourseForm = ({ course, onCreate, onUpdate, onClose }) => {
           </div>
 
           <div className="flex gap-3">
-            <button
+            <SafeButton
               type="button"
               onClick={onClose}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200"
+              variant="secondary"
             >
               Cancel
-            </button>
+            </SafeButton>
             
             {currentStep < 2 ? (
-              <button
+              <SafeButton
                 type="button"
                 onClick={handleNext}
-                className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 flex items-center gap-2"
+                variant="primary"
+                className="flex items-center gap-2"
               >
                 Next
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </SafeButton>
             ) : (
-              <button
+              <SafeButton
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="success"
+                className="flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>
@@ -610,7 +632,7 @@ const CourseForm = ({ course, onCreate, onUpdate, onClose }) => {
                     </svg>
                   </>
                 )}
-              </button>
+              </SafeButton>
             )}
           </div>
         </div>
