@@ -17,9 +17,9 @@ const THEME = {
 };
 
 const RequestDetails = ({ request, onClose, onStatusUpdate, userRole }) => {
-  const canApprove = userRole === 'lab_assistant' || userRole === 'central_lab_admin';
-  const canReject = userRole === 'lab_assistant' || userRole === 'central_lab_admin';
-  const canComplete = userRole === 'lab_assistant' || userRole === 'central_lab_admin';
+  const canApprove = userRole === 'lab_assistant' || userRole === 'central_store_admin';
+  const canReject = userRole === 'lab_assistant' || userRole === 'central_store_admin';
+  const canComplete = userRole === 'lab_assistant' || userRole === 'central_store_admin';
   const [showReturnDialog, setShowReturnDialog] = useState(false);
 
   // Eligibility: status and at least one allocated item

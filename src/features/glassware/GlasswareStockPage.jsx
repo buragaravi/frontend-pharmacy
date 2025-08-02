@@ -169,7 +169,7 @@ const PrintableQRView = ({ groupedStock }) => {
 
 const getLabDisplayName = (labId) => {
   const labNames = {
-    'central-lab': 'Central Lab',
+    'central-store': 'Central Lab',
     'LAB01': 'Lab 01',
     'LAB02': 'Lab 02',
     'LAB03': 'Lab 03',
@@ -490,7 +490,7 @@ const GlasswareStockPage = () => {
 
   const labList = [
     { id: 'all', name: 'All Labs' },
-    { id: 'central-lab', name: 'Central Lab' },
+    { id: 'central-store', name: 'Central Lab' },
     { id: 'LAB01', name: 'Lab 01' },
     { id: 'LAB02', name: 'Lab 02' },
     { id: 'LAB03', name: 'Lab 03' },
@@ -793,9 +793,9 @@ const GlasswareStockPage = () => {
           ) : (
             Object.entries(filteredGroupedStock)
               .sort(([a], [b]) => {
-                // Sort labs: central-lab first, then LAB01-LAB08
-                if (a === 'central-lab') return -1;
-                if (b === 'central-lab') return 1;
+                // Sort labs: central-store first, then LAB01-LAB08
+                if (a === 'central-store') return -1;
+                if (b === 'central-store') return 1;
                 return a.localeCompare(b);
               })
               .map(([labId, items]) => (

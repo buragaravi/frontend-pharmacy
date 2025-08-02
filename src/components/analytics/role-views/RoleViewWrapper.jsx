@@ -13,7 +13,7 @@ const RoleViewWrapper = ({ data, filters }) => {
     switch(user.role) {
       case 'admin':
         return <AdminView data={data} filters={filters} />;
-      case 'central_lab_admin':
+      case 'central_store_admin':
         return <CentralAdminView data={data} filters={filters} />;
       case 'lab_assistant':
         return <LabAssistantView data={data} filters={filters} />;
@@ -29,7 +29,7 @@ const RoleViewWrapper = ({ data, filters }) => {
       <div className="view-header">
         <h2>
           {user.role === 'admin' && 'System Analytics'}
-          {user.role === 'central_lab_admin' && 'Central Lab Analytics'}
+          {user.role === 'central_store_admin' && 'Central Store Analytics'}
           {user.role === 'lab_assistant' && `${user.labId} Lab Analytics`}
           {user.role === 'faculty' && 'My Chemical Usage'}
         </h2>

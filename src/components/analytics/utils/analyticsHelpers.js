@@ -59,7 +59,7 @@ export const generateDateRanges = () => {
           alerts: rawData.alerts
         };
       
-      case 'central_lab_admin':
+      case 'central_store_admin':
         return {
           ...commonFormats,
           vendorPerformance: rawData.vendors.map(v => ({

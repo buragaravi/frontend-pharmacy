@@ -342,7 +342,7 @@ const EquipmentStockList = () => {
     if (!equipmentData?.groupedByLab) return [];
     return Object.keys(equipmentData.groupedByLab).map(labId => ({
       id: labId,
-      name: labId === 'central-lab' ? 'Central Lab' : `Lab ${labId.replace('LAB', '')}`,
+      name: labId === 'central-store' ? 'Central Lab' : `Lab ${labId.replace('LAB', '')}`,
       count: equipmentData.groupedByLab[labId].length
     }));
   };
@@ -654,7 +654,7 @@ const EquipmentStockList = () => {
                           </td>
                           <td className="px-4 py-3">
                             <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                              {item.labId === 'central-lab' ? 'Central Lab' : `Lab ${item.labId?.replace('LAB', '') || 'N/A'}`}
+                              {item.labId === 'central-store' ? 'Central Lab' : `Lab ${item.labId?.replace('LAB', '') || 'N/A'}`}
                             </span>
                           </td>
                           <td className="px-4 py-3">{item.location || '-'}</td>

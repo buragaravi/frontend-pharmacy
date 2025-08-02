@@ -32,13 +32,13 @@ const CommentSection = ({ quotationId, comments: propComments, createdByRole, st
     return [];
   };
 
-  // Helper to determine if chat mode should be used (admin <-> central_lab_admin)
-  const isChatMode = userRole === 'admin' || userRole === 'central_lab_admin';
+  // Helper to determine if chat mode should be used (admin <-> central_store_admin)
+  const isChatMode = userRole === 'admin' || userRole === 'central_store_admin';
 
   // Helper to get display name for role
   const getDisplayName = (role) => {
     if (role === 'admin') return 'Admin';
-    if (role === 'central_lab_admin') return 'Central Lab Admin';
+    if (role === 'central_store_admin') return 'Central Store Admin';
     if (role === 'lab_assistant') return 'Lab Assistant';
     return role;
   };
@@ -52,7 +52,7 @@ const CommentSection = ({ quotationId, comments: propComments, createdByRole, st
   // Helper to determine bubble color
   const getBubbleColor = (role) => {
     if (role === 'admin') return 'bg-[#E1F1FF] text-[#0B3861]';
-    if (role === 'central_lab_admin') return 'bg-[#F9F3F7] text-[#6D123F]';
+    if (role === 'central_store_admin') return 'bg-[#F9F3F7] text-[#6D123F]';
     return 'bg-gray-100 text-gray-700';
   };
 
@@ -95,10 +95,10 @@ const CommentSection = ({ quotationId, comments: propComments, createdByRole, st
   }, [quotationId, propComments]);
 
   const canAddComment = () => {
-    if (userRole === 'central_lab_admin' && createdByRole === 'lab_assistant') return true;
-    if (userRole === 'admin' && createdByRole === 'central_lab_admin') return true;
+    if (userRole === 'central_store_admin' && createdByRole === 'lab_assistant') return true;
+    if (userRole === 'admin' && createdByRole === 'central_store_admin') return true;
     if (userRole === 'lab_assistant' && createdByRole === 'lab_assistant') return true;
-    if (userRole === 'central_lab_admin' && createdByRole === 'central_lab_admin') return true;
+    if (userRole === 'central_store_admin' && createdByRole === 'central_store_admin') return true;
     return false;
   };
 

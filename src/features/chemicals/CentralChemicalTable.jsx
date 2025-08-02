@@ -102,7 +102,7 @@ const CentralChemicalTable = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch central lab data
+      // Fetch Central Store data
       const centralRes = await axios.get('https://backend-pharmacy-5541.onrender.com/api/chemicals/central/available', {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -225,7 +225,7 @@ const CentralChemicalTable = () => {
     const chemicalMap = new Map();
   
     try {
-      // Process central lab data first
+      // Process Central Store data first
       if (Array.isArray(centralData)) {
         centralData.forEach(chem => {
           if (chem && chem.chemicalName) {
@@ -234,7 +234,7 @@ const CentralChemicalTable = () => {
               totalQuantity: Number(chem.quantity) || 0,
               unit: chem.unit || 'N/A',
               expiryDate: chem.expiryDate,
-              labDistribution: { 'central-lab': Number(chem.quantity) || 0 },
+              labDistribution: { 'central-store': Number(chem.quantity) || 0 },
               threshold: Number(chem.threshold) || 10,
               category: chem.category || 'Uncategorized',
               supplier: chem.supplier || 'Unknown',
@@ -498,7 +498,7 @@ const CentralChemicalTable = () => {
   const getChartData = () => {
     return {
       labels: labDistribution.map(lab => 
-        lab.labId === 'central-lab' ? 'Central Lab' : lab.labId
+        lab.labId === 'central-store' ? 'Central Lab' : lab.labId
       ),
       datasets: [
         showQuantity && {
@@ -537,7 +537,7 @@ const CentralChemicalTable = () => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
           <h3 className="text-lg font-semibold">
-            {lab.labId === 'central-lab' ? 'Central Lab' : lab.labId}
+            {lab.labId === 'central-store' ? 'Central Lab' : lab.labId}
           </h3>
         </div>
         
@@ -668,7 +668,7 @@ const CentralChemicalTable = () => {
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-medium text-sm">
-                    {lab === 'central-lab' ? 'Central Lab' : lab}
+                    {lab === 'central-store' ? 'Central Lab' : lab}
                   </span>
                   <span className="text-sm text-gray-600">
                     {qty} {unit} ({percentage.toFixed(1)}%)
@@ -677,7 +677,7 @@ const CentralChemicalTable = () => {
                 <div className="h-2 bg-gray-200 rounded overflow-hidden">
                   <div
                     className={`h-full transition-all duration-300 ${
-                      lab === 'central-lab' ? 'bg-blue-500' : 'bg-indigo-500'
+                      lab === 'central-store' ? 'bg-blue-500' : 'bg-indigo-500'
                     }`}
                     style={{ width: `${percentage}%` }}
                   />
@@ -701,7 +701,7 @@ const CentralChemicalTable = () => {
         <Dialog.Panel className="w-full max-w-4xl bg-white rounded-lg shadow-xl">
           <div className="px-6 py-4 border-b border-gray-200">
             <Dialog.Title className="text-xl font-semibold">
-              Lab Details - {selectedLab === 'central-lab' ? 'Central Lab' : `Lab ${selectedLab}`}
+              Lab Details - {selectedLab === 'central-store' ? 'Central Lab' : `Lab ${selectedLab}`}
             </Dialog.Title>
           </div>
 
@@ -1094,7 +1094,7 @@ const CentralChemicalTable = () => {
                   {Object.entries(chem.labDistribution)
                     .map(([lab, qty]) => (
                       <span key={lab} className="inline-block px-2 py-1 mr-1 mb-1 bg-blue-50 text-blue-700 rounded">
-                        {lab === 'central-lab' ? 'Central' : lab}: {qty}
+                        {lab === 'central-store' ? 'Central' : lab}: {qty}
                       </span>
                     ))}
                 </td>
@@ -1182,7 +1182,7 @@ const CentralChemicalTable = () => {
                     <div className="space-y-1">
                       {chemical.labDistribution && Object.entries(chemical.labDistribution).map(([lab, qty]) => (
                         <div key={lab} className="flex justify-between items-center">
-                          <span className="font-medium">{lab === 'central-lab' ? 'Central Lab' : lab}:</span>
+                          <span className="font-medium">{lab === 'central-store' ? 'Central Lab' : lab}:</span>
                           <span className="ml-2">{qty} {chemical.unit}</span>
                         </div>
                       ))}
@@ -1198,7 +1198,7 @@ const CentralChemicalTable = () => {
   };
 
   const labColors = {
-    'central-lab': '#0B3861', // Primary blue
+    'central-store': '#0B3861', // Primary blue
     'LAB01': '#64B5F6', // Accent blue
     'LAB02': '#1E88E5', // Hover blue
     'LAB03': '#0B3861', // Primary blue
@@ -1483,7 +1483,7 @@ const CentralChemicalTable = () => {
               <Pie
                 data={{
                   labels: labDistribution.map(lab => 
-                    lab.labId === 'central-lab' ? 'Central Lab' : lab.labId
+                    lab.labId === 'central-store' ? 'Central Lab' : lab.labId
                   ),
                   datasets: [{
                     data: labDistribution.map(lab => lab.totalQuantity),
@@ -1511,7 +1511,7 @@ const CentralChemicalTable = () => {
               {labDistribution.map(lab => (
                 <div key={lab.labId} className="bg-white p-4 rounded-lg shadow">
                   <h4 className="text-lg font-semibold mb-3">
-                    {lab.labId === 'central-lab' ? 'Central Lab' : lab.labId}
+                    {lab.labId === 'central-store' ? 'Central Lab' : lab.labId}
                   </h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-blue-50 p-3 rounded">

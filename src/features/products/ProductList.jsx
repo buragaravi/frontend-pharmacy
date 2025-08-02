@@ -85,7 +85,7 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedProductId, setExpandedProductId] = useState(null);
 
-  const isAdmin = userRole === 'admin' || userRole === 'central_lab_admin';
+  const isAdmin = userRole === 'admin' || userRole === 'central_store_admin';
   const canManageProducts = showAdminActions && isAdmin;
 
   const fetchProducts = async () => {

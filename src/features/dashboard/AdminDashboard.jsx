@@ -652,7 +652,7 @@ const AdminDashboard = () => {
       return (
         <div className="p-4 space-y-6">
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h3 className="text-lg font-semibold mb-4">Central Lab Chemical Analytics</h3>
+            <h3 className="text-lg font-semibold mb-4">Central Store Chemical Analytics</h3>
             <ul className="space-y-2 text-lg">
               <li><span className="font-semibold text-blue-900">Total Chemicals:</span> <span className="ml-2 text-blue-700">{centralStats.totalChemicals}</span></li>
               <li><span className="font-semibold text-blue-900">Total Quantity:</span> <span className="ml-2 text-green-700">{centralStats.totalQuantity}</span></li>

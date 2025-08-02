@@ -39,7 +39,7 @@ const ChemicalDashboard = () => {
   }, []);
 
   const renderTabs = () => {
-    if (userRole === 'admin' || userRole === 'central_lab_admin') {
+    if (userRole === 'admin' || userRole === 'central_store_admin') {
       return (
         <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
           <button

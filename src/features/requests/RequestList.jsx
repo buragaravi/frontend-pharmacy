@@ -4,6 +4,8 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import RequestDetails from './RequestDetails';
+import { useResponsiveColors } from '../../hooks/useResponsiveColors';
+import SafeButton from '../../components/SafeButton';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -27,20 +29,10 @@ api.interceptors.request.use(
   }
 );
 
-// Constants for theming
-const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
-  card: 'bg-white',
-  border: 'border-[#E8D8E1]',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#6D123F]',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#6D123F]',
-  hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
-};
-
 const RequestList = ({ userRole, labId }) => {
+  // Color utilities for cross-platform compatibility
+  const { getSafeBackground, getSafeBackdrop } = useResponsiveColors();
+  
   const queryClient = useQueryClient();
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -150,15 +142,21 @@ const RequestList = ({ userRole, labId }) => {
   }
 
   return (
-    <div className={`p-4 md:p-6 ${THEME.background}`}>
+    <div 
+      className="p-4 md:p-6"
+      style={getSafeBackground('background', '#f9fafb')}
+    >
       <div className="max-w-7xl mx-auto">
-        <div className={`${THEME.card} rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6 ${THEME.border}`}>
+        <div 
+          className="rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6 border border-gray-200"
+          style={getSafeBackground('light', '#ffffff')}
+        >
           <div className="flex items-center justify-between mb-6">
-            <h2 className={`text-2xl font-bold ${THEME.secondaryText}`}>Chemical Requests</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Chemical Requests</h2>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className={`px-3 py-2 border ${THEME.border} rounded-lg ${THEME.inputFocus}`}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
@@ -171,8 +169,11 @@ const RequestList = ({ userRole, labId }) => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className={`min-w-full divide-y ${THEME.border}`}>
-              <thead className="bg-[#F9F3F7]">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead 
+                className="rounded-lg"
+                style={getSafeBackground('light', '#f8fafc')}
+              >
                 <tr>
                   <th className={`px-6 py-3 text-left text-xs font-medium ${THEME.secondaryText} uppercase tracking-wider`}>
                     Request ID

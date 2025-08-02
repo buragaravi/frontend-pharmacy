@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 const StockCheckPage = () => {
   const token = localStorage.getItem('token');
   const user = jwtDecode(token);
-  const userLabId = user.labId || 'central-lab';
+  const userLabId = user.labId || 'central-store';
   const [labId, setLabId] = useState(userLabId);
   const [equipment, setEquipment] = useState([]);
   const [scanned, setScanned] = useState({}); // { itemId: { status, remarks, lastScanAt, scannedLocation } }
@@ -17,7 +17,7 @@ const StockCheckPage = () => {
   const [error, setError] = useState('');
 
   const labOptions = [
-    { label: 'Central Lab (All)', value: 'central-lab' },
+    { label: 'Central Store (All)', value: 'central-store' },
     { label: 'Lab 1', value: 'LAB01' },
     { label: 'Lab 2', value: 'LAB02' },
     { label: 'Lab 3', value: 'LAB03' },
@@ -30,7 +30,7 @@ const StockCheckPage = () => {
 
   useEffect(() => {
     setError('');
-    if (!labId || labId === 'central-lab') {
+    if (!labId || labId === 'central-store') {
       // Fetch all labs LAB01-LAB08
       Promise.all(labOptions.filter(l => l.value).map(lab =>
         axios.get(`https://backend-pharmacy-5541.onrender.com/api/equipment/stock?labId=${lab.value}`, {

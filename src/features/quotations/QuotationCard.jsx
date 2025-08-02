@@ -73,7 +73,7 @@ const QuotationCard = ({ quotation, refreshList }) => {
     }, [quotation]);
 
     useEffect(() => {
-        if (userRole === 'central_lab_admin') {
+        if (userRole === 'central_store_admin') {
             fetchDraftQuotations();
         }
     }, [userRole]);
@@ -114,7 +114,7 @@ const QuotationCard = ({ quotation, refreshList }) => {
             let endpoint;
             let requestData = { comments: newComment };
 
-            if (userRole === 'central_lab_admin') {
+            if (userRole === 'central_store_admin') {
                 endpoint = `/api/quotations/central/allocate`;
                 requestData.status = quotation.status;
                 requestData.quotationId = quotation._id;
@@ -166,7 +166,7 @@ const QuotationCard = ({ quotation, refreshList }) => {
                     index: idx,
                     remarks: chemicalRemarks[idx] || ''
                 }));
-            } else if (userRole === 'central_lab_admin' && quotation.createdByRole === 'lab_assistant') {
+            } else if (userRole === 'central_store_admin' && quotation.createdByRole === 'lab_assistant') {
                 endpoint = `https://backend-pharmacy-5541.onrender.com/api/quotations/central/allocate`;
                 payload.quotationId = quotation._id;
                 payload.status = statusUpdate;
@@ -532,7 +532,7 @@ const QuotationCard = ({ quotation, refreshList }) => {
                 { value: 'rejected', label: 'Reject' },
                 { value: 'purchased', label: 'Purchase' }
             ];
-        } else if (userRole === 'central_lab_admin' && quotation.createdByRole === 'lab_assistant') {
+        } else if (userRole === 'central_store_admin' && quotation.createdByRole === 'lab_assistant') {
             return [
                 { value: 'allocated', label: 'Allocate Chemicals' },
                 { value: 'partially_fulfilled', label: 'Partially Fulfill' },
@@ -637,7 +637,7 @@ const QuotationCard = ({ quotation, refreshList }) => {
                     <h4 className="text-xs font-semibold text-[#0B3861]">
                         {quotation.createdByRole === 'lab_assistant' ? 'Chemicals Requested' : 'Chemicals to Purchase'}
                     </h4>
-                    {userRole === 'central_lab_admin' && (
+                    {userRole === 'central_store_admin' && (
                         <button
                             onClick={() => setShowRemarksModal(true)}
                             className="text-[10px] px-2 py-0.5 bg-[#E1F1FF] text-[#0B3861] rounded hover:bg-[#BCE0FD] transition-colors"
@@ -661,7 +661,7 @@ const QuotationCard = ({ quotation, refreshList }) => {
                                     <span className="text-[#0B3861] font-medium text-xs">₹{(chem.pricePerUnit * chem.quantity).toFixed(2)}</span>
                                 )}
                             </div>
-                            {(userRole === 'central_lab_admin' || userRole === 'admin') && (
+                            {(userRole === 'central_store_admin' || userRole === 'admin') && (
                                 <div className="mt-1 pt-1 border-t border-[#BCE0FD]">
                                     <div className="flex justify-between items-center">
                                         <p className="text-[10px] font-medium text-[#0B3861]">Remarks:</p>
@@ -724,7 +724,7 @@ const QuotationCard = ({ quotation, refreshList }) => {
             </div>
 
             {/* Action Buttons */}
-            {userRole === 'central_lab_admin' && quotation.status === 'draft' && (
+            {userRole === 'central_store_admin' && quotation.status === 'draft' && (
                 <div className="flex flex-wrap gap-2 mb-4">
                     <button
                         onClick={() => setShowAddChemicalModal(true)}
@@ -744,10 +744,10 @@ const QuotationCard = ({ quotation, refreshList }) => {
             )}
 
             {/* Status Update Section */}
-            {(userRole === 'admin' || (userRole === 'central_lab_admin' && quotation.createdByRole === 'lab_assistant')) && (
+            {(userRole === 'admin' || (userRole === 'central_store_admin' && quotation.createdByRole === 'lab_assistant')) && (
                 <div className="mb-4">
                     <h4 className="text-xs font-semibold text-[#0B3861] mb-1">
-                        {userRole === 'central_lab_admin' ? 'Process Lab Request' : 'Update Status'}
+                        {userRole === 'central_store_admin' ? 'Process Lab Request' : 'Update Status'}
                     </h4>
                     <div className="space-y-2">
                         <select
@@ -804,7 +804,7 @@ const QuotationCard = ({ quotation, refreshList }) => {
                 )}
             </div>
 
-            {/* Modal: Central Lab Admin Add to Draft */}
+            {/* Modal: Central Store Admin Add to Draft */}
             {showAddChemicalModal && (
                 <ChemicalAddToDraftModal
                     isOpen={showAddChemicalModal}

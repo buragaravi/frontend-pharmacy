@@ -77,7 +77,7 @@ const QuotationPage = () => {
 
       {/* Beautiful Square Toggle Cards */}
       <div className="flex gap-6 mb-6 justify-center">
-        {(userRole === 'lab_assistant' || userRole === 'central_lab_admin') && (
+        {(userRole === 'lab_assistant' || userRole === 'central_store_admin') && (
           <div
             className={`flex flex-col items-center justify-center w-48 h-48 rounded-2xl shadow-xl border-2 border-[#BCE0FD] cursor-pointer transition-all duration-200 select-none
               ${showFormCard ? 'bg-[#BCE0FD] scale-90' : 'bg-[#F5F9FD] hover:bg-[#BCE0FD]'}

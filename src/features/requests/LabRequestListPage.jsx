@@ -374,7 +374,7 @@ const LabRequestListPage = ({ labId: propLabId }) => {
   };
 
   const isLabAssistant = userRole === 'lab_assistant';
-  const isCentralAdmin = userRole === 'central_lab_admin';
+  const isCentralAdmin = userRole === 'central_store_admin';
 
   return (
 

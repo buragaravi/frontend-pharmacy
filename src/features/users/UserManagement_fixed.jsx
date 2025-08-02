@@ -511,7 +511,7 @@ const UserManagement = () => {
                     >
                       <option value="">Select role</option>
                       <option value="admin">Admin</option>
-                      <option value="central_lab_admin">Central Lab Admin</option>
+                      <option value="central_store_admin">Central Store Admin</option>
                       <option value="lab_assistant">Lab Assistant</option>
                       <option value="faculty">Faculty</option>
                     </select>
@@ -699,7 +699,7 @@ const UserManagement = () => {
                   >
                     <option value="">Select a role</option>
                     <option value="admin">Admin</option>
-                    <option value="central_lab_admin">Central Lab Admin</option>
+                    <option value="central_store_admin">Central Store Admin</option>
                     <option value="lab_assistant">Lab Assistant</option>
                     <option value="faculty">Faculty</option>
                   </select>

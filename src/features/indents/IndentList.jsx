@@ -21,7 +21,7 @@ const IndentList = ({ userRole, userId, labId, refreshTrigger }) => {
       if (userRole === 'lab_assistant') {
         endpoint = 'https://backend-pharmacy-5541.onrender.com/api/indents/lab';
         if (labId) params.labId = labId;
-      } else if (userRole === 'central_lab_admin') {
+      } else if (userRole === 'central_store_admin') {
         endpoint = 'https://backend-pharmacy-5541.onrender.com/api/indents/central';
       } else if (userRole === 'admin') {
         endpoint = 'https://backend-pharmacy-5541.onrender.com/api/indents/admin';
@@ -53,7 +53,7 @@ const IndentList = ({ userRole, userId, labId, refreshTrigger }) => {
         { value: 'reviewed', label: 'Reviewed' },
         { value: 'allocated', label: 'Allocated' }
       ];
-    } else if (userRole === 'central_lab_admin') {
+    } else if (userRole === 'central_store_admin') {
       return [
         { value: 'all', label: 'All' },
         { value: 'draft', label: 'Draft' },
@@ -132,7 +132,7 @@ const IndentList = ({ userRole, userId, labId, refreshTrigger }) => {
                 userId={userId}
                 labId={labId}
                 refreshList={fetchIndents}
-                canUpdateStatus={userRole === 'central_lab_admin'}
+                canUpdateStatus={userRole === 'central_store_admin'}
               />
             </div>
           ))}

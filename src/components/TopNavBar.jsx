@@ -36,7 +36,7 @@ const TopNavBar = ({ selected, setSelected, onLogout, navItems }) => {
   return (
     <header className="w-full bg-white/80 shadow-md backdrop-blur sticky top-0 z-50">
       <nav className="w-full flex items-center justify-between px-2 sm:px-4 py-2">
-        <span className="text-2xl font-extrabold text-blue-900 tracking-tight whitespace-nowrap mr-4">Central Lab Admin</span>
+        <span className="text-2xl font-extrabold text-blue-900 tracking-tight whitespace-nowrap mr-4">Central Store Admin</span>
         {/* Hamburger for mobile */}
         <button
           className="md:hidden flex items-center justify-center p-2 rounded focus:outline-none"

@@ -1,6 +1,6 @@
 export const generateLabColors = (labs) => {
     const labColors = {
-      'central-lab': '#3498db',
+      'central-store': '#3498db',
       'LAB01': '#2ecc71',
       'LAB02': '#e74c3c',
       'LAB03': '#f39c12',

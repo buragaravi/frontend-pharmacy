@@ -386,7 +386,7 @@ const CentralLabAdminDashboard = () => {
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-                  Central Lab Admin
+                  Central Store Admin
                 </h1>
                 <p className="text-blue-100 text-xs">Management hub</p>
               </div>

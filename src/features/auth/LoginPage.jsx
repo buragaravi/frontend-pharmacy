@@ -30,7 +30,7 @@ const LoginPage = () => {
                 case 'admin':
                     navigate('/dashboard/admin');
                     break;
-                case 'central_lab_admin':
+                case 'central_store_admin':
                     navigate('/dashboard/central');
                     break;
                 case 'lab_assistant':

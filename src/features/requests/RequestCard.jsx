@@ -1,19 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import CourseInfoBadge from './CourseInfoBadge';
-
-// Constants for theming
-const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
-  card: 'bg-white',
-  border: 'border-[#BCE0FD]',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
-};
+import { useResponsiveColors } from '../../hooks/useResponsiveColors';
+import SafeButton from '../../components/SafeButton';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-800',
@@ -34,14 +23,18 @@ const STATUS_LABELS = {
 };
 
 const RequestCard = ({ request, onClick, actionButton, className = '', showStatus = true, onStatusClick, userRole }) => {
+  // Color utilities for cross-platform compatibility
+  const { getSafeBackground, getSafeBackdrop } = useResponsiveColors();
+  
   return (
     <div 
-      className={`${THEME.card} p-4 rounded-lg cursor-pointer transition-all ${className}`}
+      className={`p-4 rounded-lg cursor-pointer transition-all border border-gray-200 ${className}`}
+      style={getSafeBackground('light', '#ffffff')}
       onClick={onClick}
     >
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
-          <h3 className={`text-sm font-medium ${THEME.primaryText}`}>Lab {request.labId}</h3>
+          <h3 className="text-sm font-medium text-gray-900">Lab {request.labId}</h3>
           <p className="text-xs text-gray-500">
             {new Date(request.createdAt).toLocaleDateString()}
           </p>

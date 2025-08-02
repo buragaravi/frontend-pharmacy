@@ -29,7 +29,7 @@ const QuotationList = ({ userRole, userId, labId }) => {
         if (labId) {
           params.labId = labId;
         }
-      } else if (userRole === 'central_lab_admin') {
+      } else if (userRole === 'central_store_admin') {
         endpoint = 'https://backend-pharmacy-5541.onrender.com/api/quotations/central';
       } else if (userRole === 'admin') {
         endpoint = 'https://backend-pharmacy-5541.onrender.com/api/quotations/admin';
@@ -62,7 +62,7 @@ const QuotationList = ({ userRole, userId, labId }) => {
         { value: 'reviewed', label: 'Reviewed' },
         { value: 'allocated', label: 'Allocated' }
       ];
-    } else if (userRole === 'central_lab_admin') {
+    } else if (userRole === 'central_store_admin') {
       return [
         { value: 'all', label: 'All' },
         { value: 'draft', label: 'Draft' },

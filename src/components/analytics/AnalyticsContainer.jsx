@@ -159,7 +159,7 @@
 //     switch(user.role) {
 //       case 'admin':
 //         return <AdminView data={data} filters={filters} />;
-//       case 'central_lab_admin':
+//       case 'central_store_admin':
 //         return <CentralAdminView data={data} filters={filters} />;
 //       case 'lab_assistant':
 //         return <LabAssistantView data={data} filters={filters} labId={user.labId} />;

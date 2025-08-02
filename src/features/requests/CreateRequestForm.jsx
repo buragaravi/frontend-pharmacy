@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import ExperimentSelector from './ExperimentSelector';
 import { toast } from 'react-toastify';
+import { useResponsiveColors } from '../../hooks/useResponsiveColors';
+import SafeButton from '../../components/SafeButton';
 
 // CSS Animations
 const AnimationStyles = () => (
@@ -99,6 +101,9 @@ const CLOUDY_HEADER = 'text-2xl md:text-3xl font-extrabold tracking-tight text-b
 const CLOUDY_SUBHEADER = 'text-lg font-bold text-blue-800 mb-4';
 
 const CreateRequestForm = () => {
+  // Color utilities for cross-platform compatibility
+  const { getSafeBackground, getSafeBackdrop } = useResponsiveColors();
+  
   const queryClient = useQueryClient();
   const [labId, setLabId] = useState('');
   const [experiments, setExperiments] = useState([
@@ -1243,7 +1248,10 @@ const CreateRequestForm = () => {
   };
 
   return (
-    <div className={`min-h-screen ${THEME.background} relative overflow-hidden`}>
+    <div 
+      className="min-h-screen relative overflow-hidden"
+      style={getSafeBackground('background', '#f9fafb')}
+    >
       {/* Floating bubbles */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute -top-4 -left-4 w-72 h-72 bg-blue-300/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
@@ -1253,24 +1261,36 @@ const CreateRequestForm = () => {
 
       {/* Main content */}
       <div className="relative z-10 w-full p-4 md:p-6">
-        <div className={`${THEME.card} rounded-xl p-6 md:p-8 w-full`}>
+        <div 
+          className="rounded-xl p-6 md:p-8 w-full border border-gray-200"
+          style={getSafeBackground('light', '#ffffff')}
+        >
           {/* Header */}
           <div className="mb-6 pb-4 border-b border-gray-200/50">
             <div className="flex items-center gap-3">
-              <div className={`${THEME.secondaryBg} p-2 rounded-lg text-white`}>
+              <div 
+                className="p-2 rounded-lg text-white"
+                style={getSafeBackground('header', '#1d4ed8')}
+              >
                 <ExperimentIcon />
               </div>
-              <h1 className={`text-lg font-semibold ${THEME.primaryText}`}>Create New Request</h1>
+              <h1 className="text-lg font-semibold text-gray-900">Create New Request</h1>
             </div>
           </div>
 
           {formError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div 
+              className="mb-4 p-3 border rounded-lg text-red-700 text-sm"
+              style={getSafeBackground('error', '#fef2f2')}
+            >
               {formError}
             </div>
           )}
           {formSuccess && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+            <div 
+              className="mb-4 p-3 border rounded-lg text-green-700 text-sm"
+              style={getSafeBackground('success', '#f0f9f0')}
+            >
               {formSuccess}
             </div>
           )}

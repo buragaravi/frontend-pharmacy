@@ -87,7 +87,7 @@ const ProductInventoryDetail = ({ productId, onClose }) => {
   };
 
   const getLabIcon = (labId) => {
-    if (labId === 'central-lab') {
+    if (labId === 'central-store') {
       return (
         <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -233,7 +233,7 @@ const ProductInventoryDetail = ({ productId, onClose }) => {
                     <div className="flex items-center space-x-2">
                       {getLabIcon(labId)}
                       <span className="text-xs font-medium text-gray-900">
-                        {labId === 'central-lab' ? 'Central Lab' : labId.toUpperCase()}
+                        {labId === 'central-store' ? 'Central Lab' : labId.toUpperCase()}
                       </span>
                     </div>
                     <div className="text-right">
@@ -283,7 +283,7 @@ const ProductInventoryDetail = ({ productId, onClose }) => {
                           )}
                         </div>
                         <div className="grid grid-cols-2 gap-1 text-xs text-gray-600">
-                          <div>Lab: {item.labId === 'central-lab' ? 'Central Lab' : item.labId.toUpperCase()}</div>
+                          <div>Lab: {item.labId === 'central-store' ? 'Central Lab' : item.labId.toUpperCase()}</div>
                           <div>
                             Qty: {item.quantity || '1'} {item.unit || (product.category === 'equipment' ? 'item' : 'units')}
                           </div>

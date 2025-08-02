@@ -248,7 +248,7 @@ const TransactionsPage = () => {
 
       if (userRole === 'lab_assistant') {
         url = `https://backend-pharmacy-5541.onrender.com/api/transactions/lab/${userLabId}`;
-      } else if (userRole === 'admin' || userRole === 'central_lab_admin') {
+      } else if (userRole === 'admin' || userRole === 'central_store_admin') {
         url = `https://backend-pharmacy-5541.onrender.com/api/transactions/all`;
       } else {
         setError('Unauthorized access');
@@ -287,7 +287,7 @@ const TransactionsPage = () => {
 
       const labMatch =
         selectedLabFilter === 'all' ||
-        (selectedLabFilter === 'central' && tx.fromLabId === 'central-lab') ||
+        (selectedLabFilter === 'central' && tx.fromLabId === 'central-store') ||
         tx.fromLabId === selectedLabFilter ||
         tx.toLabId === selectedLabFilter;
 
@@ -419,7 +419,7 @@ const TransactionsPage = () => {
       .filter(tx => tx.transactionType !== 'entry')
       .reduce((sum, tx) => sum + (Number(tx.quantity) || 0), 0)
   );
-  const mostActiveLab = (role === 'admin' || role === 'central_lab_admin')
+  const mostActiveLab = (role === 'admin' || role === 'central_store_admin')
     ? (labChartData.sort((a, b) => b.count - a.count)[0]?.lab || '-')
     : null;
 
@@ -645,7 +645,7 @@ const TransactionsPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className={`mb-8 grid grid-cols-1 sm:grid-cols-2 ${role === 'admin' || role === 'central_lab_admin' ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-4 md:gap-6`}
+              className={`mb-8 grid grid-cols-1 sm:grid-cols-2 ${role === 'admin' || role === 'central_store_admin' ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-4 md:gap-6`}
             >
               <motion.div 
                 whileHover={{ scale: 1.02 }}
@@ -663,7 +663,7 @@ const TransactionsPage = () => {
                 <span className="text-indigo-500 font-semibold mt-2 text-center text-sm md:text-base">Total Drugs Moved</span>
               </motion.div>
               
-              {(role === 'admin' || role === 'central_lab_admin') && (
+              {(role === 'admin' || role === 'central_store_admin') && (
                 <motion.div 
                   whileHover={{ scale: 1.02 }}
                   className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border-l-8 border-purple-500 flex flex-col items-center"
@@ -820,7 +820,7 @@ const TransactionsPage = () => {
               className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100"
             >
               <div className="flex flex-col md:flex-row items-start md:items-center mb-6 gap-4">
-                {(role === 'admin' || role === 'central_lab_admin') && (
+                {(role === 'admin' || role === 'central_store_admin') && (
                   <div className="flex flex-wrap gap-2">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -923,12 +923,12 @@ const TransactionsPage = () => {
                               </span>
                             </td>
                             <td className="px-4 md:px-6 py-4 text-gray-900">
-                              {tx.fromLabId === 'central-lab' ? (
+                              {tx.fromLabId === 'central-store' ? (
                                 <span className="font-medium text-blue-600">Central Lab</span>
                               ) : tx.fromLabId || '-'}
                             </td>
                             <td className="px-4 md:px-6 py-4 text-gray-900">
-                              {tx.toLabId === 'central-lab' ? (
+                              {tx.toLabId === 'central-store' ? (
                                 <span className="font-medium text-blue-600">Central Lab</span>
                               ) : tx.toLabId || '-'}
                             </td>

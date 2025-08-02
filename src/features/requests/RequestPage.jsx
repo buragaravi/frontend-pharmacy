@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import CreateRequestForm from './CreateRequestForm';
+import { useResponsiveColors } from '../../hooks/useResponsiveColors';
+import SafeButton from '../../components/SafeButton';
 
 // SVG Icons
 const RequestIcon = () => (
@@ -8,20 +10,10 @@ const RequestIcon = () => (
   </svg>
 );
 
-// Theme configuration
-const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
-  card: 'bg-white',
-  border: 'border-[#BCE0FD]',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
-};
-
 const RequestPage = () => {
+  // Color utilities for cross-platform compatibility
+  const { getSafeBackground, getSafeBackdrop } = useResponsiveColors();
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -58,26 +50,41 @@ const RequestPage = () => {
   };
 
   return (
-    <div className={`p-4 md:p-6 min-h-screen ${THEME.background}`}>
+    <div 
+      className="p-4 md:p-6 min-h-screen"
+      style={getSafeBackground('background', '#f9fafb')}
+    >
       <div className="max-w-4xl mx-auto">
-        <div className={`${THEME.card} rounded-xl shadow-xl p-4 md:p-8 ${THEME.border}`}>
+        <div 
+          className="rounded-xl shadow-xl p-4 md:p-8 border border-gray-200"
+          style={getSafeBackground('light', '#ffffff')}
+        >
           <div className="flex items-center mb-6">
-            <div className={`${THEME.primaryBg} p-2 rounded-lg mr-3`}>
+            <div 
+              className="p-2 rounded-lg mr-3"
+              style={getSafeBackground('header', '#1d4ed8')}
+            >
               <RequestIcon />
             </div>
-            <h2 className={`text-xl md:text-2xl font-bold ${THEME.primaryText}`}>
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900">
               Submit New Chemical Request
             </h2>
           </div>
 
           {/* Status Messages */}
           {successMessage && (
-            <div className="mb-6 p-4 bg-green-100 text-green-800 rounded-lg border-l-4 border-green-500">
+            <div 
+              className="mb-6 p-4 rounded-lg border-l-4 text-green-800"
+              style={getSafeBackground('success', '#f0f9f0')}
+            >
               {successMessage}
             </div>
           )}
           {errorMessage && (
-            <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-lg border-l-4 border-red-500">
+            <div 
+              className="mb-6 p-4 rounded-lg border-l-4 text-red-800"
+              style={getSafeBackground('error', '#fef2f2')}
+            >
               {errorMessage}
             </div>
           )}

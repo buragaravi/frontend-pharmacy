@@ -153,7 +153,7 @@ const QuotationForm = ({ userRole, userId, labId }) => {
   };
 
   const validateForm = () => {
-    if (userRole === 'central_lab_admin' && !vendorName.trim()) {
+    if (userRole === 'central_store_admin' && !vendorName.trim()) {
       setMessage({ text: 'Vendor name is required', type: 'error' });
       return false;
     }
@@ -173,7 +173,7 @@ const QuotationForm = ({ userRole, userId, labId }) => {
       return false;
     }
 
-    if (userRole === 'central_lab_admin' && chemicals.some(chem => 
+    if (userRole === 'central_store_admin' && chemicals.some(chem => 
       !chem.pricePerUnit || isNaN(parseFloat(chem.pricePerUnit)))) {
       setMessage({ text: 'Price per unit is required for all items', type: 'error' });
       return false;
@@ -192,10 +192,10 @@ const QuotationForm = ({ userRole, userId, labId }) => {
         unit: chem.unit,
         // Always send remarks as a string (even if empty)
         remarks: typeof chem.remarks === 'string' ? chem.remarks.trim() : '',
-        ...(userRole === 'central_lab_admin' && { pricePerUnit: parseFloat(chem.pricePerUnit) })
+        ...(userRole === 'central_store_admin' && { pricePerUnit: parseFloat(chem.pricePerUnit) })
       })),
       comments: comments || undefined,
-      ...(userRole === 'central_lab_admin' && {
+      ...(userRole === 'central_store_admin' && {
         vendorName,
         totalPrice: calculateTotalPrice()
       }),
@@ -266,7 +266,7 @@ const QuotationForm = ({ userRole, userId, labId }) => {
       )}
 
       <form onSubmit={handleSubmit}>
-        {userRole === 'central_lab_admin' && (
+        {userRole === 'central_store_admin' && (
           <div className="mb-6">
             <label className="block text-sm font-medium text-[#0B3861] mb-1">Vendor Name *</label>
             <input
@@ -362,7 +362,7 @@ const QuotationForm = ({ userRole, userId, labId }) => {
 
                 <div>
                   <label className="block text-sm font-medium text-[#0B3861] mb-1">
-                    {userRole === 'central_lab_admin' ? 'Price/Unit *' : 'Price/Unit'}
+                    {userRole === 'central_store_admin' ? 'Price/Unit *' : 'Price/Unit'}
                   </label>
                   <input
                     type="number"
@@ -372,7 +372,7 @@ const QuotationForm = ({ userRole, userId, labId }) => {
                     value={chem.pricePerUnit}
                     onChange={(e) => handleChemicalChange(index, 'pricePerUnit', e.target.value)}
                     className="w-full px-4 py-2 border border-[#BCE0FD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B3861]"
-                    required={userRole === 'central_lab_admin'}
+                    required={userRole === 'central_store_admin'}
                     disabled={userRole === 'lab_assistant'}
                   />
                 </div>
@@ -431,7 +431,7 @@ const QuotationForm = ({ userRole, userId, labId }) => {
           />
         </div>
 
-        {userRole === 'central_lab_admin' && (
+        {userRole === 'central_store_admin' && (
           <div className="mb-6 p-4 bg-white rounded-lg border border-[#BCE0FD]">
             <h4 className="text-lg font-semibold text-[#0B3861] mb-2">Quotation Summary</h4>
             <div className="flex justify-between items-center">

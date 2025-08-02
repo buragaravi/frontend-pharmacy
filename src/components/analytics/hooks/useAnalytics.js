@@ -47,7 +47,7 @@ const useAnalytics = (filters = {}) => {
           case 'admin':
             endpoint += 'system-overview';
             break;
-          case 'central_lab_admin':
+          case 'central_store_admin':
             endpoint += 'central';
             break;
           case 'lab_assistant':
