@@ -147,7 +147,6 @@ const NAV_CATEGORIES = {
   'Lab Operations': {
     icon: LabOperationsIcon,
     items: [
-      { key: 'labrequests', label: 'Lab Requests (Single)', icon: LabRequestIcon, component: <LabRequestListPage /> },
       { key: 'all_lab_requests', label: 'All Lab Requests', icon: LabRequestIcon, component: <AllLabRequestsPage /> },
       { key: 'quotations', label: 'Quotations', icon: QuotationIcon, component: <QuotationPage /> },
       { key: 'indents', label: 'Indents', icon: IndentIcon, component: <IndentPage /> }
@@ -437,7 +436,7 @@ const AdminDashboard = () => {
   const { getSafeBackground, getSafeBackdrop, deviceInfo } = useResponsiveColors();
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [selectedChild, setSelectedChild] = useState(null);
-  const [selected, setSelected] = useState('AllLabRequestsPage');
+  const [selected, setSelected] = useState('all_lab_requests');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expandedLab, setExpandedLab] = useState(null);

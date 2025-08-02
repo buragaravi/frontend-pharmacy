@@ -1,18 +1,34 @@
 // InvoicePage.jsx
 import React, { useState } from 'react';
 import InvoiceForm from './InvoiceForm';
+import InvoiceOtherProductsForm from './InvoiceOtherProductsForm';
 import InvoiceList from './InvoiceList';
 
 const InvoicePage = () => {
   const [activeModule, setActiveModule] = useState('create');
+  const [selectedCategory, setSelectedCategory] = useState('chemicals');
 
   const handleModuleSwitch = (module) => {
     setActiveModule(module);
   };
 
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
+  };
+
+  const getCategoryDisplayName = () => {
+    const categoryNames = {
+      chemicals: 'Chemical',
+      equipment: 'Equipment',
+      glassware: 'Glassware',
+      others: 'Other Products'
+    };
+    return categoryNames[selectedCategory] || 'Chemical';
+  };
+
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Breadcrumb Navigation */}
+    <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Breadcrumb Navigation
       <div className="w-full bg-white/70 backdrop-blur-sm border-b border-gray-200/30">
         <div className="w-full px-4 py-2">
           <nav className="flex items-center space-x-1.5 text-xs">
@@ -34,7 +50,7 @@ const InvoicePage = () => {
             )}
           </nav>
         </div>
-      </div>
+      </div> */}
 
       {/* Enhanced Header Section */}
       <div className="w-full bg-white/80 backdrop-blur-lg border-b border-gray-200/50 sticky top-0 z-40">
@@ -53,34 +69,52 @@ const InvoicePage = () => {
               </div>
             </div>
 
-            {/* Enhanced Navigation Tabs */}
-            <div className="flex bg-white rounded-xl p-1.5 shadow-lg border border-gray-200 w-full sm:w-auto">
-              <button
-                onClick={() => handleModuleSwitch('create')}
-                className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-300 transform flex-1 sm:flex-none text-sm ${
-                  activeModule === 'create'
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg scale-105'
-                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-                }`}
-              >
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Create Invoice</span>
-              </button>
-              <button
-                onClick={() => handleModuleSwitch('list')}
-                className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-300 transform flex-1 sm:flex-none text-sm ${
-                  activeModule === 'list'
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg scale-105'
-                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-                }`}
-              >
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                <span>Invoice List</span>
-              </button>
+            {/* Enhanced Navigation - Category Dropdown and Tabs */}
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              {/* Category Dropdown - Only show when creating, positioned first */}
+              {activeModule === 'create' && (
+                <div className="bg-white rounded-xl p-1.5 shadow-lg border border-gray-200 w-full sm:w-auto">
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg font-medium text-sm bg-transparent border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 cursor-pointer"
+                  >
+                    <option value="chemicals">Chemical Invoice</option>
+                    <option value="equipment">Equipment Invoice</option>
+                    <option value="glassware">Glassware Invoice</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Module Navigation Tabs */}
+              <div className="flex bg-white rounded-xl p-1.5 shadow-lg border border-gray-200 w-full sm:w-auto">
+                <button
+                  onClick={() => handleModuleSwitch('create')}
+                  className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-300 transform flex-1 sm:flex-none text-sm ${
+                    activeModule === 'create'
+                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg scale-105'
+                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                  }`}
+                >
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Create Invoice</span>
+                </button>
+                <button
+                  onClick={() => handleModuleSwitch('list')}
+                  className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-300 transform flex-1 sm:flex-none text-sm ${
+                    activeModule === 'list'
+                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg scale-105'
+                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                  }`}
+                >
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  <span>Invoice List</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -90,7 +124,17 @@ const InvoicePage = () => {
       <div className="w-full">
         {activeModule === 'create' && (
           <div className="w-full animate-fade-in">
-            <InvoiceForm />
+            {selectedCategory === 'chemicals' ? (
+              <InvoiceForm />
+            ) : (
+              <InvoiceOtherProductsForm 
+                category={selectedCategory} 
+                onSuccess={() => {
+                  // Handle success callback if needed
+                  console.log(`${getCategoryDisplayName()} invoice created successfully`);
+                }}
+              />
+            )}
           </div>
         )}
         {activeModule === 'list' && (
@@ -100,7 +144,7 @@ const InvoicePage = () => {
         )}
       </div>
 
-      {/* Quick Stats Dashboard (Optional Enhancement) */}
+      {/* Quick Stats Dashboard (Optional Enhancement)
       <div className="fixed bottom-4 right-4 hidden lg:block z-30">
         <div className="bg-white/90 backdrop-blur-lg rounded-xl shadow-xl border border-gray-200/50 p-3 min-w-[180px]">
           <h4 className="text-xs font-medium text-gray-700 mb-2 flex items-center gap-1.5">
@@ -123,7 +167,7 @@ const InvoicePage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Custom Styles for Animations */}
       <style>{`

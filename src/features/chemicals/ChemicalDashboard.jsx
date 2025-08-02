@@ -53,16 +53,6 @@ const ChemicalDashboard = () => {
             Central Chemicals
           </button>
           <button
-            onClick={() => setView('add')}
-            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium transition-colors duration-200 text-sm sm:text-base ${
-              view === 'add' 
-                ? 'bg-[#0B3861] text-white' 
-                : 'bg-[#F5F9FD] text-[#0B3861] hover:bg-[#BCE0FD]'
-            }`}
-          >
-            Add Chemicals
-          </button>
-          <button
             onClick={() => setView('allocate')}
             className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium transition-colors duration-200 text-sm sm:text-base ${
               view === 'allocate' 

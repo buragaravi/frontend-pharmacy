@@ -4,10 +4,15 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
 import ProductForm from '../products/ProductForm';
+import { useResponsiveColors } from '../../hooks/useResponsiveColors';
+import SafeButton from '../../components/SafeButton';
 
 const API_BASE = 'https://backend-pharmacy-5541.onrender.com/api';
 
 const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
+  // Color utilities
+  const { getSafeBackground, getSafeBackdrop } = useResponsiveColors();
+
   // Helper function to get category display name
   const getCategoryName = () => {
     const categoryNames = {
@@ -511,16 +516,30 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
 
   // Rehydrate draft on mount
   useEffect(() => {
+    // Only show prompt if draft exists AND has meaningful data
     const draft = localStorage.getItem(DRAFT_KEY);
     if (draft) {
       try {
         const data = JSON.parse(draft);
-        if (data.selectedVendor) setSelectedVendor(data.selectedVendor);
-        if (data.invoiceNumber) setInvoiceNumber(data.invoiceNumber);
-        if (data.invoiceDate) setInvoiceDate(data.invoiceDate);
-        if (data.lineItems) setLineItems(data.lineItems);
-        if (data.fileType) setFileType(data.fileType);
-        setShowDraftPrompt(true);
+        const hasData = (
+          (data.selectedVendor && Object.keys(data.selectedVendor).length > 0) ||
+          data.invoiceNumber ||
+          data.invoiceDate ||
+          (Array.isArray(data.lineItems) && data.lineItems.some(item => 
+            item.productId || item.name || item.variant || item.quantity || item.totalPrice || item.pricePerUnit || item.warranty
+          ))
+        );
+        
+        if (hasData) {
+          // Restore the data
+          if (data.selectedVendor) setSelectedVendor(data.selectedVendor);
+          if (data.invoiceNumber) setInvoiceNumber(data.invoiceNumber);
+          if (data.invoiceDate) setInvoiceDate(data.invoiceDate);
+          if (data.lineItems) setLineItems(data.lineItems);
+          if (data.fileType) setFileType(data.fileType);
+          // Show the draft prompt
+          setShowDraftPrompt(true);
+        }
       } catch {}
     }
   }, [DRAFT_KEY]);
@@ -539,12 +558,27 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
     setLineItems([{ productId: '', name: '', variant: '', thresholdValue: '', quantity: '', totalPrice: '', pricePerUnit: '', warranty: '' }]);
   };
 
-  // Warn on tab close if draft exists
+  // Warn on tab close if draft exists with meaningful data
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (localStorage.getItem(DRAFT_KEY)) {
-        e.preventDefault();
-        e.returnValue = '';
+      const draft = localStorage.getItem(DRAFT_KEY);
+      if (draft) {
+        try {
+          const data = JSON.parse(draft);
+          const hasData = (
+            (data.selectedVendor && Object.keys(data.selectedVendor).length > 0) ||
+            data.invoiceNumber ||
+            data.invoiceDate ||
+            (Array.isArray(data.lineItems) && data.lineItems.some(item => 
+              item.productId || item.name || item.variant || item.quantity || item.totalPrice || item.pricePerUnit || item.warranty
+            ))
+          );
+          
+          if (hasData) {
+            e.preventDefault();
+            e.returnValue = '';
+          }
+        } catch {}
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -589,7 +623,10 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
   };
 
   return (
-    <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div 
+      className="w-full h-auto"
+      style={getSafeBackground('background', '#f9fafb')}
+    >
       {/* Draft Prompt Dialog */}
       {showDraftPrompt && (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 bg-black/40 backdrop-blur-sm overflow-y-auto">
@@ -628,9 +665,72 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
+        {/* Enhanced Header Section */}
+        <div 
+          className="relative p-8 text-white overflow-hidden"
+          style={getSafeBackground('header', '#1d4ed8')}
+        >
+          <div className="absolute inset-0 bg-blue-800/20"></div>
+          <div className="relative z-10">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div className="flex items-center gap-4">
+                <div 
+                  className="p-4 rounded-2xl border border-white/30"
+                  style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
+                >
+                  {/* Dynamic icon based on category */}
+                  {category === 'glassware' && (
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
+                    </svg>
+                  )}
+                  {category === 'equipment' && (
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  )}
+                  {category === 'others' && (
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                  )}
+                </div>
+                <div>
+                  <h1 className="text-3xl lg:text-4xl font-bold mb-2">
+                    {getCategoryName()} Invoice
+                  </h1>
+                  <p className="text-blue-100 text-lg">Create and manage your {getCategoryName().toLowerCase()} invoices</p>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                <div 
+                  className="px-6 py-3 rounded-2xl border border-white/30"
+                  style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
+                >
+                  <div className="text-sm text-blue-100">Voucher ID</div>
+                  <div className="text-lg font-bold">{voucherId || 'Loading...'}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+            <div className="w-40 h-40 bg-white/10 rounded-full"></div>
+          </div>
+          <div className="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2">
+            <div className="w-32 h-32 bg-white/10 rounded-full"></div>
+          </div>
+        </div>
+
         {/* Form Content */}
-        <div className="p-3 bg-white/80 backdrop-blur-sm">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div 
+          className="p-6"
+          style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.8)')}
+        >
+          <form onSubmit={handleSubmit} className="space-y-6">
             
             {/* Enhanced Alert Messages */}
             {error && (

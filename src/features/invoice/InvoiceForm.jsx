@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import InvoiceOtherProductsForm from './InvoiceOtherProductsForm';
 import * as Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import ProductForm from '../products/ProductForm';
@@ -41,8 +40,7 @@ const InvoiceForm = () => {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [showOtherForm, setShowOtherForm] = useState(false);
-    const [otherCategory, setOtherCategory] = useState('glassware');
+    // Category switching removed - now handled at InvoicePage level
     
     // File Upload State
     const [csvError, setCsvError] = useState('');
@@ -430,14 +428,12 @@ const InvoiceForm = () => {
                 invoiceNumber,
                 invoiceDate,
                 lineItems,
-                fileType,
-                showOtherForm,
-                otherCategory
+                fileType
             };
             localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
         }, 500); // Debounce: 500ms
         return () => clearTimeout(handler);
-    }, [selectedVendor, invoiceNumber, invoiceDate, lineItems, fileType, showOtherForm, otherCategory]);
+    }, [selectedVendor, invoiceNumber, invoiceDate, lineItems, fileType]);
 
     // Rehydrate draft on mount
     useEffect(() => {
@@ -450,8 +446,6 @@ const InvoiceForm = () => {
                 if (data.invoiceDate) setInvoiceDate(data.invoiceDate);
                 if (data.lineItems) setLineItems(data.lineItems);
                 if (data.fileType) setFileType(data.fileType);
-                if (typeof data.showOtherForm === 'boolean') setShowOtherForm(data.showOtherForm);
-                if (data.otherCategory) setOtherCategory(data.otherCategory);
             } catch {}
         }
     }, []);
@@ -592,25 +586,9 @@ const InvoiceForm = () => {
         }
     };
 
-    // Add a handler for successful submission from InvoiceOtherProductsForm
-    const handleOtherFormSuccess = () => {
-        setShowOtherForm(false);
-        // Fetch new voucherId
-        axios.get(`${API_BASE}/vouchers/next?category=invoice`, { 
-            headers: getAuthHeaders() 
-        }).then(r => setVoucherId(r.data.voucherId || r.data.nextVoucherId || ''));
-        Swal.fire({
-            icon: 'success',
-            title: 'Invoice Created!',
-            text: 'The invoice for other products was created successfully.',
-            confirmButtonColor: '#2563eb',
-            timer: 2000
-        });
-    };
-
     return (
         <div 
-            className="w-full min-h-screen"
+            className="w-full"
             style={getSafeBackground('background', '#f9fafb')}
         >
             <div 
@@ -664,31 +642,20 @@ const InvoiceForm = () => {
                                 </div>
                                 <div>
                                     <h1 className="text-3xl lg:text-4xl font-bold mb-2">
-                                        {showOtherForm ? `${otherCategory.charAt(0).toUpperCase() + otherCategory.slice(1)} Invoice` : 'Chemical Invoice'}
+                                        Chemical Invoice
                                     </h1>
                                     <p className="text-blue-100 text-lg">Create and manage your inventory invoices</p>
                                 </div>
                             </div>
                             
                             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                                {!showOtherForm && (
-                                    <div 
-                                        className="px-6 py-3 rounded-2xl border border-white/30"
-                                        style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
-                                    >
-                                        <div className="text-sm text-blue-100">Voucher ID</div>
-                                        <div className="text-lg font-bold">{voucherId || 'Loading...'}</div>
-                                    </div>
-                                )}
-                                <SafeButton
-                                    variant="success"
-                                    onClick={() => setShowOtherForm(v => !v)}
+                                <div 
+                                    className="px-6 py-3 rounded-2xl border border-white/30"
+                                    style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
                                 >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showOtherForm ? "M10 19l-7-7m0 0l7-7m-7 7h18" : "M12 6v6m0 0v6m0-6h6m-6 0H6"} />
-                                    </svg>
-                                    {showOtherForm ? 'Back to Chemical Invoice' : 'Create Other Products Invoice'}
-                                </SafeButton>
+                                    <div className="text-sm text-blue-100">Voucher ID</div>
+                                    <div className="text-lg font-bold">{voucherId || 'Loading...'}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -702,57 +669,11 @@ const InvoiceForm = () => {
                     </div>
                 </div>
 
-                {showOtherForm && (
-                    <div 
-                        className="p-8 border-b border-gray-200"
-                        style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.7)')}
-                    >
-                        <div className="flex flex-wrap gap-3 mb-6">
-                            <SafeButton 
-                                variant={otherCategory === 'glassware' ? 'primary' : 'secondary'}
-                                onClick={() => setOtherCategory('glassware')}
-                            >
-                                <span className="flex items-center gap-2">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
-                                    </svg>
-                                    Glassware
-                                </span>
-                            </SafeButton>
-                            <SafeButton 
-                                variant={otherCategory === 'equipment' ? 'primary' : 'secondary'}
-                                onClick={() => setOtherCategory('equipment')}
-                            >
-                                <span className="flex items-center gap-2">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                    Equipment
-                                </span>
-                            </SafeButton>
-                            <SafeButton 
-                                variant={otherCategory === 'others' ? 'primary' : 'secondary'}
-                                onClick={() => setOtherCategory('others')}
-                            >
-                                <span className="flex items-center gap-2">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                    </svg>
-                                    Others
-                                </span>
-                            </SafeButton>
-                        </div>
-                        <InvoiceOtherProductsForm category={otherCategory} onSuccess={handleOtherFormSuccess} />
-                    </div>
-                )}
-                
-                {!showOtherForm && (
-                    <div 
-                        className="p-6"
-                        style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.8)')}
-                    >
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                <div 
+                    className="p-6"
+                    style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.8)')}
+                >
+                    <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Vendor Information, Invoice Details & File Upload Section - All in One Row */}
                             <div 
                                 className="p-6 rounded-lg border border-gray-200 shadow-sm"
@@ -1170,8 +1091,7 @@ const InvoiceForm = () => {
                                 </div>
                             </div>
                         </form>
-                    </div>
-                )}
+                </div>
         
         {/* Product Registration Modal for Missing Products */}
         {showProductFormModal && (
