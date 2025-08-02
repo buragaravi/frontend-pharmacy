@@ -381,7 +381,7 @@ const TransactionsPage = () => {
       doc.text(`Total Transactions: ${filteredTransactions.length}`, leftMargin + 100, y);
       y += 7;
       doc.text(`Date Range: ${dateRange.from} to ${dateRange.to}`, leftMargin, y);
-      doc.text(`Lab Filter: ${selectedLabFilter === 'all' ? 'All Labs' : selectedLabFilter === 'central' ? 'Central Lab' : selectedLabFilter}`, leftMargin + 100, y);
+      doc.text(`Lab Filter: ${selectedLabFilter === 'all' ? 'All Labs' : selectedLabFilter === 'central' ? 'Central Store ' : selectedLabFilter}`, leftMargin + 100, y);
       
       // Table columns
       const columns = [
@@ -401,8 +401,8 @@ const TransactionsPage = () => {
         quantity: parseInt(tx.quantity).toString(),
         unit: tx.unit || '-',
         type: tx.transactionType || '-',
-        fromLab: tx.fromLabId === 'central-store' ? 'Central Lab' : (tx.fromLabId || '-'),
-        toLab: tx.toLabId === 'central-store' ? 'Central Lab' : (tx.toLabId || '-'),
+        fromLab: tx.fromLabId === 'central-store' ? 'Central Store ' : (tx.fromLabId || '-'),
+        toLab: tx.toLabId === 'central-store' ? 'Central Store ' : (tx.toLabId || '-'),
         performedBy: tx.createdBy?.name || 'admin',
         date: new Date(tx.createdAt).toLocaleDateString()
       }));
@@ -984,7 +984,7 @@ const TransactionsPage = () => {
                           : 'bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600 border border-gray-300'
                       }`}
                     >
-                      Central Lab
+                      Central Store 
                     </motion.button>
                     {[...Array(8)].map((_, i) => {
                       const lab = `LAB0${i + 1}`;
@@ -1092,15 +1092,15 @@ const TransactionsPage = () => {
                             </td>
                             <td className="px-4 md:px-6 py-4 text-gray-900">
                               {tx.fromLabId === 'central-store' ? (
-                                <span className="font-medium text-blue-600">Central Lab</span>
+                                <span className="font-medium text-blue-600">Central Store </span>
                               ) : tx.fromLabId || '-'}
                             </td>
                             <td className="px-4 md:px-6 py-4 text-gray-900">
                               {tx.toLabId === 'central-store' ? (
-                                <span className="font-medium text-blue-600">Central Lab</span>
+                                <span className="font-medium text-blue-600">Central Store </span>
                               ) : tx.toLabId || '-'}
                             </td>
-                            <td className="px-4 md:px-6 py-4 text-gray-700">{tx.createdBy?.name || 'Admin or Central lab'}</td>
+                            <td className="px-4 md:px-6 py-4 text-gray-700">{tx.createdBy?.name || 'Admin or Central Store '}</td>
                             <td className="px-4 md:px-6 py-4 text-gray-700">
                               {new Date(tx.createdAt).toLocaleString()}
                             </td>

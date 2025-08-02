@@ -169,7 +169,7 @@ const PrintableQRView = ({ groupedStock }) => {
 
 const getLabDisplayName = (labId) => {
   const labNames = {
-    'central-store': 'Central Lab',
+    'central-store': 'Central Store ',
     'LAB01': 'Lab 01',
     'LAB02': 'Lab 02',
     'LAB03': 'Lab 03',
@@ -490,7 +490,7 @@ const GlasswareStockPage = () => {
 
   const labList = [
     { id: 'all', name: 'All Labs' },
-    { id: 'central-store', name: 'Central Lab' },
+    { id: 'central-store', name: 'Central Store ' },
     { id: 'LAB01', name: 'Lab 01' },
     { id: 'LAB02', name: 'Lab 02' },
     { id: 'LAB03', name: 'Lab 03' },

@@ -844,7 +844,7 @@ const TransactionsPage = () => {
                           : 'bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600 border border-gray-300'
                       }`}
                     >
-                      Central Lab
+                      Central Store 
                     </motion.button>
                     {[...Array(8)].map((_, i) => {
                       const lab = `LAB0${i + 1}`;
@@ -924,12 +924,12 @@ const TransactionsPage = () => {
                             </td>
                             <td className="px-4 md:px-6 py-4 text-gray-900">
                               {tx.fromLabId === 'central-store' ? (
-                                <span className="font-medium text-blue-600">Central Lab</span>
+                                <span className="font-medium text-blue-600">Central Store </span>
                               ) : tx.fromLabId || '-'}
                             </td>
                             <td className="px-4 md:px-6 py-4 text-gray-900">
                               {tx.toLabId === 'central-store' ? (
-                                <span className="font-medium text-blue-600">Central Lab</span>
+                                <span className="font-medium text-blue-600">Central Store </span>
                               ) : tx.toLabId || '-'}
                             </td>
                             <td className="px-4 md:px-6 py-4 text-gray-700">{tx.createdBy?.name || 'N/A'}</td>

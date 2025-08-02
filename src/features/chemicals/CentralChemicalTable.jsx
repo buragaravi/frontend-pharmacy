@@ -498,7 +498,7 @@ const CentralChemicalTable = () => {
   const getChartData = () => {
     return {
       labels: labDistribution.map(lab => 
-        lab.labId === 'central-store' ? 'Central Lab' : lab.labId
+        lab.labId === 'central-store' ? 'Central Store ' : lab.labId
       ),
       datasets: [
         showQuantity && {
@@ -537,7 +537,7 @@ const CentralChemicalTable = () => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
           <h3 className="text-lg font-semibold">
-            {lab.labId === 'central-store' ? 'Central Lab' : lab.labId}
+            {lab.labId === 'central-store' ? 'Central Store ' : lab.labId}
           </h3>
         </div>
         
@@ -668,7 +668,7 @@ const CentralChemicalTable = () => {
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-medium text-sm">
-                    {lab === 'central-store' ? 'Central Lab' : lab}
+                    {lab === 'central-store' ? 'Central Store ' : lab}
                   </span>
                   <span className="text-sm text-gray-600">
                     {qty} {unit} ({percentage.toFixed(1)}%)
@@ -701,7 +701,7 @@ const CentralChemicalTable = () => {
         <Dialog.Panel className="w-full max-w-4xl bg-white rounded-lg shadow-xl">
           <div className="px-6 py-4 border-b border-gray-200">
             <Dialog.Title className="text-xl font-semibold">
-              Lab Details - {selectedLab === 'central-store' ? 'Central Lab' : `Lab ${selectedLab}`}
+              Lab Details - {selectedLab === 'central-store' ? 'Central Store ' : `Lab ${selectedLab}`}
             </Dialog.Title>
           </div>
 
@@ -1182,7 +1182,7 @@ const CentralChemicalTable = () => {
                     <div className="space-y-1">
                       {chemical.labDistribution && Object.entries(chemical.labDistribution).map(([lab, qty]) => (
                         <div key={lab} className="flex justify-between items-center">
-                          <span className="font-medium">{lab === 'central-store' ? 'Central Lab' : lab}:</span>
+                          <span className="font-medium">{lab === 'central-store' ? 'Central Store ' : lab}:</span>
                           <span className="ml-2">{qty} {chemical.unit}</span>
                         </div>
                       ))}
@@ -1483,7 +1483,7 @@ const CentralChemicalTable = () => {
               <Pie
                 data={{
                   labels: labDistribution.map(lab => 
-                    lab.labId === 'central-store' ? 'Central Lab' : lab.labId
+                    lab.labId === 'central-store' ? 'Central Store ' : lab.labId
                   ),
                   datasets: [{
                     data: labDistribution.map(lab => lab.totalQuantity),
@@ -1511,7 +1511,7 @@ const CentralChemicalTable = () => {
               {labDistribution.map(lab => (
                 <div key={lab.labId} className="bg-white p-4 rounded-lg shadow">
                   <h4 className="text-lg font-semibold mb-3">
-                    {lab.labId === 'central-store' ? 'Central Lab' : lab.labId}
+                    {lab.labId === 'central-store' ? 'Central Store ' : lab.labId}
                   </h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-blue-50 p-3 rounded">
