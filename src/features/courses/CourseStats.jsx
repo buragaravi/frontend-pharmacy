@@ -1,78 +1,48 @@
 import React from 'react';
-import { useResponsiveColors, getSafeBackground } from '../../utils/colorUtils';
 
 const CourseStats = ({ stats }) => {
-  const colors = useResponsiveColors();
   const { overview, byAcademicYear } = stats;
 
-  const StatCard = ({ title, value, subtitle, icon, color = 'blue', trend }) => {
-    const getIconBackground = (color) => {
-      switch (color) {
-        case 'blue': return getSafeBackground('primary', '#dbeafe'); 
-        case 'green': return getSafeBackground('success', '#dcfce7');
-        case 'purple': return getSafeBackground('secondary', '#e9d5ff');
-        case 'indigo': return getSafeBackground('accent', '#e0e7ff');
-        default: return getSafeBackground('primary', '#dbeafe');
-      }
-    };
-
-    const getIconColor = (color) => {
-      switch (color) {
-        case 'blue': return '#2563eb';
-        case 'green': return '#16a34a'; 
-        case 'purple': return '#9333ea';
-        case 'indigo': return '#4f46e5';
-        default: return '#2563eb';
-      }
-    };
-
-    return (
-      <div className={`bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover-lift group transition-all duration-300`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center mb-2">
-              <div 
-                className="p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-300"
-                style={{ 
-                  backgroundColor: getIconBackground(color).backgroundColor || getIconBackground(color),
-                  color: getIconColor(color)
-                }}
-              >
-                {icon}
-              </div>
-              <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                {title}
-              </h3>
+  const StatCard = ({ title, value, subtitle, icon, color = 'blue', trend }) => (
+    <div className={`bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover-lift group transition-all duration-300`}>
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center mb-2">
+            <div className={`p-2 rounded-lg bg-${color}-100 text-${color}-600 mr-3 group-hover:scale-110 transition-transform duration-300`}>
+              {icon}
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
-              {value?.toLocaleString() || '0'}
-            </div>
-            {subtitle && (
-              <p className="text-sm text-gray-500">
-                {subtitle}
-              </p>
-            )}
+            <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+              {title}
+            </h3>
           </div>
-          {trend && (
-            <div className={`text-right ${trend > 0 ? 'text-green-600' : trend < 0 ? 'text-red-600' : 'text-gray-500'}`}>
-              <div className="flex items-center text-sm font-medium">
-                {trend > 0 ? (
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17l9.2-9.2M17 17V7H7" />
-                  </svg>
-                ) : trend < 0 ? (
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 7l-9.2 9.2M7 7v10h10" />
-                  </svg>
-                ) : null}
-                {Math.abs(trend)}%
-              </div>
-            </div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">
+            {value?.toLocaleString() || '0'}
+          </div>
+          {subtitle && (
+            <p className="text-sm text-gray-500">
+              {subtitle}
+            </p>
           )}
         </div>
+        {trend && (
+          <div className={`text-right ${trend > 0 ? 'text-green-600' : trend < 0 ? 'text-red-600' : 'text-gray-500'}`}>
+            <div className="flex items-center text-sm font-medium">
+              {trend > 0 ? (
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17l9.2-9.2M17 17V7H7" />
+                </svg>
+              ) : trend < 0 ? (
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 7l-9.2 9.2M7 7v10h10" />
+                </svg>
+              ) : null}
+              {Math.abs(trend)}%
+            </div>
+          </div>
+        )}
       </div>
-    );
-  };
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -133,8 +103,8 @@ const CourseStats = ({ stats }) => {
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-gray-900">By Academic Year</h3>
-            <div className="p-2 bg-indigo-100 rounded-lg">
-              <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
@@ -145,7 +115,7 @@ const CourseStats = ({ stats }) => {
               <div key={year._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
                 <div className="flex items-center">
                   <div className={`w-3 h-3 rounded-full mr-3 ${
-                    index === 0 ? 'bg-indigo-500' : 
+                    index === 0 ? 'bg-blue-500' : 
                     index === 1 ? 'bg-blue-500' : 
                     index === 2 ? 'bg-green-500' : 
                     index === 3 ? 'bg-yellow-500' : 'bg-gray-500'

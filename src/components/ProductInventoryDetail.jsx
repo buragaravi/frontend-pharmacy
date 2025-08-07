@@ -233,7 +233,7 @@ const ProductInventoryDetail = ({ productId, onClose }) => {
                     <div className="flex items-center space-x-2">
                       {getLabIcon(labId)}
                       <span className="text-xs font-medium text-gray-900">
-                        {labId === 'central-store' ? 'Central Store ' : labId.toUpperCase()}
+                        {labId === 'central-store' ? 'Central Store' : labId.toUpperCase()}
                       </span>
                     </div>
                     <div className="text-right">
@@ -283,7 +283,7 @@ const ProductInventoryDetail = ({ productId, onClose }) => {
                           )}
                         </div>
                         <div className="grid grid-cols-2 gap-1 text-xs text-gray-600">
-                          <div>Lab: {item.labId === 'central-store' ? 'Central Store ' : item.labId.toUpperCase()}</div>
+                          <div>Lab: {item.labId === 'central-store' ? 'Central Store' : item.labId.toUpperCase()}</div>
                           <div>
                             Qty: {item.quantity || '1'} {item.unit || (product.category === 'equipment' ? 'item' : 'units')}
                           </div>

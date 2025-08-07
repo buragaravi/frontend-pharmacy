@@ -51,8 +51,8 @@ const AdminOverrideDialog = ({
           {/* Header */}
           <div className="flex justify-between items-start mb-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-violet-100 rounded-xl">
-                <Shield className="w-6 h-6 text-violet-600" />
+              <div className="p-2 bg-blue-100 rounded-xl">
+                <Shield className="w-6 h-6 text-blue-800" />
               </div>
               <div>
                 <h3 className={`text-xl font-bold ${THEME.primaryText}`}>
@@ -88,15 +88,15 @@ const AdminOverrideDialog = ({
             
             {/* Current Override Status */}
             {experiment.allocationStatus?.adminOverride && (
-              <div className="mt-3 p-3 bg-violet-100 rounded-lg border border-violet-200">
+              <div className="mt-3 p-3 bg-blue-100 rounded-lg border border-blue-200">
                 <div className="flex items-center gap-2 mb-2">
-                  <Shield className="w-4 h-4 text-violet-600" />
-                  <span className="font-medium text-violet-700">Currently Override Active</span>
+                  <Shield className="w-4 h-4 text-blue-800" />
+                  <span className="font-medium text-blue-800">Currently Override Active</span>
                 </div>
-                <p className="text-sm text-violet-600">
+                <p className="text-sm text-blue-700">
                   Reason: {experiment.allocationStatus.overrideReason}
                 </p>
-                <p className="text-xs text-violet-500 mt-1">
+                <p className="text-xs text-blue-600 mt-1">
                   Set by: {experiment.allocationStatus.overrideBy} • 
                   {formatDate(experiment.allocationStatus.overrideAt)}
                 </p>

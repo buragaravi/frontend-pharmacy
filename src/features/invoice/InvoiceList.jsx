@@ -278,7 +278,7 @@ const InvoiceList = () => {
   const vendors = [...new Set(invoices.map(inv => inv.vendorName || inv.vendorId?.name).filter(Boolean))];
 
   if (loading) return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-50">
       {/* Enhanced shimmer styles */}
       <style>{`
         @keyframes shimmer {
@@ -368,7 +368,7 @@ const InvoiceList = () => {
   );
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-50">
       {/* Global styles for smooth scrolling and animations */}
       <style>{`
         @media (prefers-reduced-motion: no-preference) {
@@ -407,7 +407,7 @@ const InvoiceList = () => {
         >
           {/* Enhanced header with gradient and better typography */}
           <div className="relative p-8 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20" />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-blue-600/20" />
             <div className="relative z-10">
               <motion.h1 
                 initial={{ x: -20, opacity: 0 }}
@@ -782,7 +782,7 @@ const InvoiceList = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 }}
-                      className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-8"
+                      className="bg-gradient-to-r from-blue-50 to-blue-50 rounded-xl p-6 mb-8"
                     >
                       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
                         <div className="flex-1">
@@ -892,7 +892,7 @@ const InvoiceList = () => {
                       transition={{ delay: 0.4 }}
                       className="flex justify-end"
                     >
-                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl w-full lg:w-1/2 border border-blue-100">
+                      <div className="bg-gradient-to-r from-blue-50 to-blue-50 p-6 rounded-xl w-full lg:w-1/2 border border-blue-100">
                         <div className="space-y-3">
                           <div className="flex justify-between items-center text-gray-700">
                             <span className="text-lg font-semibold">Subtotal:</span>

@@ -1,0 +1,179 @@
+/* 🌐 BROWSER COMPATIBILITY CSS */
+/* This file provides fallbacks for older browsers */
+
+/* ========================================
+   GRADIENT FALLBACKS FOR OLD BROWSERS
+======================================== */
+
+/* Safari 5.1+, Chrome 10+ */
+.gradient-blue-primary {
+  background: #3B82F6; /* Fallback for very old browsers */
+  background: -webkit-linear-gradient(to right, #3B82F6, #2563EB);
+  background: -moz-linear-gradient(to right, #3B82F6, #2563EB);
+  background: linear-gradient(to right, #3B82F6, #2563EB);
+}
+
+.gradient-blue-secondary {
+  background: #60A5FA; /* Fallback */
+  background: -webkit-linear-gradient(to right, #60A5FA, #3B82F6);
+  background: -moz-linear-gradient(to right, #60A5FA, #3B82F6);
+  background: linear-gradient(to right, #60A5FA, #3B82F6);
+}
+
+.gradient-background {
+  background: #F8FAFF; /* Fallback */
+  background: -webkit-linear-gradient(135deg, #F8FAFF, #E6F3FF);
+  background: -moz-linear-gradient(135deg, #F8FAFF, #E6F3FF);
+  background: linear-gradient(135deg, #F8FAFF, #E6F3FF);
+}
+
+/* ========================================
+   BACKDROP BLUR FALLBACKS
+======================================== */
+
+.backdrop-blur-fallback {
+  background: rgba(255, 255, 255, 0.95); /* Fallback for backdrop-blur */
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* For browsers that don't support backdrop-filter */
+@supports not (backdrop-filter: blur(12px)) {
+  .backdrop-blur-fallback {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* ========================================
+   SHADOW FALLBACKS
+======================================== */
+
+.shadow-blue-fallback {
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  /* Fallback for complex shadows */
+}
+
+/* ========================================
+   OPACITY FALLBACKS FOR OLD IE
+======================================== */
+
+.opacity-98 {
+  opacity: 0.98;
+  filter: alpha(opacity=98); /* IE8 fallback */
+}
+
+.opacity-80 {
+  opacity: 0.8;
+  filter: alpha(opacity=80); /* IE8 fallback */
+}
+
+/* ========================================
+   BORDER RADIUS FALLBACKS
+======================================== */
+
+.rounded-modern {
+  border-radius: 12px;
+  -webkit-border-radius: 12px; /* Old WebKit */
+  -moz-border-radius: 12px;    /* Old Mozilla */
+}
+
+/* ========================================
+   TRANSITION FALLBACKS
+======================================== */
+
+.transition-safe {
+  transition: all 0.3s ease;
+  -webkit-transition: all 0.3s ease; /* Safari */
+  -moz-transition: all 0.3s ease;    /* Firefox 4 */
+  -o-transition: all 0.3s ease;      /* Opera */
+}
+
+/* ========================================
+   TRANSFORM FALLBACKS
+======================================== */
+
+.transform-safe {
+  transform: translateZ(0); /* Force hardware acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+}
+
+/* ========================================
+   GRID FALLBACKS FOR OLD BROWSERS
+======================================== */
+
+.grid-fallback {
+  display: grid;
+  display: -ms-grid; /* IE10-11 */
+}
+
+/* For browsers that don't support CSS Grid */
+@supports not (display: grid) {
+  .grid-fallback {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .grid-fallback > * {
+    flex: 1 1 300px;
+    margin: 8px;
+  }
+}
+
+/* ========================================
+   SAFE COLOR PALETTE
+======================================== */
+
+:root {
+  /* Safe colors that work in all browsers */
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+  
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+}
+
+/* ========================================
+   RESPONSIVE FIXES
+======================================== */
+
+@media screen and (max-width: 768px) {
+  .mobile-safe {
+    -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+======================================== */
+
+@media print {
+  .gradient-blue-primary,
+  .gradient-blue-secondary,
+  .gradient-background {
+    background: #f8f9fa !important;
+    color: #000000 !important;
+  }
+  
+  .shadow-blue-fallback {
+    box-shadow: none !important;
+  }
+}

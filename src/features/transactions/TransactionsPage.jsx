@@ -45,7 +45,7 @@ const ToastNotification = ({ toast, onClose }) => (
 
 // Loading component with shimmer effect
 const LoadingSpinner = () => (
-  <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+  <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100">
     <style>{`
       @keyframes shimmer {
         0% { background-position: -200% 0; }
@@ -158,16 +158,20 @@ const DEFAULT_DATE_RANGE = () => {
   };
 };
 
-const TransactionsPage = () => {
+const TransactionsPage = ({ labId: propLabId }) => {
   const [transactions, setTransactions] = useState([]);
   const [selectedLabFilter, setSelectedLabFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [role, setRole] = useState('');
-  const [labId, setLabId] = useState('');
+  const [labId, setLabId] = useState(propLabId || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const transactionsPerPage = 20;
+  
+  // Dynamic labs state
+  const [labs, setLabs] = useState([]);
+  const [labsLoading, setLabsLoading] = useState(true);
   const [dateRange, setDateRange] = useState(DEFAULT_DATE_RANGE());
   const [globalFilterApplied, setGlobalFilterApplied] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -234,14 +238,62 @@ const TransactionsPage = () => {
       const user = decoded.user;
 
       setRole(user.role);
-      setLabId(user.labId);
-      fetchTransactions(user.role, user.labId);
+      
+      // Only set labId from token if not provided as prop
+      const effectiveLabId = propLabId || user.labId;
+      if (!propLabId) {
+        setLabId(user.labId);
+      }
+      
+      // Fetch labs and transactions in parallel
+      Promise.all([
+        fetchLabs(),
+        fetchTransactions(user.role, effectiveLabId)
+      ]);
     } catch (err) {
       console.error(err);
       setError('Invalid token');
       setLoading(false);
     }
-  }, []);
+  }, [propLabId]);
+
+  // Fetch dynamic labs
+  const fetchLabs = async () => {
+    try {
+      setLabsLoading(true);
+      const response = await axios.get('https://backend-pharmacy-5541.onrender.com/api/labs?includeInactive=false', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const labsData = response.data?.data || [];
+      setLabs(labsData);
+      return labsData;
+    } catch (error) {
+      console.error('Error fetching labs:', error);
+      // Fallback to central-store if API fails
+      const fallbackLabs = [{ 
+        labId: 'central-store', 
+        labName: 'Central Store', 
+        isSystem: true, 
+        isActive: true 
+      }];
+      setLabs(fallbackLabs);
+      return fallbackLabs;
+    } finally {
+      setLabsLoading(false);
+    }
+  };
+
+  // Helper function to get lab display name
+  const getLabDisplayName = (labId) => {
+    if (!labId) return '-';
+    
+    // Handle central-store specially
+    if (labId === 'central-store') return 'Central Store';
+    
+    // Find lab in dynamic labs list
+    const lab = labs.find(l => l.labId === labId);
+    return lab ? lab.labName : labId;
+  };
 
   const fetchTransactions = async (userRole, userLabId) => {
     setLoading(true);
@@ -301,8 +353,8 @@ const TransactionsPage = () => {
   const getTransactionTypeColor = (type) => {
     switch(type.toLowerCase()) {
       case 'allocation': return 'bg-blue-50 text-blue-700 border border-blue-200';
-      case 'transfer': return 'bg-indigo-50 text-indigo-700 border border-indigo-200';
-      case 'consumption': return 'bg-purple-50 text-purple-700 border border-purple-200';
+      case 'transfer': return 'bg-blue-50 text-blue-700 border border-blue-200';
+      case 'consumption': return 'bg-blue-50 text-blue-700 border border-blue-200';
       case 'entry': return 'bg-green-50 text-green-700 border border-green-200';
       case 'adjustment': return 'bg-yellow-50 text-yellow-700 border border-yellow-200';
       default: return 'bg-gray-50 text-gray-700 border border-gray-200';
@@ -381,7 +433,7 @@ const TransactionsPage = () => {
       doc.text(`Total Transactions: ${filteredTransactions.length}`, leftMargin + 100, y);
       y += 7;
       doc.text(`Date Range: ${dateRange.from} to ${dateRange.to}`, leftMargin, y);
-      doc.text(`Lab Filter: ${selectedLabFilter === 'all' ? 'All Labs' : selectedLabFilter === 'central' ? 'Central Store ' : selectedLabFilter}`, leftMargin + 100, y);
+      doc.text(`Lab Filter: ${selectedLabFilter === 'all' ? 'All Labs' : selectedLabFilter === 'central' ? 'Central Store' : selectedLabFilter}`, leftMargin + 100, y);
       
       // Table columns
       const columns = [
@@ -395,14 +447,14 @@ const TransactionsPage = () => {
         { title: 'Date', dataKey: 'date' }
       ];
       
-      // Table data
+      // Table data with dynamic lab names
       const tableData = filteredTransactions.map(tx => ({
         chemical: tx.chemicalName || 'Unnamed Chemical',
         quantity: parseInt(tx.quantity).toString(),
         unit: tx.unit || '-',
         type: tx.transactionType || '-',
-        fromLab: tx.fromLabId === 'central-store' ? 'Central Store ' : (tx.fromLabId || '-'),
-        toLab: tx.toLabId === 'central-store' ? 'Central Store ' : (tx.toLabId || '-'),
+        fromLab: getLabDisplayName(tx.fromLabId),
+        toLab: getLabDisplayName(tx.toLabId),
         performedBy: tx.createdBy?.name || 'admin',
         date: new Date(tx.createdAt).toLocaleDateString()
       }));
@@ -560,7 +612,7 @@ const TransactionsPage = () => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50"
+      className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100"
     >
       <div className="text-center p-8">
         <FiAlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
@@ -579,7 +631,7 @@ const TransactionsPage = () => {
   );
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-100">
       {/* Global styles for smooth scrolling and animations */}
       <style>{`
         @media (prefers-reduced-motion: no-preference) {
@@ -638,7 +690,7 @@ const TransactionsPage = () => {
         >
           {/* Enhanced header with gradient and better typography */}
           <div className="relative p-8 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20" />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-blue-800/20" />
             <div className="relative z-10">
               <motion.h1 
                 initial={{ x: -20, opacity: 0 }}
@@ -797,19 +849,19 @@ const TransactionsPage = () => {
               
               <motion.div 
                 whileHover={{ scale: 1.02 }}
-                className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border-l-8 border-indigo-500 flex flex-col items-center"
+                className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border-l-8 border-blue-500 flex flex-col items-center"
               >
-                <span className="text-3xl md:text-4xl font-bold text-indigo-500">{totalQuantity}</span>
-                <span className="text-indigo-500 font-semibold mt-2 text-center text-sm md:text-base">Total Drugs Moved</span>
+                <span className="text-3xl md:text-4xl font-bold text-blue-500">{totalQuantity}</span>
+                <span className="text-blue-500 font-semibold mt-2 text-center text-sm md:text-base">Total Drugs Moved</span>
               </motion.div>
               
               {(role === 'admin' || role === 'central_store_admin') && (
                 <motion.div 
                   whileHover={{ scale: 1.02 }}
-                  className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border-l-8 border-purple-500 flex flex-col items-center"
+                  className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border-l-8 border-blue-500 flex flex-col items-center"
                 >
-                  <span className="text-xl md:text-2xl font-bold text-purple-500">{mostActiveLab}</span>
-                  <span className="text-purple-500 font-semibold mt-2 text-center text-sm md:text-base">Most Active Lab</span>
+                  <span className="text-xl md:text-2xl font-bold text-blue-500">{mostActiveLab}</span>
+                  <span className="text-blue-500 font-semibold mt-2 text-center text-sm md:text-base">Most Active Lab</span>
                 </motion.div>
               )}
             </motion.div>
@@ -984,7 +1036,7 @@ const TransactionsPage = () => {
                           : 'bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600 border border-gray-300'
                       }`}
                     >
-                      Central Store 
+                      Central Store
                     </motion.button>
                     {[...Array(8)].map((_, i) => {
                       const lab = `LAB0${i + 1}`;
@@ -1091,16 +1143,16 @@ const TransactionsPage = () => {
                               </span>
                             </td>
                             <td className="px-4 md:px-6 py-4 text-gray-900">
-                              {tx.fromLabId === 'central-store' ? (
-                                <span className="font-medium text-blue-600">Central Store </span>
-                              ) : tx.fromLabId || '-'}
+                              <span className={`font-medium ${tx.fromLabId === 'central-store' ? 'text-blue-600' : 'text-gray-900'}`}>
+                                {getLabDisplayName(tx.fromLabId)}
+                              </span>
                             </td>
                             <td className="px-4 md:px-6 py-4 text-gray-900">
-                              {tx.toLabId === 'central-store' ? (
-                                <span className="font-medium text-blue-600">Central Store </span>
-                              ) : tx.toLabId || '-'}
+                              <span className={`font-medium ${tx.toLabId === 'central-store' ? 'text-blue-600' : 'text-gray-900'}`}>
+                                {getLabDisplayName(tx.toLabId)}
+                              </span>
                             </td>
-                            <td className="px-4 md:px-6 py-4 text-gray-700">{tx.createdBy?.name || 'Admin or Central Store '}</td>
+                            <td className="px-4 md:px-6 py-4 text-gray-700">{tx.createdBy?.name || 'Admin or Central Store'}</td>
                             <td className="px-4 md:px-6 py-4 text-gray-700">
                               {new Date(tx.createdAt).toLocaleString()}
                             </td>

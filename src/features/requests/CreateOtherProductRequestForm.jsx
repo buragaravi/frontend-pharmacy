@@ -109,9 +109,9 @@ const CreateOtherProductRequestForm = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 min-h-screen bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]">
+    <div className="p-4 md:p-6 min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
       <div className="max-w-2xl mx-auto">
-        <div className="rounded-xl shadow-lg p-4 md:p-6 bg-white border border-[#0B3861]">
+        <div className="rounded-xl shadow-lg p-4 md:p-6 bg-white border border-blue-800">
           <h2 className="text-xl md:text-2xl font-bold text-[#0B3861] mb-6">Request Other Product</h2>
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             <div>

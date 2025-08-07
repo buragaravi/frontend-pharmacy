@@ -8,7 +8,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white p-4 fixed w-full z-50 shadow-2xl backdrop-blur-lg border-b border-white/20">
+    <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-700 text-white p-4 fixed w-full z-50 shadow-2xl backdrop-blur-lg border-b border-white/20">
       <nav className="container mx-auto flex justify-between items-center">
         <motion.div 
           initial={{ x: -50, opacity: 0 }}
@@ -113,7 +113,7 @@ const Header = () => {
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-12">
+    <footer className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-12">
       <div className="container mx-auto grid md:grid-cols-4 gap-8 px-4">
         <div>
           <div className="flex items-center mb-4">
@@ -295,10 +295,9 @@ const Home = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <main className="flex-grow  pt-16">        {/* Hero Section with Pattern */}
+    <>
+          <Header />
+      <main className="flex-grow pt-16 min-h-screen">        {/* Hero Section with Pattern */}
         <section className="relative min-h-screen bg-blue-600 text-white py-24 overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
@@ -368,11 +367,8 @@ const Home = () => {
             </div>
           </div>
         </section>
-
-        
       </main>
-
-    </div>
+    </>       
   );
 };
 

@@ -18,10 +18,10 @@ const AddIcon = () => (
   </svg>
 );
 
-const IndentPage = () => {
+const IndentPage = ({ labId: propLabId }) => {
   const [userRole, setUserRole] = useState('');
   const [userId, setUserId] = useState('');
-  const [labId, setLabId] = useState('');
+  const [labId, setLabId] = useState(propLabId || '');
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [refreshList, setRefreshList] = useState(false);
@@ -37,17 +37,21 @@ const IndentPage = () => {
     }
     try {
       const decoded = jwtDecode(token);
-      const { role, userId, id, labId } = decoded.user;
+      const { role, userId, id, labId: tokenLabId } = decoded.user;
       setUserRole(role);
       setUserId(userId || id);
-      setLabId(labId);
+      
+      // Only set labId from token if not provided as prop
+      if (!propLabId && tokenLabId) {
+        setLabId(tokenLabId);
+      }
     } catch (err) {
       console.error('Error decoding token:', err);
       navigate('/login');
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, propLabId]);
 
   const handleFormSubmitSuccess = () => {
     setShowForm(false);

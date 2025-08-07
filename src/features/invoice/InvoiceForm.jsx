@@ -603,7 +603,7 @@ const InvoiceForm = () => {
                 {/* Enhanced Background Effects */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                    <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 </div>
 
                 {showDraftPrompt && (
@@ -745,16 +745,16 @@ const InvoiceForm = () => {
 
                                     {/* Invoice Details */}
                                     <div 
-                                        className="p-4 rounded-lg border border-purple-200"
+                                        className="p-4 rounded-lg border border-blue-200"
                                         style={getSafeBackground('light', '#f5f3ff')}
                                     >
                                         <div className="flex items-center gap-2 mb-3">
-                                            <div className="p-2 bg-purple-100 rounded-md">
-                                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div className="p-2 bg-blue-100 rounded-md">
+                                                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
                                             </div>
-                                            <h3 className="text-sm font-medium text-purple-800">Invoice Details</h3>
+                                            <h3 className="text-sm font-medium text-blue-800">Invoice Details</h3>
                                         </div>
                                         
                                         <div className="space-y-3">
@@ -771,7 +771,7 @@ const InvoiceForm = () => {
                                                 <label className="block text-xs font-medium text-gray-700 mb-2">Invoice Number *</label>
                                                 <input
                                                     type="text"
-                                                    className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                    className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm"
                                                     value={invoiceNumber}
                                                     onChange={e => setInvoiceNumber(e.target.value)}
                                                     placeholder="Enter invoice number"
@@ -782,7 +782,7 @@ const InvoiceForm = () => {
                                                 <label className="block text-xs font-medium text-gray-700 mb-2">Invoice Date *</label>
                                                 <input
                                                     type="date"
-                                                    className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                    className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm"
                                                     value={invoiceDate}
                                                     onChange={e => setInvoiceDate(e.target.value)}
                                                     required
@@ -911,8 +911,8 @@ const InvoiceForm = () => {
                                 style={getSafeBackground('light', '#ffffff')}
                             >
                                 <div className="flex items-center gap-2 mb-4">
-                                    <div className="p-2 bg-purple-100 rounded-md">
-                                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div className="p-2 bg-blue-100 rounded-md">
+                                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
                                         </svg>
                                     </div>
@@ -930,7 +930,7 @@ const InvoiceForm = () => {
                                                 <div className="col-span-3">
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">Product</label>
                                                     <select
-                                                        className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                        className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm"
                                                         value={item.productId}
                                                         onChange={e => handleProductSelect(idx, e.target.value)}
                                                         required
@@ -962,7 +962,7 @@ const InvoiceForm = () => {
                                                         type="number"
                                                         min="0"
                                                         step="0.01"
-                                                        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm"
                                                         value={item.quantity}
                                                         onChange={e => handleLineItemChange(idx, 'quantity', e.target.value)}
                                                         placeholder="Enter quantity"
@@ -977,7 +977,7 @@ const InvoiceForm = () => {
                                                         type="number"
                                                         min="0"
                                                         step="0.01"
-                                                        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm"
                                                         value={item.totalPrice}
                                                         onChange={e => handleLineItemChange(idx, 'totalPrice', e.target.value)}
                                                         placeholder="Enter total price"
@@ -1001,7 +1001,7 @@ const InvoiceForm = () => {
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
                                                     <input
                                                         type="date"
-                                                        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-sm"
+                                                        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm"
                                                         value={item.expiryDate}
                                                         onChange={e => handleLineItemChange(idx, 'expiryDate', e.target.value)}
                                                     />

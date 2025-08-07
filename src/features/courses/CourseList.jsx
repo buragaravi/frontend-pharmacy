@@ -4,8 +4,8 @@ import Swal from 'sweetalert2';
 import CourseForm from './CourseForm';
 import CourseCard from './CourseCard';
 import CourseStats from './CourseStats';
-import { useResponsiveColors, getSafeBackground, getSafeBackdrop } from '../../utils/colorUtils';
-import SafeButton from '../../components/SafeButton';
+import CourseDetailModal from './CourseDetailModal';
+import SubjectCreationModal from './SubjectCreationModal';
 
 // Enhanced animations and styles
 const customStyles = `
@@ -134,7 +134,6 @@ const customStyles = `
 const BASE_URL = 'https://backend-pharmacy-5541.onrender.com/api/courses';
 
 const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
-  const colors = useResponsiveColors() || {};
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -150,6 +149,10 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
   const [stats, setStats] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCourseForSubject, setSelectedCourseForSubject] = useState(null);
+  const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
 
   const isAdmin = userRole === 'admin' || userRole === 'central_store_admin';
   const canManageCourses = showAdminActions && isAdmin;
@@ -201,6 +204,42 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
     
     setDepartments(depts);
     setAcademicYears(years);
+  };
+
+  // Handle course detail view
+  const handleViewCourse = (course) => {
+    setSelectedCourse(course);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedCourse(null);
+  };
+
+  // Handle subject creation modal
+  const handleAddSubject = (course) => {
+    setSelectedCourseForSubject(course);
+    setIsSubjectModalOpen(true);
+  };
+
+  const closeSubjectModal = () => {
+    setIsSubjectModalOpen(false);
+    setSelectedCourseForSubject(null);
+  };
+
+  const handleSubjectsCreated = (results) => {
+    const successCount = results.filter(result => result.success).length;
+    if (successCount > 0) {
+      Swal.fire({
+        title: 'Success!',
+        text: `${successCount} subject${successCount > 1 ? 's' : ''} created successfully`,
+        icon: 'success',
+        confirmButtonColor: '#10B981'
+      });
+      // Optionally refresh courses or update UI
+      fetchCourses();
+    }
   };
 
   // Handle course creation
@@ -435,14 +474,8 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
       <div className="w-full p-4 sm:p-6">
         {/* Floating background elements */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div 
-            className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl animate-pulse"
-            style={{ backgroundColor: colors?.background?.light || '#e0f2fe' }}
-          ></div>
-          <div 
-            className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl animate-pulse delay-1000"
-            style={{ backgroundColor: colors?.accent?.light || '#f3e8ff' }}
-          ></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-200/30 to-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
         <div className="relative w-full ">
@@ -454,59 +487,37 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
           )}
 
           {/* Main Content Card */}
-          <div 
-            className="rounded-2xl shadow-xl border border-white/20 overflow-hidden animate-slideInBottom"
-            style={{ ...getSafeBackdrop('12px', 'rgba(255, 255, 255, 0.9)') }}
-          >
+          <div className="glass-effect bg-white/90 rounded-2xl shadow-xl border border-white/20 overflow-hidden animate-slideInBottom">
             {/* Enhanced Header */}
-            <div 
-              className="relative p-6 text-white overflow-hidden"
-              style={{ 
-                backgroundColor: getSafeBackground('header', '#1d4ed8').backgroundColor || getSafeBackground('header', '#1d4ed8')
-              }}
-            >
-              <div 
-                className="absolute inset-0 opacity-20"
-                style={{ backgroundColor: 'rgba(29, 78, 216, 0.1)' }}
-              ></div>
+            <div className="relative p-6 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-700 text-white overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-800/20 to-blue-800/20"></div>
               <div className="relative z-10">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="flex items-center gap-4">
-                    <div 
-                      className="p-3 rounded-xl border border-white/30"
-                      style={{ 
-                        ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.2)'),
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                      }}
-                    >
+                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
                     </div>
                     <div>
-                      <h1 className="text-3xl font-bold mb-1 text-white">Course Management</h1>
-                      <p className="text-white/80 text-sm">Manage courses and academic batches</p>
+                      <h1 className="text-3xl font-bold mb-1">Course Management</h1>
+                      <p className="text-blue-100 text-sm">Manage courses and academic batches</p>
                     </div>
                   </div>
                   
                   {canManageCourses && (
-                    <SafeButton
+                    <button
                       onClick={() => {
                         setEditingCourse(null);
                         setShowForm(true);
                       }}
-                      variant="secondary"
-                      className="flex items-center gap-2 hover-lift text-white"
-                      style={{ 
-                        backgroundColor: colors.secondary?.main || '#6366f1',
-                        color: 'white'
-                      }}
+                      className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-xl text-white font-semibold hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover-lift"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
                       Add Course
-                    </SafeButton>
+                    </button>
                   )}
                 </div>
               </div>
@@ -521,10 +532,7 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
             </div>
 
             {/* Controls Section */}
-            <div 
-              className="p-6 border-b border-gray-200/50"
-              style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.8)') }}
-            >
+            <div className="p-6 border-b border-gray-200/50 bg-white/80 backdrop-blur-sm">
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 {/* Search and Filters */}
                 <div className="flex flex-col sm:flex-row gap-4 flex-1 mobile-stack">
@@ -613,20 +621,14 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
             </div>
 
             {/* Main Content Area */}
-            <div 
-              className="p-6 min-h-[400px]"
-              style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.6)') }}
-            >
+            <div className="p-6 bg-white/60 backdrop-blur-sm min-h-[400px]">
               {loading ? (
                 <div className="animate-fadeInScale">
                   {viewMode === 'cards' ? <CourseCardSkeleton /> : <CourseTableSkeleton />}
                 </div>
               ) : filteredCourses.length === 0 ? (
                 <div className="text-center py-16 animate-fadeInScale">
-                  <div 
-                    className="mx-auto w-24 h-24 rounded-2xl flex items-center justify-center mb-6"
-                    style={{ backgroundColor: getSafeBackground('light', '#dbeafe') }}
-                  >
+                  <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-100 rounded-2xl flex items-center justify-center mb-6">
                     <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
@@ -639,16 +641,15 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                     }
                   </p>
                   {canManageCourses && (
-                    <SafeButton
+                    <button
                       onClick={() => {
                         setEditingCourse(null);
                         setShowForm(true);
                       }}
-                      variant="primary"
-                      className="transform hover:scale-105"
+                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-600 rounded-xl text-white font-semibold hover:from-blue-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
                       Create Your First Course
-                    </SafeButton>
+                    </button>
                   )}
                 </div>
               ) : (
@@ -668,6 +669,8 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                               setShowForm(true);
                             }}
                             onDelete={() => handleDeleteCourse(course._id)}
+                            onViewDetails={handleViewCourse}
+                            onAddSubject={handleAddSubject}
                             canManage={canManageCourses}
                           />
                         </div>
@@ -677,7 +680,7 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                     // Table View Implementation will go here
                     <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-lg bg-white">
                       <table className="min-w-full divide-y divide-gray-200">
-                        <thead style={{ backgroundColor: getSafeBackground('light', '#eff6ff') }}>
+                        <thead className="bg-gradient-to-r from-blue-50 to-blue-50">
                           <tr>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Course</th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider mobile-hide">Department</th>
@@ -692,15 +695,13 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                           {filteredCourses.map((course, index) => (
                             <tr 
                               key={course._id} 
-                              className="hover:bg-blue-50/50 transition-all duration-200 animate-slideInLeft"
+                              className="hover:bg-blue-50/50 transition-all duration-200 animate-slideInLeft cursor-pointer"
                               style={{ animationDelay: `${index * 0.05}s` }}
+                              onClick={() => handleViewCourse(course)}
                             >
                               <td className="px-6 py-4">
                                 <div className="flex items-center">
-                                  <div 
-                                    className="h-12 w-12 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg"
-                                    style={{ backgroundColor: getSafeBackground('primary', '#3b82f6') }}
-                                  >
+                                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
                                     {course.courseCode.charAt(0)}
                                   </div>
                                   <div className="ml-4">
@@ -734,25 +735,25 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                               {canManageCourses && (
                                 <td className="px-6 py-4 text-right">
                                   <div className="flex justify-end gap-2">
-                                    <SafeButton
-                                      onClick={() => {
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
                                         setEditingCourse(course);
                                         setShowForm(true);
                                       }}
-                                      variant="info"
-                                      size="small"
-                                      className="hover-lift"
+                                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all duration-200 text-xs font-medium hover-lift"
                                     >
                                       Edit
-                                    </SafeButton>
-                                    <SafeButton
-                                      onClick={() => handleDeleteCourse(course._id)}
-                                      variant="danger"
-                                      size="small"
-                                      className="hover-lift"
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteCourse(course._id);
+                                      }}
+                                      className="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-all duration-200 text-xs font-medium hover-lift"
                                     >
                                       Delete
-                                    </SafeButton>
+                                    </button>
                                   </div>
                                 </td>
                               )}
@@ -772,8 +773,7 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
         {canManageCourses && showForm && (
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto">
             <div 
-              className="fixed inset-0"
-              style={{ ...getSafeBackdrop('4px', 'rgba(0, 0, 0, 0.6)') }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => {
                 setShowForm(false);
                 setEditingCourse(null);
@@ -818,6 +818,26 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Course Detail Modal */}
+        {isModalOpen && (
+          <CourseDetailModal
+            course={selectedCourse}
+            isOpen={isModalOpen}
+            onClose={closeModal}
+            onAddSubject={handleAddSubject}
+          />
+        )}
+
+        {/* Subject Creation Modal */}
+        {isSubjectModalOpen && (
+          <SubjectCreationModal
+            course={selectedCourseForSubject}
+            isOpen={isSubjectModalOpen}
+            onClose={closeSubjectModal}
+            onSubjectsCreated={handleSubjectsCreated}
+          />
         )}
       </div>
     </>

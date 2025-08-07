@@ -662,7 +662,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
         {/* Enhanced Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
         {/* Enhanced Header Section */}
@@ -872,8 +872,8 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                 {/* File Upload */}
                 <div className="order-3 sm:order-3 sm:col-span-2 lg:col-span-1">
                   <div className="flex items-center gap-2 mb-2 sm:mb-3">
-                    <div className="p-1 bg-purple-100 rounded-md">
-                      <svg className="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="p-1 bg-blue-100 rounded-md">
+                      <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                       </svg>
                     </div>
@@ -887,7 +887,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                         <label className="inline-flex items-center cursor-pointer">
                           <input
                             type="radio"
-                            className="form-radio h-3 w-3 text-purple-600"
+                            className="form-radio h-3 w-3 text-blue-600"
                             name="fileType"
                             value="csv"
                             checked={fileType === 'csv'}
@@ -898,7 +898,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                         <label className="inline-flex items-center cursor-pointer">
                           <input
                             type="radio"
-                            className="form-radio h-3 w-3 text-purple-600"
+                            className="form-radio h-3 w-3 text-blue-600"
                             name="fileType"
                             value="excel"
                             checked={fileType === 'excel'}
@@ -911,12 +911,12 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                     
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Upload File</label>
-                      <label className="flex flex-col items-center justify-center w-full h-12 sm:h-16 border-2 border-purple-300 border-dashed rounded-lg cursor-pointer bg-purple-50 hover:bg-purple-100 transition-colors duration-200">
+                      <label className="flex flex-col items-center justify-center w-full h-12 sm:h-16 border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                         <div className="flex flex-col items-center justify-center pt-2 pb-2">
-                          <svg className="w-3 sm:w-4 h-3 sm:h-4 mb-1 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 sm:w-4 h-3 sm:h-4 mb-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                           </svg>
-                          <p className="text-xs text-purple-600 font-medium">Click to upload</p>
+                          <p className="text-xs text-blue-600 font-medium">Click to upload</p>
                           <p className="text-xs text-gray-500 hidden sm:block">{fileType === 'csv' ? 'CSV' : 'XLSX/XLS'} files</p>
                         </div>
                         <input
@@ -930,9 +930,9 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                     
                     <div className="hidden md:block">
                       <label className="block text-xs font-medium text-gray-700 mb-1">Template Guide</label>
-                      <div className="bg-purple-100/50 p-2 rounded-lg h-10 sm:h-12 flex flex-col justify-center">
-                        <h4 className="text-xs font-medium text-purple-800 mb-1">Required:</h4>
-                        <div className="text-xs text-purple-700">
+                      <div className="bg-blue-100/50 p-2 rounded-lg h-10 sm:h-12 flex flex-col justify-center">
+                        <h4 className="text-xs font-medium text-blue-800 mb-1">Required:</h4>
+                        <div className="text-xs text-blue-700">
                           <p>• Name, Quantity, Total Price</p>
                         </div>
                       </div>
@@ -954,8 +954,8 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
             {/* Fully Responsive Line Items Section */}
             <div className="bg-white p-2 sm:p-3 md:p-4 rounded-lg border border-gray-200 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
-                <div className="p-1 bg-purple-100 rounded-md">
-                  <svg className="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-1 bg-blue-100 rounded-md">
+                  <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
                 </div>
@@ -965,7 +965,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
               {/* Mobile Layout (320px - 639px) */}
               <div className="block sm:hidden space-y-4">
                 {lineItems.map((item, idx) => (
-                  <div key={idx} className="bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg p-3 border border-gray-200 relative shadow-sm">
+                  <div key={idx} className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-3 border border-gray-200 relative shadow-sm">
                     {/* Remove button for mobile */}
                     {lineItems.length > 1 && (
                       <button 
@@ -989,7 +989,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                           value={item.productId}
                           onChange={(e) => handleProductSelect(idx, e.target.value)}
                           required
-                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs"
                         >
                           <option value="">Select product...</option>
                           {products
@@ -1009,7 +1009,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                           type="text"
                           value={item.variant}
                           onChange={(e) => handleLineItemChange(idx, 'variant', e.target.value)}
-                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs"
                           placeholder="Variant"
                         />
                       </div>
@@ -1026,7 +1026,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                           required
                           min="1"
                           step="0.01"
-                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs"
                           placeholder="Qty"
                         />
                       </div>
@@ -1040,7 +1040,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                           required
                           min="0"
                           step="0.01"
-                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                          className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs"
                           placeholder="Total"
                         />
                       </div>
@@ -1067,7 +1067,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                             type="date"
                             value={item.warranty}
                             onChange={(e) => handleLineItemChange(idx, 'warranty', e.target.value)}
-                            className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                            className="w-full px-2 py-2 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs"
                           />
                         </div>
                       )}
@@ -1081,7 +1081,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                 <div className="overflow-x-auto">
                   <div className="space-y-2" style={{ minWidth: (category === 'equipment' || category === 'glassware') ? '1200px' : '1000px' }}>
                     {lineItems.map((item, idx) => (
-                      <div key={idx} className={`grid gap-1 sm:gap-2 items-end bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg p-2 border border-gray-200 relative hover:shadow-md transition-shadow duration-200 ${
+                      <div key={idx} className={`grid gap-1 sm:gap-2 items-end bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-2 border border-gray-200 relative hover:shadow-md transition-shadow duration-200 ${
                         (category === 'equipment' || category === 'glassware') 
                           ? 'grid-cols-12 md:grid-cols-14 lg:grid-cols-16 xl:grid-cols-18 2xl:grid-cols-20' 
                           : 'grid-cols-12 md:grid-cols-14 lg:grid-cols-16'
@@ -1094,7 +1094,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                             value={item.productId}
                             onChange={(e) => handleProductSelect(idx, e.target.value)}
                             required
-                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs"
                           >
                             <option value="">Select...</option>
                             {products
@@ -1114,7 +1114,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                             type="text"
                             value={item.variant}
                             onChange={(e) => handleLineItemChange(idx, 'variant', e.target.value)}
-                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs"
                             placeholder="Variant"
                           />
                         </div>
@@ -1131,7 +1131,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                             required
                             min="1"
                             step="0.01"
-                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs"
                             placeholder="Qty"
                           />
                         </div>
@@ -1146,7 +1146,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                             required
                             min="0"
                             step="0.01"
-                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                            className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs"
                             placeholder="Total"
                           />
                         </div>
@@ -1173,7 +1173,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                               type="date"
                               value={item.warranty}
                               onChange={(e) => handleLineItemChange(idx, 'warranty', e.target.value)}
-                              className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-xs"
+                              className="w-full px-1 sm:px-2 py-1.5 rounded-md border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs"
                             />
                           </div>
                         )}
@@ -1199,7 +1199,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
             </div>
 
             {/* Fully Responsive Total and Submit Section */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-2 sm:p-3 md:p-4 rounded-xl border border-blue-200 shadow-sm">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-50 p-2 sm:p-3 md:p-4 rounded-xl border border-blue-200 shadow-sm">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3">
                 <div className="text-lg sm:text-xl font-bold text-blue-800 order-2 sm:order-1">
                   Total: ₹{totalInvoicePrice.toFixed(2)}
@@ -1302,7 +1302,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-start justify-center p-4 pt-8 z-50 overflow-y-auto">
           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 relative my-4">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-t-xl">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-600 text-white p-4 rounded-t-xl">
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-lg font-bold">

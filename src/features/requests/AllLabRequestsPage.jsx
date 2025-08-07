@@ -9,8 +9,6 @@ import RequestDetailsModal from './RequestDetailsModal';
 import FulfillRequestDialog from './FulfillRequestDialog';
 import UnifiedAllocateDialog from './UnifiedAllocateDialog';
 import { useNavigate } from 'react-router-dom';
-import { useResponsiveColors, getSafeBackground, getSafeBackdrop } from '../../utils/colorUtils';
-import SafeButton from '../../components/SafeButton';
 
 // SVG Icons
 const RequestIcon = () => (
@@ -33,21 +31,21 @@ const CalendarIcon = () => (
 
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center p-8">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0B3861]"></div>
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-800"></div>
   </div>
 );
 
 // Constants for theming
 const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
+  background: 'bg-gradient-to-br from-blue-50 to-blue-100',
   card: 'bg-white',
-  border: 'border-[#BCE0FD]',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  border: 'border-blue-200',
+  primaryText: 'text-blue-800',
+  secondaryText: 'text-blue-600',
+  primaryBg: 'bg-blue-800',
+  secondaryBg: 'bg-blue-600',
+  hoverBg: 'hover:bg-blue-700',
+  inputFocus: 'focus:ring-blue-800 focus:border-blue-800'
 };
 
 const statusCategories = [
@@ -55,13 +53,10 @@ const statusCategories = [
   { status: 'pending', label: 'Pending', color: 'bg-amber-100 text-amber-800' },
   { status: 'rejected', label: 'Rejected', color: 'bg-red-100 text-red-800' },
   { status: 'fulfilled', label: 'Fulfilled', color: 'bg-blue-100 text-blue-800' },
-  { status: 'partially_fulfilled', label: 'Partially Fulfilled', color: 'bg-purple-100 text-purple-800' }
+  { status: 'partially_fulfilled', label: 'Partially Fulfilled', color: 'bg-blue-100 text-blue-800' }
 ];
 
-const labList = ['LAB01', 'LAB02', 'LAB03', 'LAB04', 'LAB05', 'LAB06', 'LAB07', 'LAB08'];
-
 const AllLabRequestsPage = () => {
-  const colors = useResponsiveColors();
   const [allRequests, setAllRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -71,6 +66,10 @@ const AllLabRequestsPage = () => {
   const [showUnifiedDialog, setShowUnifiedDialog] = useState(false);
   const [availableChemicals, setAvailableChemicals] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Dynamic labs state
+  const [labList, setLabList] = useState([]);
+  const [labsLoading, setLabsLoading] = useState(true);
   const [userRole, setUserRole] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -90,7 +89,28 @@ const AllLabRequestsPage = () => {
     }
   }, [token]);
 
-  const fetchAllLabRequests = async () => {
+  const fetchLabs = async () => {
+    try {
+      setLabsLoading(true);
+      const response = await axios.get('https://backend-pharmacy-5541.onrender.com/api/labs?includeInactive=false', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const labs = response.data?.data || [];
+      const labIds = labs.map(lab => lab.labId);
+      setLabList(labIds);
+      return labIds;
+    } catch (error) {
+      console.error('Error fetching labs:', error);
+      // Fallback to central-store if API fails
+      const fallbackLabIds = ['central-store'];
+      setLabList(fallbackLabIds);
+      return fallbackLabIds;
+    } finally {
+      setLabsLoading(false);
+    }
+  };
+
+  const fetchAllLabRequests = async (currentLabList = null) => {
     setLoading(true);
     try {
       setError(null);
@@ -100,8 +120,11 @@ const AllLabRequestsPage = () => {
         return;
       }
 
+      // Use provided lab list or fetch labs first
+      const labIds = currentLabList || await fetchLabs();
+
       // Fetch requests for all labs
-      const requestPromises = labList.map(async (labId) => {
+      const requestPromises = labIds.map(async (labId) => {
         try {
           const response = await axios.get(
             `https://backend-pharmacy-5541.onrender.com/api/requests/lab/${labId}`,
@@ -425,14 +448,8 @@ const AllLabRequestsPage = () => {
 
   if (loading) {
     return (
-      <div 
-        className="w-full min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: getSafeBackground('light', '#eff6ff') }}
-      >
-        <div 
-          className="rounded-2xl p-8 border border-blue-100/50"
-          style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.9)') }}
-        >
+      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-blue-50/50 flex items-center justify-center">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border border-blue-100/50">
           <div className="flex flex-col items-center gap-4">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
             <p className="text-blue-700 font-medium">Loading all lab requests...</p>
@@ -444,14 +461,8 @@ const AllLabRequestsPage = () => {
 
   if (error) {
     return (
-      <div 
-        className="w-full min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: getSafeBackground('light', '#eff6ff') }}
-      >
-        <div 
-          className="rounded-2xl p-8 border border-red-200/50 max-w-md"
-          style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.9)') }}
-        >
+      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-blue-50/50 flex items-center justify-center">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border border-red-200/50 max-w-md">
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
               <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -460,13 +471,12 @@ const AllLabRequestsPage = () => {
             </div>
             <h3 className="text-lg font-medium text-red-700 mb-2">Error Loading Requests</h3>
             <p className="text-red-600 mb-4">{error}</p>
-            <SafeButton
-              onClick={() => fetchAllLabRequests()}
-              variant="danger"
-              className="transform hover:scale-105"
+            <button 
+              onClick={() => fetchAllLabRequests()} 
+              className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               Retry Loading
-            </SafeButton>
+            </button>
           </div>
         </div>
       </div>
@@ -474,23 +484,11 @@ const AllLabRequestsPage = () => {
   }
 
   return (
-    <div 
-      className="w-full min-h-screen"
-      style={{ backgroundColor: getSafeBackground('light', '#eff6ff') }}
-    >
+    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-blue-50/50">
       {/* Full Width Header with Rounded Top Borders and Water Bubbles */}
-      <div 
-        className="w-full border-b border-white/30 relative overflow-hidden rounded-t-3xl"
-        style={{ backgroundColor: getSafeBackground('header', '#1d4ed8') }}
-      >
-        <div 
-          className="absolute inset-0"
-          style={{ ...getSafeBackdrop('4px', 'rgba(255, 255, 255, 0.1)') }}
-        ></div>
-        <div 
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, transparent, transparent, rgba(0,0,0,0.05))' }}
-        ></div>
+      <div className="w-full bg-gradient-to-r from-blue-800/95 via-blue-900/95 to-blue-800/95 backdrop-blur-xl border-b border-white/30 relative overflow-hidden rounded-t-3xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-white/10 backdrop-blur-sm"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"></div>
         
         {/* Water Bubble Background Effects */}
         <div className="water-bubbles">
@@ -603,7 +601,7 @@ const AllLabRequestsPage = () => {
         ) : (
           <div className="w-full">
             {/* Instructions for Status Filtering */}
-            <div className="mb-4 bg-gradient-to-r from-blue-50/80 to-cyan-50/80 backdrop-blur-sm rounded-xl p-3 border border-blue-100/50">
+            <div className="mb-4 bg-gradient-to-r from-blue-50/80 to-blue-50/80 backdrop-blur-sm rounded-xl p-3 border border-blue-100/50">
               <div className="flex items-center gap-2 text-sm text-blue-700">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

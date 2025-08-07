@@ -16,7 +16,7 @@ const CourseInfoBadge = ({ request, className = '' }) => {
     <div className={`flex flex-wrap gap-2 ${className}`}>
       {/* Course Badge */}
       {course && (
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 rounded-lg">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-blue-50 border border-blue-200/60 rounded-lg">
           <BookOpen className="w-3.5 h-3.5 text-blue-600" />
           <div className="flex flex-col">
             <span className="text-xs font-semibold text-blue-800">
@@ -50,9 +50,9 @@ const CourseInfoBadge = ({ request, className = '' }) => {
 
       {/* Academic Year Badge */}
       {batch?.academicYear && (
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-200/60 rounded-lg">
-          <Calendar className="w-3.5 h-3.5 text-purple-600" />
-          <span className="text-xs font-semibold text-purple-800">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-blue-50 border border-blue-200/60 rounded-lg">
+          <Calendar className="w-3.5 h-3.5 text-blue-600" />
+          <span className="text-xs font-semibold text-blue-800">
             AY {batch.academicYear}
           </span>
         </div>

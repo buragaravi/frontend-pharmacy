@@ -37,7 +37,7 @@ const CourseSelector = ({
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      let url = 'https://backend-pharmacy-5541.onrender.com/api/courses/active';
+       let url = 'https://backend-pharmacy-5541.onrender.com/api/courses/active';
       
       if (academicYear) {
         url += `?academicYear=${academicYear}`;

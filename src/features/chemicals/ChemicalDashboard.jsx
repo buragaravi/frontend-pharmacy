@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import AddChemicalForm from './AddChemicalForm';
 import AllocateChemicalForm from './AllocateChemicalForm';
 import CentralChemicalTable from './CentralChemicalTable';
 import LabChemicalTable from './LabChemicalTable';
 import ExpiredChemicalManager from './ExpiredChemicalManager';
 
-const ChemicalDashboard = () => {
+const ChemicalDashboard = ({ labId: propLabId }) => {
   const [userRole, setUserRole] = useState('');
   const [userId, setUserId] = useState('');
-  const [labId, setLabId] = useState('');
+  const [labId, setLabId] = useState(propLabId || '');
   const [view, setView] = useState('central');
   const [isLoading, setIsLoading] = useState(true);
   const [expandedLab, setExpandedLab] = useState(null);
@@ -20,11 +19,15 @@ const ChemicalDashboard = () => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        const { role, id, labId } = decoded.user;
+        const { role, id, labId: tokenLabId } = decoded.user;
 
         setUserRole(role);
         setUserId(id);
-        setLabId(labId);
+        
+        // Only set labId from token if not provided as prop
+        if (!propLabId && tokenLabId) {
+          setLabId(tokenLabId);
+        }
 
         // Set initial view for lab assistant
         if (role === 'lab_assistant') {
@@ -36,7 +39,7 @@ const ChemicalDashboard = () => {
         setIsLoading(false);
       }
     }
-  }, []);
+  }, [propLabId]);
 
   const renderTabs = () => {
     if (userRole === 'admin' || userRole === 'central_store_admin') {
@@ -51,6 +54,16 @@ const ChemicalDashboard = () => {
             }`}
           >
             Central Chemicals
+          </button>
+          <button
+            onClick={() => setView('add')}
+            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium transition-colors duration-200 text-sm sm:text-base ${
+              view === 'add' 
+                ? 'bg-[#0B3861] text-white' 
+                : 'bg-[#F5F9FD] text-[#0B3861] hover:bg-[#BCE0FD]'
+            }`}
+          >
+            Add Chemicals
           </button>
           <button
             onClick={() => setView('allocate')}
@@ -112,8 +125,6 @@ const ChemicalDashboard = () => {
     switch (view) {
       case 'central':
         return <CentralChemicalTable />;
-      case 'add':
-        return <AddChemicalForm />;
       case 'allocate':
         return <AllocateChemicalForm />;
       case 'expired':

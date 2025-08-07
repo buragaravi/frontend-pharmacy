@@ -5,15 +5,15 @@ import { toast } from 'react-toastify';
 
 // Constants for theming
 const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
+  background: 'bg-gradient-to-br from-blue-50 to-blue-100',
   card: 'bg-white',
-  border: 'border-[#BCE0FD]',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  border: 'border-blue-200',
+  primaryText: 'text-blue-800',
+  secondaryText: 'text-blue-600',
+  primaryBg: 'bg-blue-800',
+  secondaryBg: 'bg-blue-600',
+  hoverBg: 'hover:bg-blue-700',
+  inputFocus: 'focus:ring-blue-800 focus:border-blue-800'
 };
 
 const FulfillRequestDialog = ({ request, onClose, onSuccess }) => {
@@ -254,7 +254,7 @@ const FulfillRequestDialog = ({ request, onClose, onSuccess }) => {
               </button>
               <button
                 onClick={() => setShowPartialFulfillment(false)}
-                className={`px-4 py-2 border ${THEME.border} ${THEME.primaryText} rounded-lg hover:bg-[#F5F9FD]`}
+                className={`px-4 py-2 border ${THEME.border} ${THEME.primaryText} rounded-lg hover:bg-blue-50`}
               >
                 Cancel
               </button>
@@ -276,7 +276,7 @@ const FulfillRequestDialog = ({ request, onClose, onSuccess }) => {
                     ${request.status === 'approved' ? 'bg-green-100 text-green-800' : ''}
                     ${request.status === 'rejected' ? 'bg-red-100 text-red-800' : ''}
                     ${request.status === 'fulfilled' ? 'bg-blue-100 text-blue-800' : ''}
-                    ${request.status === 'partially_fulfilled' ? 'bg-purple-100 text-purple-800' : ''}
+                    ${request.status === 'partially_fulfilled' ? 'bg-blue-100 text-blue-800' : ''}
                     ${request.status === 'completed' ? 'bg-gray-100 text-gray-800' : ''}
                   `}>
                     {request.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
@@ -337,7 +337,7 @@ const FulfillRequestDialog = ({ request, onClose, onSuccess }) => {
               </button>
               <button
                 onClick={onClose}
-                className={`px-4 py-2 border ${THEME.border} ${THEME.primaryText} rounded-lg hover:bg-[#F5F9FD]`}
+                className={`px-4 py-2 border ${THEME.border} ${THEME.primaryText} rounded-lg hover:bg-blue-50`}
               >
                 Cancel
               </button>

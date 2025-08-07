@@ -35,24 +35,24 @@ const MyRequestsIcon = () => (
 
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center p-6">
-    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0B3861]"></div>
+    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-800"></div>
   </div>
 );
 
 // Constants for theming
 const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
-  card: 'bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl',
-  border: 'border-[#BCE0FD]/20',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
+  background: 'bg-gradient-to-br from-blue-50 to-blue-100',
+  card: 'bg-white/95 backdrop-blur-md border border-blue-200/30 shadow-xl',
+  border: 'border-blue-200/20',
+  primaryText: 'text-blue-800',
+  secondaryText: 'text-blue-600',
   mutedText: 'text-gray-600',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
+  primaryBg: 'bg-blue-800',
+  secondaryBg: 'bg-blue-600',
+  hoverBg: 'hover:bg-blue-700',
   inputBg: 'bg-gray-50/80',
-  inputBorder: 'border-[#BCE0FD]/30',
-  inputFocus: 'focus:ring-2 focus:ring-[#0B3861]/20 focus:border-[#0B3861]',
+  inputBorder: 'border-blue-200/30',
+  inputFocus: 'focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800',
   cardHover: 'hover:bg-gray-50/50 transition-colors duration-200'
 };
 
@@ -61,7 +61,7 @@ const STATUS_COLORS = {
   approved: 'bg-green-100 text-green-800',
   rejected: 'bg-red-100 text-red-800',
   fulfilled: 'bg-blue-100 text-blue-800',
-  partially_fulfilled: 'bg-purple-100 text-purple-800',
+  partially_fulfilled: 'bg-blue-100 text-blue-800',
   completed: 'bg-gray-200 text-gray-800',
 };
 
@@ -162,7 +162,7 @@ const MyRequestsPage = () => {
       {/* Background Elements - Lower z-index */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-4000"></div>
       </div>
 
@@ -172,7 +172,7 @@ const MyRequestsPage = () => {
           <div className={`rounded-3xl shadow-2xl backdrop-blur-xl bg-white/98 border border-white/40 relative z-40`}>
             
             {/* Header Section */}
-            <div className={`bg-gradient-to-r from-blue-50/90 to-indigo-50/90 backdrop-blur-sm border-b border-blue-100/50 relative z-50`}>
+            <div className={`bg-gradient-to-r from-blue-50/90 to-blue-50/90 backdrop-blur-sm border-b border-blue-100/50 relative z-50`}>
               <div className="px-6 py-6">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   
@@ -182,7 +182,7 @@ const MyRequestsPage = () => {
                       <MyRequestsIcon />
                     </div>
                     <div>
-                      <h1 className={`text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent leading-tight`}>
+                      <h1 className={`text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-700 bg-clip-text text-transparent leading-tight`}>
                         My Requests
                       </h1>
                       <p className="text-xs sm:text-sm text-gray-700 font-medium mt-1">Manage and track your submitted requests</p>
@@ -254,7 +254,7 @@ const MyRequestsPage = () => {
                 </div>
               ) : filteredRequests.length === 0 ? (
                 // Empty State
-                <div className={`bg-gradient-to-br from-blue-50/80 to-indigo-50/80 p-12 rounded-2xl border border-blue-100/60 text-center backdrop-blur-md shadow-lg relative z-50 mx-auto max-w-xl`}>
+                <div className={`bg-gradient-to-br from-blue-50/80 to-blue-50/80 p-12 rounded-2xl border border-blue-100/60 text-center backdrop-blur-md shadow-lg relative z-50 mx-auto max-w-xl`}>
                   <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center shadow-md">
                     <div className="w-8 h-8 text-blue-600">
                       <MyRequestsIcon />
@@ -293,9 +293,9 @@ const MyRequestsPage = () => {
                       <div className="text-xl sm:text-2xl font-bold text-green-600">{requests.filter(r => r.status === 'approved').length}</div>
                       <div className="text-xs sm:text-sm text-green-700">Approved</div>
                     </div>
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-xl text-center border border-purple-200/50">
-                      <div className="text-xl sm:text-2xl font-bold text-purple-600">{requests.filter(r => r.status === 'fulfilled').length}</div>
-                      <div className="text-xs sm:text-sm text-purple-700">Fulfilled</div>
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl text-center border border-blue-200/50">
+                      <div className="text-xl sm:text-2xl font-bold text-blue-600">{requests.filter(r => r.status === 'fulfilled').length}</div>
+                      <div className="text-xs sm:text-sm text-blue-700">Fulfilled</div>
                     </div>
                   </div>
 

@@ -18,11 +18,14 @@ import InvoicePage from '../invoice/InvoicePage';
 import VendorList from '../vendor/VendorList';
 import { AllocateEquipmentToLabByScanForm } from '../equipment';
 import LabRequestListPage from '../requests/LabRequestListPage';
+import RequirementsPage from '../requirements/RequirementsPage';
 import AllLabRequestsPage from '../requests/AllLabRequestsPage';
 import EquipmentStockList from  '../equipment/EquipmentStockList';
 import RequestCard from '../requests/RequestCard';
 import UnifiedAllocateDialog from '../requests/UnifiedAllocateDialog';
 import CourseList from '../courses/CourseList';
+import SubjectManagement from '../admin/SubjectManagement';
+import LabManagement from '../labs/LabManagement';
 
 // SVG Icons - Converted to Component Functions for consistency with CentralLabAdminDashboard
 const ChemicalIcon = () => (
@@ -104,7 +107,19 @@ const UserIcon = () => (
   </svg>
 );
 
+const LabManagementIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+  </svg>
+);
+
 const CourseIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+  </svg>
+);
+
+const SubjectIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
   </svg>
@@ -135,6 +150,12 @@ const ReportsAnalyticsIcon = () => (
   </svg>
 );
 
+const RequirementsIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+  </svg>
+);
+
 const AdministrationIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -148,6 +169,7 @@ const NAV_CATEGORIES = {
     icon: LabOperationsIcon,
     items: [
       { key: 'all_lab_requests', label: 'All Lab Requests', icon: LabRequestIcon, component: <AllLabRequestsPage /> },
+      { key: 'requirements', label: 'Requirements', icon: RequirementsIcon, component: <RequirementsPage /> },
       { key: 'quotations', label: 'Quotations', icon: QuotationIcon, component: <QuotationPage /> },
       { key: 'indents', label: 'Indents', icon: IndentIcon, component: <IndentPage /> }
     ]
@@ -179,6 +201,8 @@ const NAV_CATEGORIES = {
     icon: AdministrationIcon,
     items: [
       { key: 'courses', label: 'Course & Batch Management', icon: CourseIcon, component: <CourseList /> },
+      { key: 'subjects', label: 'Subject Management', icon: SubjectIcon, component: <SubjectManagement /> },
+      { key: 'labs', label: 'Lab Management', icon: LabManagementIcon, component: <LabManagement /> },
       { key: 'invoices', label: 'Invoices', icon: InvoiceIcon, component: <InvoicePage /> },
       { key: 'vendors', label: 'Vendors', icon: VendorIcon, component: <VendorList /> },
       { key: 'users', label: 'User Management', icon: UserIcon, component: <UserManagement /> }
@@ -188,150 +212,6 @@ const NAV_CATEGORIES = {
 
 // Flatten NAV_ITEMS for backward compatibility
 const NAV_ITEMS = Object.values(NAV_CATEGORIES).flatMap(category => category.items);
-
-const labList = ['LAB01', 'LAB02', 'LAB03', 'LAB04', 'LAB05', 'LAB06', 'LAB07', 'LAB08'];
-
-// // Quick Stats Component
-// const QuickStats = ({ productStats, requestStats, pendingRequests }) => {
-//   const { getSafeBackground } = useResponsiveColors();
-  
-//   return (
-//     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-//       <div 
-//         className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-//         style={getSafeBackground('primary', '#3b82f6')}
-//       >
-//         <div className="flex items-center justify-between">
-//           <div>
-//             <div className="text-2xl font-bold">{productStats?.total ?? '—'}</div>
-//             <div className="text-blue-100 text-sm">Total Products</div>
-//           </div>
-//           <div className="text-3xl">📦</div>
-//         </div>
-//       </div>
-//       <div 
-//         className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-//         style={getSafeBackground('success', '#10b981')}
-//       >
-//         <div className="flex items-center justify-between">
-//           <div>
-//             <div className="text-2xl font-bold">{productStats?.chemical ?? '—'}</div>
-//             <div className="text-green-100 text-sm">Chemicals</div>
-//           </div>
-//           <div className="text-3xl">🧪</div>
-//         </div>
-//       </div>
-//       <div 
-//         className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-//         style={getSafeBackground('secondary', '#8b5cf6')}
-//       >
-//         <div className="flex items-center justify-between">
-//           <div>
-//             <div className="text-2xl font-bold">{productStats?.equipment ?? '—'}</div>
-//             <div className="text-purple-100 text-sm">Equipment</div>
-//           </div>
-//           <div className="text-3xl">🔧</div>
-//         </div>
-//       </div>
-//       <div 
-//         className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-//         style={getSafeBackground('warning', '#f59e0b')}
-//       >
-//         <div className="flex items-center justify-between">
-//           <div>
-//             <div className="text-2xl font-bold">{productStats?.glassware ?? '—'}</div>
-//             <div className="text-orange-100 text-sm">Glassware</div>
-//           </div>
-//           <div className="text-3xl">🥛</div>
-//         </div>
-//       </div>
-//     </div>
-//     <div 
-//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-//       style={getSafeBackground('warning', '#eab308')}
-//     >
-//       <div className="flex items-center justify-between">
-//         <div>
-//           <div className="text-2xl font-bold">{productStats?.others ?? '—'}</div>
-//           <div className="text-yellow-100 text-sm">Other Products</div>
-//         </div>
-//         <div className="text-3xl">📦</div>
-//       </div>
-//     </div>
-//     <div 
-//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-//       style={getSafeBackground('info', '#06b6d4')}
-//     >
-//       <div className="flex items-center justify-between">
-//         <div>
-//           <div className="text-2xl font-bold">{requestStats?.active ?? '—'}</div>
-//           <div className="text-cyan-100 text-sm">Active Requests</div>
-//         </div>
-//         <div className="text-3xl">📋</div>
-//       </div>
-//     </div>
-//     <div 
-//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-//       style={getSafeBackground('neutral', '#6b7280')}
-//     >
-//       <div className="flex items-center justify-between">
-//         <div>
-//           <div className="text-2xl font-bold">{requestStats?.pending ?? '—'}</div>
-//           <div className="text-gray-100 text-sm">Pending</div>
-//         </div>
-//         <div className="text-3xl">⏳</div>
-//       </div>
-//     </div>
-//     <div 
-//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-//       style={getSafeBackground('accent', '#ec4899')}
-//     >
-//       <div className="flex items-center justify-between">
-//         <div>
-//           <div className="text-2xl font-bold">{requestStats?.partially_fulfilled ?? '—'}</div>
-//           <div className="text-pink-100 text-sm">Partially Fulfilled</div>
-//         </div>
-//         <div className="text-3xl">🟠</div>
-//       </div>
-//     </div>
-//     <div 
-//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-//       style={getSafeBackground('success', '#059669')}
-//     >
-//       <div className="flex items-center justify-between">
-//         <div>
-//           <div className="text-2xl font-bold">{requestStats?.fulfilled ?? '—'}</div>
-//           <div className="text-green-100 text-sm">Fulfilled</div>
-//         </div>
-//         <div className="text-3xl">✅</div>
-//       </div>
-//     </div>
-//     <div 
-//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-//       style={getSafeBackground('danger', '#dc2626')}
-//     >
-//       <div className="flex items-center justify-between">
-//         <div>
-//           <div className="text-2xl font-bold">{requestStats?.rejected ?? '—'}</div>
-//           <div className="text-red-100 text-sm">Rejected</div>
-//         </div>
-//         <div className="text-3xl">❌</div>
-//       </div>
-//     </div>
-//     <div 
-//       className="text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-//       style={getSafeBackground('primary', '#1e40af')}
-//     >
-//       <div className="flex items-center justify-between">
-//         <div>
-//           <div className="text-2xl font-bold">{pendingRequests?.length ?? '—'}</div>
-//           <div className="text-blue-100 text-sm">Pending/Partial Requests</div>
-//         </div>
-//         <div className="text-3xl">🔄</div>
-//       </div>
-//     </div>
-//   );
-// };
 
 // Recent Activity Component
 const RecentActivity = ({ requests }) => (
@@ -462,6 +342,9 @@ const AdminDashboard = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showFulfillDialog, setShowFulfillDialog] = useState(false);
   const [userRole, setUserRole] = useState('');
+  
+  // Dynamic lab list will be fetched from API
+  const [labList, setLabList] = useState([]);
 
   const token = localStorage.getItem('token');
 
@@ -537,6 +420,25 @@ const AdminDashboard = () => {
       return;
     }
 
+    // Fetch dynamic labs first
+    const fetchLabs = async () => {
+      try {
+        const response = await axios.get('https://backend-pharmacy-5541.onrender.com/api/labs?includeInactive=false', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const labs = response.data?.data || [];
+        const activeLabIds = labs.map(lab => lab.labId);
+        setLabList(activeLabIds);
+        return activeLabIds;
+      } catch (error) {
+        console.error('Error fetching labs:', error);
+        // Fallback to just central-store if API fails
+        const fallbackLabs = ['central-store'];
+        setLabList(fallbackLabs);
+        return fallbackLabs;
+      }
+    };
+
     // Fetch central chemicals
     const fetchCentralChemicals = async () => {
       try {
@@ -568,11 +470,11 @@ const AdminDashboard = () => {
       }
     };
 
-    // Fetch all lab requests (improved, parallel)
-    const fetchAllLabRequests = async () => {
+    // Fetch all lab requests (improved, parallel) - now uses dynamic lab list
+    const fetchAllLabRequests = async (currentLabList) => {
       try {
         const allRequests = [];
-        const requests = labList.map(labId =>
+        const requests = currentLabList.map(labId =>
           axios.get(`https://backend-pharmacy-5541.onrender.com/api/requests/lab/${labId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }).then(res => {
@@ -592,8 +494,16 @@ const AdminDashboard = () => {
       }
     };
 
-    fetchCentralChemicals();
-    fetchAllLabRequests();
+    // Initialize data fetching with proper sequencing
+    const initializeData = async () => {
+      const currentLabList = await fetchLabs();
+      await Promise.all([
+        fetchCentralChemicals(),
+        fetchAllLabRequests(currentLabList)
+      ]);
+    };
+
+    initializeData();
   }, [navigate]);
 
   const handleLogout = () => {
@@ -719,9 +629,9 @@ const AdminDashboard = () => {
         {/* Enhanced Header Section */}
         <div 
           className="relative overflow-hidden"
-          style={getSafeBackground('header', '#1d4ed8')}
+          style={getSafeBackground('header', '#1e3a8a')}
         >
-          <div className="absolute inset-0 bg-blue-800/20"></div>
+          <div className="absolute inset-0 bg-blue-900/20"></div>
           <div className="relative z-10 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
             <div className="flex items-center gap-4">
               <div 

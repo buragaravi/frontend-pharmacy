@@ -1,55 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-
-const SUBJECTS = [
-  // 🧪 B.Pharmacy Lab Subjects
-  "Human Anatomy and Physiology Lab",
-  "Pharmaceutical Analysis Lab",
-  "Pharmaceutics Lab",
-  "Pharmaceutical Inorganic Chemistry Lab",
-  "Pharmaceutical Organic Chemistry Lab",
-  "Physical Pharmaceutics Lab",
-  "Pharmaceutical Microbiology Lab",
-  "Pharmacology Lab",
-  "Pharmacognosy and Phytochemistry Lab",
-  "Biochemistry Lab",
-  "Computer Applications in Pharmacy Lab",
-  "Industrial Pharmacy Lab",
-  "Instrumental Methods of Analysis Lab",
-  "Pharmaceutical Biotechnology Lab",
-  "Novel Drug Delivery Systems Lab",
-  "Pharmacy Practice Lab",
-  
-  // 🧬 M.Pharmacy Lab Subjects (based on specialization)
-  "Modern Pharmaceutical Analytical Techniques Lab",
-  "Advanced Drug Delivery Systems Lab",
-  "Advanced Biopharmaceutics Lab",
-  "Industrial Pharmacy Lab - Advanced",
-  "Pharmacological Screening Methods Lab",
-  "Cellular and Molecular Pharmacology Lab",
-  "Advanced Pharmaceutical Chemistry Lab",
-  "Natural Product Lab Techniques",
-  "Clinical Pharmacy Lab",
-  "Herbal Drug Standardization Lab",
-  "Pharmaceutical Validation Techniques Lab",
-
-  // 💊 Pharm.D Lab Subjects
-  "Clinical Pharmacy Lab",
-  "Pharmaceutical Formulations Lab",
-  "Hospital Pharmacy Lab",
-  "Biopharmaceutics and Pharmacokinetics Lab",
-  "Pharmacotherapeutics Case Study Lab",
-  "Clinical Toxicology Simulations",
-  "Clinical Research and Trial Documentation Lab",
-  "Pharmacoepidemiology & Pharmacoeconomics Lab",
-  "Drug Information & Patient Counseling Lab",
-  "Adverse Drug Reaction Reporting & Monitoring Lab"
-];
-
-const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8,9,10];
+import EnhancedCourseSelector from './EnhancedCourseSelector';
+import SubjectSelector from './SubjectSelector';
 
 const token = localStorage.getItem('token');
+
 // Create axios instance with default config
 const api = axios.create({
   baseURL: 'https://backend-pharmacy-5541.onrender.com/api',
@@ -89,14 +45,14 @@ api.interceptors.response.use(
 const ExperimentForm = ({ experiment, onClose }) => {
   const queryClient = useQueryClient();
   const chemicalDropdownRef = useRef(null);
+  
   const [formData, setFormData] = useState({
     name: '',
-    semester: '',
-    subject: '',
-    customSubject: '',
+    subjectId: '',
     description: '',
   });
-  const [isCustomSubject, setIsCustomSubject] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedSubject, setSelectedSubject] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -139,15 +95,21 @@ const ExperimentForm = ({ experiment, onClose }) => {
 
   useEffect(() => {
     if (experiment) {
-      const isCustom = !SUBJECTS.includes(experiment.subject);
       setFormData({
         name: experiment.name,
-        semester: experiment.semester,
-        subject: isCustom ? 'custom' : experiment.subject,
-        customSubject: isCustom ? experiment.subject : '',
+        subjectId: experiment.subjectId?._id || experiment.subjectId || '',
         description: experiment.description || '',
       });
-      setIsCustomSubject(isCustom);
+      
+      // Set selected course and subject for the selectors
+      if (experiment.subjectId) {
+        if (typeof experiment.subjectId === 'object') {
+          setSelectedSubject(experiment.subjectId);
+          if (experiment.subjectId.courseId) {
+            setSelectedCourse(experiment.subjectId.courseId);
+          }
+        }
+      }
       
       // Set default chemicals if editing
       if (experiment.defaultChemicals) {
@@ -161,24 +123,25 @@ const ExperimentForm = ({ experiment, onClose }) => {
     if (!formData.name.trim()) {
       errors.name = 'Experiment name is required';
     }
-    if (!formData.subject) {
-      errors.subject = 'Subject is required';
+    if (!formData.subjectId || formData.subjectId.trim() === '') {
+      errors.subjectId = 'Subject is required';
     }
-    if (isCustomSubject && !formData.customSubject.trim()) {
-      errors.customSubject = 'Custom subject is required';
-    }
-    if (!formData.semester) {
-      errors.semester = 'Semester is required';
+    if (!selectedSubject) {
+      errors.subjectId = 'Please select a subject';
     }
     if (defaultChemicals.length === 0) {
       errors.defaultChemicals = 'At least one default chemical is required';
     }
+    console.log('Validation errors:', errors);
+    console.log('Current formData:', formData);
+    console.log('Selected subject:', selectedSubject);
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
+      console.log('Making API call with data:', data);
       const token = localStorage.getItem('token');
       const response = await api.post('https://backend-pharmacy-5541.onrender.com/api/experiments', data, {
         headers: {
@@ -187,7 +150,8 @@ const ExperimentForm = ({ experiment, onClose }) => {
       });
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Success response:', data);
       queryClient.invalidateQueries({ queryKey: ['experiments'] });
       setSnackbar({
         open: true,
@@ -197,6 +161,9 @@ const ExperimentForm = ({ experiment, onClose }) => {
       setTimeout(() => onClose(), 1500);
     },
     onError: (error) => {
+      console.error('Error response:', error);
+      console.error('Error response data:', error.response?.data);
+      console.error('Error response status:', error.response?.status);
       setSnackbar({
         open: true,
         message: error.response?.data?.message || 'Failed to create experiment',
@@ -208,7 +175,7 @@ const ExperimentForm = ({ experiment, onClose }) => {
   const updateMutation = useMutation({
     mutationFn: async (data) => {
       const token = localStorage.getItem('token');
-      const response = await api.put(`https://backend-pharmacy-5541.onrender.com/api/experiments/${experiment._id}`, data, {
+      const response = await api.put(`/experiments/${experiment._id}`, data, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -248,35 +215,52 @@ const ExperimentForm = ({ experiment, onClose }) => {
     }
   };
 
-  const handleSubjectChange = (e) => {
-    const value = e.target.value;
-    if (value === 'custom') {
-      setIsCustomSubject(true);
-      setFormData(prev => ({ ...prev, subject: 'custom' }));
-    } else {
-      setIsCustomSubject(false);
-      setFormData(prev => ({ ...prev, subject: value, customSubject: '' }));
+  const handleCourseSelect = (course) => {
+    setSelectedCourse(course);
+    setSelectedSubject(null);
+    setFormData((prev) => ({ ...prev, subjectId: '' }));
+  };
+
+  const handleSubjectSelect = (subject) => {
+    console.log('Subject selected:', subject);
+    setSelectedSubject(subject);
+    setFormData((prev) => ({ ...prev, subjectId: subject?._id || '' }));
+    // Clear validation error
+    if (validationErrors.subjectId) {
+      setValidationErrors((prev) => ({ ...prev, subjectId: '' }));
     }
-    // Clear validation errors
-    setValidationErrors((prev) => ({
-      ...prev,
-      subject: '',
-      customSubject: '',
-    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    console.log('=== FORM SUBMISSION DEBUG ===');
+    console.log('Form data:', formData);
+    console.log('Selected subject:', selectedSubject);
+    console.log('Selected course:', selectedCourse);
+    console.log('Default chemicals:', defaultChemicals);
+    
     if (!validateForm()) {
+      console.log('Validation failed');
+      return;
+    }
+
+    // Double-check that we have a valid subjectId
+    if (!formData.subjectId || !selectedSubject) {
+      console.error('Missing subjectId or selectedSubject');
+      setValidationErrors(prev => ({
+        ...prev,
+        subjectId: 'Please select a subject'
+      }));
       return;
     }
 
     const data = {
       ...formData,
-      subject: isCustomSubject ? formData.customSubject : formData.subject,
       defaultChemicals: defaultChemicals,
     };
-    delete data.customSubject;
+
+    console.log('Submitting experiment data:', data);
 
     if (experiment) {
       updateMutation.mutate(data);
@@ -290,6 +274,50 @@ const ExperimentForm = ({ experiment, onClose }) => {
   };
 
   const isLoading = createMutation.isLoading || updateMutation.isLoading;
+
+  // Chemical management functions
+  const filteredChemicals = availableChemicals.filter(chemical =>
+    chemical.chemicalName.toLowerCase().includes(chemicalSearchTerm.toLowerCase())
+  );
+
+  const addChemical = () => {
+    if (!selectedChemical || !chemicalQuantity) {
+      return;
+    }
+    
+    const chemical = availableChemicals.find(c => c._id === selectedChemical);
+    if (!chemical) return;
+
+    const newChemical = {
+      chemicalId: chemical._id,
+      chemicalName: chemical.chemicalName,
+      quantity: parseFloat(chemicalQuantity),
+      unit: chemical.unit || 'ml'
+    };
+
+    setDefaultChemicals(prev => [...prev, newChemical]);
+    setSelectedChemical('');
+    setChemicalQuantity('');
+    setChemicalSearchTerm('');
+    setShowChemicalDropdown(false);
+    
+    // Clear validation error
+    if (validationErrors.defaultChemicals) {
+      setValidationErrors(prev => ({ ...prev, defaultChemicals: '' }));
+    }
+  };
+
+  const removeChemical = (index) => {
+    setDefaultChemicals(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updateChemicalQuantity = (index, newQuantity) => {
+    setDefaultChemicals(prev => 
+      prev.map((chemical, i) => 
+        i === index ? { ...chemical, quantity: parseFloat(newQuantity) || 0 } : chemical
+      )
+    );
+  };
 
   return (
     <div className="w-full h-full">
@@ -319,94 +347,53 @@ const ExperimentForm = ({ experiment, onClose }) => {
             )}
           </div>
 
-          {/* Subject and Semester in grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Subject Dropdown */}
+          {/* Course and Subject Selection */}
+          <div className="space-y-4">
+            {/* Course Selector */}
             <div className="w-full">
-              <label htmlFor="subject" className="block text-xs font-medium text-gray-700 mb-1">
-                Subject*
+              <label className="block text-xs font-medium text-gray-700 mb-2">
+                Course*
               </label>
-              <select
-                id="subject"
-                name="subject"
-                value={formData.subject}
-                onChange={handleSubjectChange}
+              <EnhancedCourseSelector
+                selectedCourse={selectedCourse}
+                onCourseSelect={handleCourseSelect}
                 disabled={isLoading}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:outline-none transition-colors text-sm
-                  ${validationErrors.subject 
-                    ? 'border-red-500 focus:ring-red-200' 
-                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'}
-                  ${isLoading ? 'bg-gray-100' : 'bg-white'}`}
-              >
-                <option value="">Select a subject</option>
-                {SUBJECTS.map((subject) => (
-                  <option key={subject} value={subject}>
-                    {subject}
-                  </option>
-                ))}
-                <option value="custom">Other (Custom Subject)</option>
-              </select>
-              {validationErrors.subject && (
-                <p className="mt-1 text-xs text-red-500">{validationErrors.subject}</p>
-              )}
+              />
             </div>
 
-            {/* Semester Dropdown */}
+            {/* Subject Selector */}
             <div className="w-full">
-              <label htmlFor="semester" className="block text-xs font-medium text-gray-700 mb-1">
-                Semester*
+              <label className="block text-xs font-medium text-gray-700 mb-2">
+                Subject*
               </label>
-              <select
-                id="semester"
-                name="semester"
-                value={formData.semester}
-                onChange={handleInputChange}
-                required
-                disabled={isLoading}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:outline-none transition-colors text-sm
-                  ${validationErrors.semester 
-                    ? 'border-red-500 focus:ring-red-200' 
-                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'}
-                  ${isLoading ? 'bg-gray-100' : 'bg-white'}`}
-              >
-                <option value="">Select semester</option>
-                {SEMESTERS.map((sem) => (
-                  <option key={sem} value={sem}>
-                    {sem}
-                  </option>
-                ))}
-              </select>
-              {validationErrors.semester && (
-                <p className="mt-1 text-xs text-red-500">{validationErrors.semester}</p>
+              <SubjectSelector
+                selectedCourse={selectedCourse}
+                selectedSubject={selectedSubject}
+                onSubjectSelect={handleSubjectSelect}
+                disabled={isLoading || !selectedCourse}
+              />
+              {validationErrors.subjectId && (
+                <p className="mt-1 text-xs text-red-500">{validationErrors.subjectId}</p>
               )}
             </div>
           </div>
 
-          {/* Custom Subject Input */}
-          {isCustomSubject && (
-            <div className="w-full">
-              <label htmlFor="customSubject" className="block text-xs font-medium text-gray-700 mb-1">
-                Custom Subject*
-              </label>
-              <input
-                type="text"
-                id="customSubject"
-                name="customSubject"
-                value={formData.customSubject}
-                onChange={handleInputChange}
-                required
-                disabled={isLoading}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:outline-none transition-colors text-sm
-                  ${validationErrors.customSubject 
-                    ? 'border-red-500 focus:ring-red-200' 
-                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'}`}
-                placeholder="Enter custom subject name"
-              />
-              {validationErrors.customSubject && (
-                <p className="mt-1 text-xs text-red-500">{validationErrors.customSubject}</p>
-              )}
-            </div>
-          )}
+          {/* Description */}
+          <div className="w-full">
+            <label htmlFor="description" className="block text-xs font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              disabled={isLoading}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-colors text-sm"
+              placeholder="Enter experiment description (optional)"
+            />
+          </div>
 
           {/* Default Chemicals Section */}
           <div className="w-full">
@@ -425,31 +412,21 @@ const ExperimentForm = ({ experiment, onClose }) => {
                   <div className="flex items-center space-x-2">
                     <input
                       type="number"
-                      min="0.01"
-                      step="0.01"
+                      step="0.1"
+                      min="0"
                       value={chemical.quantity}
-                      onChange={(e) => {
-                        const newChemicals = [...defaultChemicals];
-                        newChemicals[index].quantity = parseFloat(e.target.value) || 0;
-                        setDefaultChemicals(newChemicals);
-                      }}
-                      className="w-20 px-2 py-1 border border-blue-300 rounded-lg text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                      placeholder="Qty"
+                      onChange={(e) => updateChemicalQuantity(index, e.target.value)}
+                      className="w-20 px-2 py-1 border border-blue-300 rounded text-xs text-center"
+                      disabled={isLoading}
                     />
                     <button
                       type="button"
-                      onClick={() => {
-                        const newChemicals = defaultChemicals.filter((_, i) => i !== index);
-                        setDefaultChemicals(newChemicals);
-                        if (validationErrors.defaultChemicals) {
-                          setValidationErrors(prev => ({ ...prev, defaultChemicals: '' }));
-                        }
-                      }}
-                      className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded-lg transition-colors"
+                      onClick={() => removeChemical(index)}
+                      className="text-red-500 hover:text-red-700 p-1"
                       disabled={isLoading}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
                   </div>
@@ -457,189 +434,118 @@ const ExperimentForm = ({ experiment, onClose }) => {
               ))}
             </div>
 
-            {/* Add Chemical Form */}
-            <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-              <h4 className="text-sm font-medium text-gray-800 mb-3">Add Chemical</h4>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-                <div className="relative lg:col-span-1" ref={chemicalDropdownRef}>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Chemical</label>
+            {/* Add Chemical Section */}
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Add Chemical</h4>
+              <div className="space-y-3">
+                {/* Chemical Search */}
+                <div className="relative" ref={chemicalDropdownRef}>
                   <input
                     type="text"
+                    placeholder="Search for chemicals..."
                     value={chemicalSearchTerm}
                     onChange={(e) => {
                       setChemicalSearchTerm(e.target.value);
                       setShowChemicalDropdown(true);
                     }}
                     onFocus={() => setShowChemicalDropdown(true)}
-                    placeholder="Search chemicals..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-colors"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm"
                     disabled={isLoading}
                   />
                   
                   {/* Chemical Dropdown */}
-                  {showChemicalDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                      {availableChemicals
-                        .filter(chemical => 
-                          chemical.chemicalName.toLowerCase().includes(chemicalSearchTerm.toLowerCase()) ||
-                          chemical.brand.toLowerCase().includes(chemicalSearchTerm.toLowerCase())
-                        )
-                        .map((chemical) => (
-                          <button
-                            key={chemical._id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedChemical(chemical._id);
-                              setChemicalSearchTerm(`${chemical.chemicalName} - ${chemical.brand}`);
-                              setShowChemicalDropdown(false);
-                            }}
-                            className="w-full px-3 py-2 text-left hover:bg-blue-50 focus:bg-blue-50 focus:outline-none text-xs border-b border-gray-100 last:border-b-0 transition-colors"
-                          >
-                            <div>
-                              <span className="font-medium text-gray-900">{chemical.chemicalName}</span>
-                              <span className="text-gray-600 ml-1">- {chemical.brand}</span>
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              Available: {chemical.availableQuantity} {chemical.unit}
-                            </div>
-                          </button>
-                        ))}
-                      {availableChemicals.filter(chemical => 
-                        chemical.chemicalName.toLowerCase().includes(chemicalSearchTerm.toLowerCase()) ||
-                        chemical.brand.toLowerCase().includes(chemicalSearchTerm.toLowerCase())
-                      ).length === 0 && (
-                        <div className="px-3 py-2 text-xs text-gray-500">
-                          No chemicals found
-                        </div>
-                      )}
+                  {showChemicalDropdown && filteredChemicals.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                      {filteredChemicals.slice(0, 10).map((chemical) => (
+                        <button
+                          key={chemical._id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedChemical(chemical._id);
+                            setChemicalSearchTerm(chemical.chemicalName);
+                            setShowChemicalDropdown(false);
+                          }}
+                          className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm border-b border-gray-100 last:border-b-0"
+                          disabled={isLoading}
+                        >
+                          <div className="font-medium text-gray-900">{chemical.chemicalName}</div>
+                          <div className="text-xs text-gray-500">Unit: {chemical.unit || 'ml'}</div>
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
-                
-                <div className="lg:col-span-1">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Quantity</label>
+
+                {/* Quantity Input and Add Button */}
+                <div className="flex space-x-2">
                   <input
                     type="number"
-                    min="0.01"
-                    step="0.01"
+                    step="0.1"
+                    min="0"
+                    placeholder="Quantity"
                     value={chemicalQuantity}
                     onChange={(e) => setChemicalQuantity(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-colors"
-                    placeholder="0.00"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm"
                     disabled={isLoading}
                   />
-                </div>
-                
-                <div className="lg:col-span-1 flex items-end">
                   <button
                     type="button"
-                    onClick={() => {
-                      if (selectedChemical && chemicalQuantity) {
-                        const chemical = availableChemicals.find(c => c._id === selectedChemical);
-                        if (chemical) {
-                          // Check if chemical is already added
-                          const isAlreadyAdded = defaultChemicals.some(dc => dc.chemicalId === selectedChemical);
-                          if (isAlreadyAdded) {
-                            setSnackbar({
-                              open: true,
-                              message: 'Chemical already added to the list',
-                              severity: 'error',
-                            });
-                            return;
-                          }
-                          
-                          const newChemical = {
-                            chemicalId: chemical._id,
-                            chemicalName: chemical.chemicalName,
-                            quantity: parseFloat(chemicalQuantity),
-                            unit: chemical.unit
-                          };
-                          setDefaultChemicals([...defaultChemicals, newChemical]);
-                          setSelectedChemical('');
-                          setChemicalQuantity('');
-                          setChemicalSearchTerm('');
-                          
-                          // Clear validation error
-                          if (validationErrors.defaultChemicals) {
-                            setValidationErrors(prev => ({ ...prev, defaultChemicals: '' }));
-                          }
-                        }
-                      }
-                    }}
+                    onClick={addChemical}
                     disabled={!selectedChemical || !chemicalQuantity || isLoading}
-                    className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium transition-colors"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                   >
-                    Add Chemical
+                    Add
                   </button>
                 </div>
               </div>
             </div>
-            
+
             {validationErrors.defaultChemicals && (
-              <p className="mt-2 text-xs text-red-500">{validationErrors.defaultChemicals}</p>
+              <p className="mt-1 text-xs text-red-500">{validationErrors.defaultChemicals}</p>
             )}
           </div>
+        </div>
 
-          {/* Description */}
-          <div className="w-full">
-            <label htmlFor="description" className="block text-xs font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              rows={3}
-              disabled={isLoading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-colors resize-none text-sm"
-              placeholder="Enter experiment description (optional)"
-            />
-          </div>
-
-          {/* Action Buttons */}
-          <div className="w-full flex justify-end space-x-4 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isLoading}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 font-medium transition-colors"
-            >
-              {isLoading && (
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              )}
-              <span>{experiment ? 'Update' : 'Create'} Experiment</span>
-            </button>
-          </div>
+        {/* Submit Buttons */}
+        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isLoading}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading 
+              ? (experiment ? 'Updating...' : 'Creating...') 
+              : (experiment ? 'Update Experiment' : 'Create Experiment')
+            }
+          </button>
         </div>
       </form>
 
-      {/* Toast Notification */}
+      {/* Success/Error Snackbar */}
       {snackbar.open && (
-        <div className={`fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg transition-all transform 
-          ${snackbar.severity === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`}
-          role="alert"
-        >
-          <div className="flex items-center space-x-2">
-            <span>{snackbar.message}</span>
-            <button
-              onClick={handleCloseSnackbar}
-              className="ml-4 text-white hover:text-gray-200"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+        <div className="fixed bottom-4 right-4 z-50">
+          <div className={`px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium ${
+            snackbar.severity === 'success' ? 'bg-green-500' : 'bg-red-500'
+          }`}>
+            <div className="flex items-center justify-between">
+              <span>{snackbar.message}</span>
+              <button
+                onClick={handleCloseSnackbar}
+                className="ml-3 text-white hover:text-gray-200"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       )}

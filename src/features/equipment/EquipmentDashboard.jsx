@@ -11,9 +11,9 @@ const EquipmentDashboard = () => {
   const [activeTab, setActiveTab] = useState('stock');
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50/90 via-blue-50/80 to-indigo-100/90">
+    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50/90 via-blue-50/80 to-blue-100/90">
       {/* Enhanced Header Section */}
-      <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-6 text-white overflow-hidden">
+      <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-6 text-white overflow-hidden">
         <div className="absolute inset-0 bg-blue-800/20"></div>
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -105,7 +105,7 @@ const EquipmentDashboard = () => {
           {/* Background Effects */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
           </div>
           
           {/* Tab Content */}

@@ -102,7 +102,7 @@ const AllocationDemo = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen">
+    <div className="max-w-6xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-blue-50 min-h-screen">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Date-Based Allocation System Demo</h1>
         <p className="text-gray-600">
@@ -169,7 +169,7 @@ const AllocationDemo = () => {
                     
                     <button
                       onClick={() => openAdminDialog(experiment)}
-                      className="flex items-center gap-1 px-2 py-1 bg-violet-100 hover:bg-violet-200 text-violet-700 rounded-lg transition-all duration-300 text-xs font-medium"
+                      className="flex items-center gap-1 px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-all duration-300 text-xs font-medium"
                       title="Manage Admin Override"
                     >
                       <Shield className="w-3 h-3" />
@@ -190,9 +190,9 @@ const AllocationDemo = () => {
                 </div>
                 
                 {experiment.allocationStatus?.adminOverride?.enabled && (
-                  <div className="mt-2 p-2 bg-violet-50 border border-violet-200 rounded text-xs">
-                    <p className="font-medium text-violet-800">Admin Override Active</p>
-                    <p className="text-violet-700">{experiment.allocationStatus.adminOverride.reason}</p>
+                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+                    <p className="font-medium text-blue-800">Admin Override Active</p>
+                    <p className="text-blue-700">{experiment.allocationStatus.adminOverride.reason}</p>
                   </div>
                 )}
               </div>

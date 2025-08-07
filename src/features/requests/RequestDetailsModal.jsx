@@ -54,7 +54,7 @@ const hasValidAllocationWindow = (request) => {
 // Constants for theming - Browser Compatible Version
 const THEME = {
   // ✅ Compatible backgrounds - using standard Tailwind classes
-  background: 'bg-gradient-to-br from-blue-50 to-indigo-100',
+  background: 'bg-gradient-to-br from-blue-50 to-blue-100',
   card: 'bg-white border border-blue-200 shadow-xl',
   border: 'border-blue-200',
   primaryText: 'text-blue-900',
@@ -69,7 +69,7 @@ const THEME = {
   // ✅ Standard focus/hover effects
   inputFocus: 'focus:ring-2 focus:ring-blue-300 focus:border-blue-400',
   modalOverlay: 'bg-black bg-opacity-50',
-  accent: 'text-purple-600',
+  accent: 'text-blue-600',
   
   // ✅ Compatible status colors
   success: 'bg-gradient-to-r from-green-500 to-green-600',
@@ -434,7 +434,7 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
               </div>
               {exp.chemicals && exp.chemicals.length > 0 && (
                 <div className="mt-4">
-                  <div className="font-bold text-sm text-[#1E3A8A] mb-2 flex items-center">
+                  <div className="font-bold text-sm text-blue-800 mb-2 flex items-center">
                     <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mr-2"></div>
                     Chemicals
                   </div>
@@ -517,7 +517,7 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
               {/* Glassware Table */}
               {exp.glassware && exp.glassware.length > 0 && (
                 <div className="mt-4">
-                  <div className="font-bold text-sm text-[#1E3A8A] mb-2 flex items-center">
+                  <div className="font-bold text-sm text-blue-800 mb-2 flex items-center">
                     <div className="w-2 h-2 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-full mr-2"></div>
                     Glassware
                   </div>
@@ -601,7 +601,7 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
               {exp.equipment && exp.equipment.length > 0 && (
                 <div className="mt-4">
                   <div className="font-bold text-sm text-[#1E3A8A] mb-2 flex items-center">
-                    <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full mr-2"></div>
+                    <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mr-2"></div>
                     Equipment
                   </div>
                   <div className="overflow-x-auto rounded-lg border border-blue-100/60 shadow-md">
@@ -1350,7 +1350,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
             <div className="p-6 sm:p-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-6 border-b border-blue-100/50">
                 <h3 className={`text-xl sm:text-2xl font-bold ${THEME.primaryText} mb-4 sm:mb-0 flex items-center`}>
-                  <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full mr-3"></div>
+                  <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mr-3"></div>
                   Edit Request - All Items
                 </h3>
                 <button
@@ -1396,7 +1396,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
                           <span className={`px-2 py-1 rounded-lg text-xs font-bold ${
                             item.itemType === 'chemicals' ? 'bg-blue-100 text-blue-800' :
                             item.itemType === 'glassware' ? 'bg-cyan-100 text-cyan-800' :
-                            'bg-purple-100 text-purple-800'
+                            'bg-blue-100 text-blue-800'
                           }`}>
                             {item.itemType.slice(0, -1)}
                           </span>
@@ -1508,7 +1508,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
             <div className="p-6 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"></div>
+                <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"></div>
                 Confirm Remaining Items Allocation
               </h3>
             </div>
@@ -1536,7 +1536,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="font-semibold text-purple-600">
+                        <span className="font-semibold text-blue-600">
                           {item.remainingQuantity} {item.unit}
                         </span>
                         <div className="text-xs text-gray-500">remaining</div>
@@ -1564,7 +1564,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
                   handleAllocateRemaining();
                 }}
                 disabled={remainingItemsToAllocate.length === 0}
-                className="flex-1 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="flex-1 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {isAllocatingRemaining ? (
                   <div className="flex items-center justify-center gap-2">

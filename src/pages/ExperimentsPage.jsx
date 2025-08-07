@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import ExperimentForm from '../components/ExperimentForm';
+import EnhancedCourseSelector from '../components/EnhancedCourseSelector';
+import SubjectSelector from '../components/SubjectSelector';
+import Swal from 'sweetalert2';
 
-// Create axios instance with default config
+// Create axios instance with interceptors
 const api = axios.create({
   baseURL: 'https://backend-pharmacy-5541.onrender.com/api',
   headers: {
@@ -101,13 +104,26 @@ const GlobalStyles = () => (
 const ExperimentsPage = () => {
   const [openForm, setOpenForm] = useState(false);
   const [selectedExperiment, setSelectedExperiment] = useState(null);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [expandedChemicals, setExpandedChemicals] = useState(null);
   const queryClient = useQueryClient();
 
+  // Fetch experiments with proper population
   const { data: experiments, isLoading, error } = useQuery({
-    queryKey: ['experiments'],
+    queryKey: ['experiments', selectedCourse?._id, selectedSubject?._id],
     queryFn: async () => {
       const token = localStorage.getItem('token');
-      const response = await api.get('/experiments', {
+      let url = '/experiments';
+      
+      // Use specific endpoints based on filters
+      if (selectedSubject) {
+        url = `/experiments/subject/${selectedSubject._id}`;
+      } else if (selectedCourse) {
+        url = `/experiments/course/${selectedCourse._id}`;
+      }
+      
+      const response = await api.get(url, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -128,7 +144,23 @@ const ExperimentsPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['experiments'] });
+      Swal.fire({
+        icon: 'success',
+        title: 'Deleted!',
+        text: 'Experiment has been deleted successfully.',
+        confirmButtonColor: '#0ea5e9',
+        timer: 2000,
+        timerProgressBar: true
+      });
     },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: error.response?.data?.message || 'Failed to delete experiment',
+        confirmButtonColor: '#0ea5e9'
+      });
+    }
   });
 
   const handleEdit = (experiment) => {
@@ -136,8 +168,20 @@ const ExperimentsPage = () => {
     setOpenForm(true);
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this experiment?')) {
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to delete this experiment? This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
       deleteMutation.mutate(id);
     }
   };
@@ -147,25 +191,58 @@ const ExperimentsPage = () => {
     setSelectedExperiment(null);
   };
 
-  if (isLoading) {
-    return (
-      <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-        <GlobalStyles />
-        <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
-          <div className="flex items-center justify-center min-h-96">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-blue-700 font-medium">Loading experiments...</span>
-            </div>
-          </div>
+  const handleCourseSelect = (course) => {
+    setSelectedCourse(course);
+    setSelectedSubject(null); // Reset subject when course changes
+  };
+
+  const handleSubjectSelect = (subject) => {
+    setSelectedSubject(subject);
+  };
+
+  const clearFilters = () => {
+    setSelectedCourse(null);
+    setSelectedSubject(null);
+  };
+
+  const handleChemicalsExpand = (experimentId) => {
+    setExpandedChemicals(expandedChemicals === experimentId ? null : experimentId);
+  };
+
+  // Skeleton loading component
+  const ExperimentSkeleton = () => (
+    <tr className="animate-pulse">
+      <td className="px-5 py-4">
+        <div className="space-y-2">
+          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
         </div>
-      </div>
-    );
-  }
+      </td>
+      <td className="px-5 py-4">
+        <div className="space-y-2">
+          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+          <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+        </div>
+      </td>
+      <td className="px-5 py-4">
+        <div className="flex flex-wrap gap-1">
+          <div className="h-6 bg-gray-200 rounded-md w-16"></div>
+          <div className="h-6 bg-gray-200 rounded-md w-20"></div>
+          <div className="h-6 bg-gray-200 rounded-md w-14"></div>
+        </div>
+      </td>
+      <td className="px-5 py-4">
+        <div className="flex items-center justify-end space-x-2">
+          <div className="h-8 w-8 bg-gray-200 rounded-md"></div>
+          <div className="h-8 w-8 bg-gray-200 rounded-md"></div>
+        </div>
+      </td>
+    </tr>
+  );
 
   if (error) {
     return (
-      <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+      <div className="w-full bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 min-h-screen">
         <GlobalStyles />
         <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
           <div className="p-8">
@@ -184,26 +261,26 @@ const ExperimentsPage = () => {
   }
 
   return (
-    <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div className="w-full mt-4">
       <GlobalStyles />
       
       {/* Background floating bubbles */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-20 left-10 w-16 h-16 bg-blue-200/20 rounded-full blur-lg bubble-float-1"></div>
-        <div className="absolute top-40 right-20 w-12 h-12 bg-indigo-200/15 rounded-full blur-md bubble-float-2"></div>
-        <div className="absolute top-60 left-1/4 w-20 h-20 bg-cyan-200/10 rounded-full blur-xl bubble-float-3"></div>
-        <div className="absolute top-80 right-1/3 w-14 h-14 bg-purple-200/15 rounded-full blur-lg bubble-float-4"></div>
-        <div className="absolute bottom-40 left-1/3 w-18 h-18 bg-blue-300/10 rounded-full blur-md bubble-float-1"></div>
-        <div className="absolute bottom-60 right-10 w-16 h-16 bg-indigo-300/12 rounded-full blur-lg bubble-float-2"></div>
-        <div className="absolute top-1/2 left-5 w-10 h-10 bg-cyan-300/8 rounded-full blur-sm bubble-float-3"></div>
-        <div className="absolute top-1/3 right-5 w-8 h-8 bg-purple-300/10 rounded-full blur-sm bubble-float-4"></div>
+        <div className="absolute top-20 left-10 w-16 h-16 bg-sky-200/15 rounded-full blur-lg bubble-float-1"></div>
+        <div className="absolute top-40 right-20 w-12 h-12 bg-sky-200/10 rounded-full blur-md bubble-float-2"></div>
+        <div className="absolute top-60 left-1/4 w-20 h-20 bg-sky-200/8 rounded-full blur-xl bubble-float-3"></div>
+        <div className="absolute top-80 right-1/3 w-14 h-14 bg-sky-200/12 rounded-full blur-lg bubble-float-4"></div>
+        <div className="absolute bottom-40 left-1/3 w-18 h-18 bg-sky-300/8 rounded-full blur-md bubble-float-1"></div>
+        <div className="absolute bottom-60 right-10 w-16 h-16 bg-sky-300/10 rounded-full blur-lg bubble-float-2"></div>
+        <div className="absolute top-1/2 left-5 w-10 h-10 bg-sky-300/6 rounded-full blur-sm bubble-float-3"></div>
+        <div className="absolute top-1/3 right-5 w-8 h-8 bg-sky-300/8 rounded-full blur-sm bubble-float-4"></div>
       </div>
       
       <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
         {/* Enhanced Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-sky-200/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-sky-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
         {/* Breadcrumb Navigation */}
@@ -222,39 +299,46 @@ const ExperimentsPage = () => {
           </div>
         </div>
 
-        {/* Enhanced Header Section with Glassmorphic Design */}
-        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-4 sm:p-6 lg:p-8 text-white overflow-hidden rounded-t-3xl shadow-lg">
-          <div className="absolute inset-0 bg-blue-800/20"></div>
+        {/* Enhanced Header Section with Soft Design */}
+        <div className="relative bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 p-6 border-b border-sky-100 overflow-hidden">
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               {/* Title Section */}
               <div className="flex items-center gap-4 flex-1">
-                <div className="p-3 sm:p-4 bg-white/20 rounded-xl sm:rounded-2xl backdrop-blur-sm flex-shrink-0">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-3 bg-sky-100 rounded-xl flex-shrink-0">
+                  <svg className="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">
+                  <h1 className="text-xl font-medium text-slate-800 mb-1 flex items-center gap-2">
                     Experiments Management
+                    {isLoading && (
+                      <div className="w-4 h-4 border-2 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
+                    )}
                   </h1>
-                  <p className="text-blue-100 text-sm sm:text-lg opacity-90">
+                  <p className="text-slate-500 text-sm">
                     Create and manage laboratory experiments with their chemical requirements
                   </p>
                 </div>
               </div>
               
               {/* Add Experiment Button */}
-              <div className="flex items-center">
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={clearFilters}
+                  className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-lg transition-all duration-200 text-sm font-medium"
+                >
+                  Clear Filters
+                </button>
                 <button
                   onClick={() => setOpenForm(true)}
-                  className="group bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold px-6 py-3 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3 backdrop-blur-sm border border-white/20"
+                  className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-sm flex items-center space-x-2"
                 >
-                  <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  <span className="hidden sm:inline">Add Experiment</span>
-                  <span className="sm:hidden">Add</span>
+                  <span>Add Experiment</span>
                 </button>
               </div>
             </div>
@@ -265,105 +349,223 @@ const ExperimentsPage = () => {
             <div className="w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
           </div>
           <div className="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2">
-            <div className="w-32 h-32 bg-indigo-300/20 rounded-full blur-2xl"></div>
+            <div className="w-32 h-32 bg-blue-300/20 rounded-full blur-2xl"></div>
+          </div>
+        </div>
+
+        {/* Filters Section */}
+        <div className="relative z-10 p-6 bg-white/80 backdrop-blur-sm border-b border-sky-100">
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-slate-700 mb-3">Filter Experiments</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Course Filter */}
+              <EnhancedCourseSelector
+                selectedCourse={selectedCourse}
+                onCourseSelect={handleCourseSelect}
+                placeholder="Filter by Course"
+                className="text-sm"
+              />
+
+              {/* Subject Filter */}
+              <SubjectSelector
+                selectedCourse={selectedCourse}
+                selectedSubject={selectedSubject}
+                onSubjectSelect={handleSubjectSelect}
+                placeholder="Filter by Subject"
+                className="text-sm"
+              />
+            </div>
+
+            {/* Filter Summary */}
+            {(selectedCourse || selectedSubject) && (
+              <div className="mt-4 flex items-center space-x-2 text-sm text-slate-600">
+                <span>Active filters:</span>
+                {selectedCourse && (
+                  <span className="px-2 py-1 bg-sky-100 text-sky-700 rounded-md">
+                    Course: {selectedCourse.courseCode}
+                  </span>
+                )}
+                {selectedSubject && (
+                  <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-md">
+                    Subject: {selectedSubject.code}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Main Content Section */}
         <div className="relative z-10 p-4 sm:p-6 lg:p-8">
           {/* Modern Table Container */}
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden glass-card">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-sky-100 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-blue-200/50">
-                <thead className="bg-gradient-to-r from-blue-50/80 to-blue-100/60 backdrop-blur-sm">
+              <table className="min-w-full divide-y divide-sky-100">
+                <thead className="bg-gradient-to-r from-sky-50 to-blue-50">
                   <tr>
-                    <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
-                      Experiment Name
+                    <th className="px-5 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                      Experiment Details
                     </th>
-                    <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
-                      Subject
+                    <th className="px-5 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                      Course & Subject
                     </th>
-                    <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
-                      Semester
-                    </th>
-                    <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
+                    <th className="px-5 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
                       Default Chemicals
                     </th>
-                    <th className="px-4 sm:px-6 py-4 text-right text-xs font-semibold text-blue-800 uppercase tracking-wider">
+                    <th className="px-5 py-3 text-right text-xs font-medium text-slate-600 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white/40 backdrop-blur-sm divide-y divide-blue-100/30">
-                  {experiments?.map((experiment, index) => (
-                    <tr 
-                      key={experiment._id} 
-                      className="hover:bg-blue-50/50 transition-all duration-200 hover-scale"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{experiment.name}</div>
-                      </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-700">{experiment.subject}</div>
-                      </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          Semester {experiment.semester}
-                        </span>
-                      </td>
-                      <td className="px-4 sm:px-6 py-4">
-                        <div className="flex flex-wrap gap-1">
-                          {experiment.defaultChemicals.map((chem, chemIndex) => (
-                            <span
-                              key={chemIndex}
-                              className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gradient-to-r from-green-50 to-green-100 text-green-800 border border-green-200"
-                            >
-                              {chem.chemicalName} ({chem.quantity} {chem.unit})
-                            </span>
-                          ))}
+                <tbody className="bg-white/70 divide-y divide-sky-100">
+                  {isLoading ? (
+                    // Show skeleton loading rows
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <ExperimentSkeleton key={`skeleton-${index}`} />
+                    ))
+                  ) : experiments?.map((experiment, index) => (
+                    <React.Fragment key={experiment._id}>
+                      <tr 
+                        className="hover:bg-sky-25 transition-colors duration-200 group cursor-pointer"
+                        onClick={() => handleChemicalsExpand(experiment._id)}
+                      >
+                      <td className="px-5 py-4">
+                        <div>
+                          <div className="text-sm font-medium text-slate-900 group-hover:text-sky-700 transition-colors">
+                            {experiment.name}
+                          </div>
+                          {experiment.description && (
+                            <div className="text-xs text-slate-500 mt-1">
+                              {experiment.description}
+                            </div>
+                          )}
                         </div>
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end gap-2">
+                      <td className="px-5 py-4">
+                        <div>
+                          {experiment.subjectId ? (
+                            <>
+                              <div className="text-sm text-slate-700">
+                                {experiment.subjectId.courseId?.courseName || 'N/A'}
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                {experiment.subjectId.name} ({experiment.subjectId.code})
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-sm text-slate-700">
+                              {experiment.subject || 'No subject assigned'}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex flex-wrap gap-1">
+                          {experiment.defaultChemicals?.length > 0 ? (
+                            <>
+                              <span
+                                className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              >
+                                {experiment.defaultChemicals[0].chemicalName} ({experiment.defaultChemicals[0].quantity} {experiment.defaultChemicals[0].unit})
+                              </span>
+                              {experiment.defaultChemicals.length > 1 && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
+                                  +{experiment.defaultChemicals.length - 1} more
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span className="text-xs text-slate-400">No chemicals</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           <button
-                            onClick={() => handleEdit(experiment)}
-                            className="group p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(experiment);
+                            }}
+                            className="text-sky-600 hover:text-sky-800 hover:bg-sky-50 p-1.5 rounded-md transition-all duration-200"
                             title="Edit experiment"
                           >
-                            <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                           </button>
                           <button
-                            onClick={() => handleDelete(experiment._id)}
-                            className="group p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-200"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(experiment._id);
+                            }}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-md transition-all duration-200"
                             title="Delete experiment"
                           >
-                            <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                           </button>
                         </div>
                       </td>
                     </tr>
+                    
+                    {/* Expanded Chemicals Row */}
+                    {expandedChemicals === experiment._id && experiment.defaultChemicals?.length > 1 && (
+                      <tr>
+                        <td colSpan="4" className="px-5 py-4 bg-gray-50 border-b border-gray-200">
+                          <div className="bg-white rounded-lg p-4 border shadow-sm">
+                            <h4 className="text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
+                              <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                              </svg>
+                              All Default Chemicals for "{experiment.name}"
+                            </h4>
+                            <div className="overflow-x-auto">
+                              <table className="min-w-full text-sm">
+                                <thead>
+                                  <tr className="border-b border-gray-200 bg-gray-50">
+                                    <th className="text-left py-2 px-3 font-medium text-slate-600">Chemical Name</th>
+                                    <th className="text-left py-2 px-3 font-medium text-slate-600">Quantity</th>
+                                    <th className="text-left py-2 px-3 font-medium text-slate-600">Unit</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {experiment.defaultChemicals.map((chem, chemIndex) => (
+                                    <tr key={chemIndex} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
+                                      <td className="py-2 px-3 text-slate-700 font-medium">{chem.chemicalName}</td>
+                                      <td className="py-2 px-3 text-slate-600">{chem.quantity}</td>
+                                      <td className="py-2 px-3 text-slate-600">{chem.unit}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                   ))}
                 </tbody>
               </table>
             </div>
 
             {/* Empty state */}
-            {experiments?.length === 0 && (
+            {!isLoading && experiments?.length === 0 && (
               <div className="text-center py-12">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M34 16l-8-8-8 8M26 16v12M16 24l4 4 4-4M32 24l4 4 4-4" />
+                <svg className="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No experiments</h3>
-                <p className="mt-1 text-sm text-gray-500">Get started by creating a new experiment.</p>
+                <h3 className="mt-4 text-lg font-medium text-slate-600">No experiments found</h3>
+                <p className="mt-2 text-sm text-slate-500">
+                  {selectedCourse || selectedSubject
+                    ? 'Try adjusting your filters or create a new experiment' 
+                    : 'Create your first experiment to get started'}
+                </p>
                 <div className="mt-6">
                   <button
                     onClick={() => setOpenForm(true)}
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 shadow-md hover:shadow-lg transition-all duration-200"
                   >
                     <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -390,7 +592,7 @@ const ExperimentsPage = () => {
           <div className="flex min-h-full items-center justify-center p-4">
             <div className="relative bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl w-full max-w-4xl border border-white/20 overflow-hidden">
               {/* Modal Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium text-white">
                     {selectedExperiment ? 'Edit Experiment' : 'Add New Experiment'}

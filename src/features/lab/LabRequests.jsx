@@ -137,7 +137,7 @@ const LabRequests = () => {
                         ${request.status === 'approved' ? 'bg-green-100 text-green-800' : ''}
                         ${request.status === 'rejected' ? 'bg-red-100 text-red-800' : ''}
                         ${request.status === 'fulfilled' ? 'bg-blue-100 text-blue-800' : ''}
-                        ${request.status === 'partially_fulfilled' ? 'bg-purple-100 text-purple-800' : ''}
+                        ${request.status === 'partially_fulfilled' ? 'bg-blue-100 text-blue-800' : ''}
                         ${request.status === 'completed' ? 'bg-gray-100 text-gray-800' : ''}
                       `}>
                         {request.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}

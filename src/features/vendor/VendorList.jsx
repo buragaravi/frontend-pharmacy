@@ -447,12 +447,12 @@ const VendorList = () => {
 
   return (
     <>
-      <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+      <div className="w-full bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen">
         <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
           {/* Enhanced Background Effects */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
           </div>
 
           {/* Breadcrumb Navigation - Matching Invoice Page */}
@@ -472,7 +472,7 @@ const VendorList = () => {
           </div>
 
           {/* Enhanced Header Section - Beautiful Gradient at Top */}
-          <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-8 text-white overflow-hidden rounded-t-3xl">
+          <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-8 text-white overflow-hidden rounded-t-3xl">
             <div className="absolute inset-0 bg-blue-800/20"></div>
             <div className="relative z-10">
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
@@ -624,8 +624,8 @@ const VendorList = () => {
           <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-purple-100 rounded-md">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-2 bg-blue-100 rounded-md">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
@@ -646,7 +646,7 @@ const VendorList = () => {
             
             <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                <thead className="bg-gradient-to-r from-blue-50 to-blue-100">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider">Vendor Details</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider">Contact</th>
@@ -661,13 +661,13 @@ const VendorList = () => {
                     filteredVendors.map((vendor, index) => (
                       <tr 
                         key={vendor._id} 
-                        className={`hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
+                        className={`hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 cursor-pointer transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
                         onClick={e => { if (e.target.nodeName !== 'BUTTON' && e.target.nodeName !== 'svg' && e.target.nodeName !== 'path') { setModalVendor(vendor); setModalOpen(true); } }}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
-                              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
+                              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
                                 <span className="text-sm font-medium text-white">
                                   {vendor.name ? vendor.name.charAt(0).toUpperCase() : 'V'}
                                 </span>
@@ -782,7 +782,7 @@ const VendorList = () => {
             }}
           >
             <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden border border-gray-200">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-600 text-white p-6">
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-xl font-bold">{modalVendor.name} - Invoice History</h3>
@@ -802,7 +802,7 @@ const VendorList = () => {
               <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(95vh - 120px)' }}>
                 <div className="overflow-x-auto rounded-lg border border-gray-200">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gradient-to-r from-blue-50 to-indigo-50 sticky top-0">
+                    <thead className="bg-gradient-to-r from-blue-50 to-blue-50 sticky top-0">
                       <tr>
                         <th className="px-4 py-3 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider">Invoice No</th>
                         <th className="px-4 py-3 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider">Date</th>
@@ -817,7 +817,7 @@ const VendorList = () => {
                         return (
                           <tr 
                             key={inv._id} 
-                            className={`hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
+                            className={`hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-50 cursor-pointer transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
                             onClick={e => { if (e.target.nodeName !== 'BUTTON' && e.target.nodeName !== 'svg' && e.target.nodeName !== 'path') { setSelectedInvoice(inv); setModalInvoiceOpen(true); } }}
                           >
                             <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{inv.invoiceNumber}</td>
@@ -858,7 +858,7 @@ const VendorList = () => {
             }}
           >
             <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden border border-gray-200">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-600 text-white p-6">
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-xl font-bold">Invoice Details</h3>
@@ -888,7 +888,7 @@ const VendorList = () => {
               
               <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(95vh - 120px)' }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-50 rounded-xl p-4 border border-blue-200">
                     <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -935,8 +935,8 @@ const VendorList = () => {
                 </div>
                 
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
-                    <h4 className="font-semibold text-purple-800 flex items-center gap-2">
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-50 px-6 py-4 border-b border-gray-200">
+                    <h4 className="font-semibold text-blue-800 flex items-center gap-2">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
                       </svg>

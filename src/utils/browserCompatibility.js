@@ -58,7 +58,7 @@ export const CompatibleTheme = {
 
     if (isModernBrowser) {
       return {
-        background: 'bg-gradient-to-br from-blue-50 to-indigo-100',
+        background: 'bg-gradient-to-br from-blue-50 to-blue-100',
         card: 'bg-white border border-blue-200 shadow-xl backdrop-blur-sm',
         button: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
         modal: 'bg-black bg-opacity-50 backdrop-blur-sm'

@@ -27,7 +27,7 @@ const InvoicePage = () => {
   };
 
   return (
-    <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50 to-blue-50">
       {/* Breadcrumb Navigation
       <div className="w-full bg-white/70 backdrop-blur-sm border-b border-gray-200/30">
         <div className="w-full px-4 py-2">
@@ -58,7 +58,7 @@ const InvoicePage = () => {
           <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
             {/* Page Title & Description */}
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -92,7 +92,7 @@ const InvoicePage = () => {
                   onClick={() => handleModuleSwitch('create')}
                   className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-300 transform flex-1 sm:flex-none text-sm ${
                     activeModule === 'create'
-                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg scale-105'
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105'
                       : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
                   }`}
                 >
@@ -105,7 +105,7 @@ const InvoicePage = () => {
                   onClick={() => handleModuleSwitch('list')}
                   className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-300 transform flex-1 sm:flex-none text-sm ${
                     activeModule === 'list'
-                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg scale-105'
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105'
                       : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
                   }`}
                 >

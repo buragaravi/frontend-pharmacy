@@ -60,74 +60,74 @@ const LoginPage = () => {
                     backdrop-filter: blur(10px);
                     border: 1px solid rgba(255, 255, 255, 0.18);
                     box-shadow: 
-                        20px 20px 40px rgba(79, 172, 254, 0.1),
+                        20px 20px 40px rgba(59, 130, 246, 0.1),
                         -20px -20px 40px rgba(255, 255, 255, 0.8),
                         inset 2px 2px 6px rgba(255, 255, 255, 0.25),
-                        inset -2px -2px 6px rgba(79, 172, 254, 0.1);
+                        inset -2px -2px 6px rgba(59, 130, 246, 0.1);
                 }
                 
                 .neomorphic-input {
                     background: rgba(255, 255, 255, 0.8);
-                    border: 1px solid rgba(79, 172, 254, 0.2);
+                    border: 1px solid rgba(59, 130, 246, 0.2);
                     box-shadow: 
-                        inset 4px 4px 8px rgba(79, 172, 254, 0.1),
+                        inset 4px 4px 8px rgba(59, 130, 246, 0.1),
                         inset -4px -4px 8px rgba(255, 255, 255, 0.8);
                 }
                 
                 .neomorphic-input:focus {
                     background: rgba(255, 255, 255, 0.9);
-                    border-color: rgba(79, 172, 254, 0.4);
+                    border-color: rgba(59, 130, 246, 0.4);
                     box-shadow: 
-                        inset 4px 4px 8px rgba(79, 172, 254, 0.15),
+                        inset 4px 4px 8px rgba(59, 130, 246, 0.15),
                         inset -4px -4px 8px rgba(255, 255, 255, 0.9),
-                        0 0 0 3px rgba(79, 172, 254, 0.1);
+                        0 0 0 3px rgba(59, 130, 246, 0.1);
                 }
                 
                 .neomorphic-button {
-                    background: linear-gradient(145deg, #ffffff, #e6f3ff);
-                    border: 1px solid rgba(79, 172, 254, 0.3);
+                    background: linear-gradient(145deg, #ffffff, #dbeafe);
+                    border: 1px solid rgba(59, 130, 246, 0.3);
                     box-shadow: 
-                        8px 8px 16px rgba(79, 172, 254, 0.2),
+                        8px 8px 16px rgba(59, 130, 246, 0.2),
                         -8px -8px 16px rgba(255, 255, 255, 0.8);
                 }
                 
                 .neomorphic-button:hover {
-                    background: linear-gradient(145deg, #f0f8ff, #ffffff);
+                    background: linear-gradient(145deg, #eff6ff, #ffffff);
                     box-shadow: 
-                        6px 6px 12px rgba(79, 172, 254, 0.25),
+                        6px 6px 12px rgba(59, 130, 246, 0.25),
                         -6px -6px 12px rgba(255, 255, 255, 0.9);
                 }
                 
                 .neomorphic-button:active {
                     box-shadow: 
-                        inset 4px 4px 8px rgba(79, 172, 254, 0.2),
+                        inset 4px 4px 8px rgba(59, 130, 246, 0.2),
                         inset -4px -4px 8px rgba(255, 255, 255, 0.8);
                 }
                 
                 .grid-pattern {
                     background-image: 
-                        linear-gradient(rgba(79, 172, 254, 0.1) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(79, 172, 254, 0.1) 1px, transparent 1px);
+                        linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
                     background-size: 50px 50px;
                 }
                 
                 .logo-shadow {
                     box-shadow: 
-                        12px 12px 24px rgba(79, 172, 254, 0.2),
+                        12px 12px 24px rgba(59, 130, 246, 0.2),
                         -12px -12px 24px rgba(255, 255, 255, 0.8);
                 }
             `}</style>
 
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden">
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 relative overflow-hidden">
                 {/* Subtle Grid Background */}
                 <div className="absolute inset-0 grid-pattern opacity-30" />
                 
                 {/* Subtle Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-blue-50/40" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-transparent to-blue-100/40" />
 
                 {/* Header */}
                 <div className="bg-white/80 backdrop-blur-sm border-b border-blue-100/50 p-4 text-center relative">
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
                         Laboratory Management System
                     </h1>
                 </div>
@@ -136,7 +136,7 @@ const LoginPage = () => {
                 <div className="container mx-auto px-4 py-12 flex flex-col lg:flex-row items-center justify-center min-h-screen relative z-10">
                     {/* Logo Section */}
                     <div className="w-full lg:w-1/3 flex flex-col items-center lg:items-start mb-12 lg:mb-0 lg:pr-12">
-                        <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mb-6 logo-shadow">
+                        <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center mb-6 logo-shadow">
                             <svg 
                                 xmlns="http://www.w3.org/2000/svg" 
                                 className="h-12 w-12 text-white" 
@@ -152,7 +152,7 @@ const LoginPage = () => {
                                 />
                             </svg>
                         </div>
-                        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent text-center lg:text-left mb-2">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent text-center lg:text-left mb-2">
                             LabConnect
                         </h1>
                         <p className="text-blue-600/70 text-center lg:text-left text-lg font-medium">

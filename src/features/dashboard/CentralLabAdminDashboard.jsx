@@ -18,6 +18,7 @@ import InvoicePage from '../invoice/InvoicePage';
 import VendorList from '../vendor/VendorList';
 import { AllocateEquipmentToLabByScanForm } from '../equipment';
 import EquipmentStockList from '../equipment/EquipmentStockList';
+import RequirementsPage from '../requirements/RequirementsPage';
 import CourseList from '../courses/CourseList';
 
 
@@ -139,6 +140,12 @@ const AdministrationIcon = () => (
   </svg>
 );
 
+const RequirementsIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+  </svg>
+);
+
 // NotificationCenter Component
 const NotificationCenter = ({ notifications = [], onMarkAsRead }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -199,6 +206,7 @@ const NAV_CATEGORIES = {
     icon: LabOperationsIcon,
     items: [
       { key: 'all_lab_requests', label: 'All Lab Requests', icon: LabRequestIcon, component: <AllLabRequestsPage /> },
+      { key: 'requirements', label: 'Requirements', icon: RequirementsIcon, component: <RequirementsPage /> },
       { key: 'quotations', label: 'Quotations', icon: QuotationIcon, component: <QuotationPage /> },
       { key: 'indents', label: 'Indents', icon: IndentIcon, component: <IndentPage /> }
     ]
@@ -373,10 +381,10 @@ const CentralLabAdminDashboard = () => {
   return (
     <div className="min-h-screen font-sans bg-gray-50">
       {/* Navigation Bar */}
-      <header className="w-full bg-gradient-to-br from-slate-50/90 via-blue-50/80 to-indigo-100/90 backdrop-blur-xl sticky top-0 z-50 border-b border-white/30 shadow-xl shadow-blue-500/10">
+      <header className="w-full bg-gradient-to-br from-blue-50/90 via-blue-50/80 to-blue-100/90 backdrop-blur-xl sticky top-0 z-50 border-b border-white/30 shadow-xl shadow-blue-500/10">
         {/* Enhanced Header Section */}
-        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 overflow-hidden">
-          <div className="absolute inset-0 bg-blue-800/20"></div>
+        <div className="relative bg-gradient-to-r from-blue-800 via-blue-900 to-blue-800 overflow-hidden">
+          <div className="absolute inset-0 bg-blue-900/20"></div>
           <div className="relative z-10 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
             <div className="flex items-center gap-4">
               <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">

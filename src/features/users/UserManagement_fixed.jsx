@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -97,6 +97,35 @@ const UserManagement = () => {
     role: '',
     labId: '',
   });
+  
+  // Dynamic labs state
+  const [availableLabs, setAvailableLabs] = useState([]);
+  const [labsLoading, setLabsLoading] = useState(true);
+
+  // Fetch available labs
+  useEffect(() => {
+    const fetchLabs = async () => {
+      try {
+        setLabsLoading(true);
+        const response = await api.get('/labs?includeInactive=false');
+        const labs = response.data?.data || [];
+        setAvailableLabs(labs);
+      } catch (error) {
+        console.error('Error fetching labs:', error);
+        // Fallback to central-store if API fails
+        setAvailableLabs([{ 
+          labId: 'central-store', 
+          labName: 'Central Store', 
+          isSystem: true, 
+          isActive: true 
+        }]);
+      } finally {
+        setLabsLoading(false);
+      }
+    };
+
+    fetchLabs();
+  }, []);
 
   // Add user mutation
   const addUserMutation = useMutation({
@@ -316,8 +345,8 @@ const UserManagement = () => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0B3861]"></div>
-          <p className="mt-4 text-[#0B3861]">Loading users...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-800"></div>
+          <p className="mt-4 text-blue-800">Loading users...</p>
         </div>
       </div>
     );
@@ -325,7 +354,7 @@ const UserManagement = () => {
 
   if (error) {
     return (
-      <div className="p-4 md:p-6 bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]">
+      <div className="p-4 md:p-6 bg-gradient-to-br from-blue-50 to-blue-100">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-xl shadow-lg p-6 border border-red-300">
             <div className="flex items-center mb-4">
@@ -339,7 +368,7 @@ const UserManagement = () => {
             <p className="text-gray-600 mb-4">{error.message || 'Failed to load users. Please try again.'}</p>
             <button
               onClick={() => queryClient.invalidateQueries(['users'])}
-              className="px-4 py-2 bg-[#0B3861] text-white rounded-md hover:bg-[#064789] transition-colors"
+              className="px-4 py-2 bg-blue-800 text-white rounded-md hover:bg-blue-900 transition-colors"
             >
               Retry
             </button>
@@ -350,18 +379,18 @@ const UserManagement = () => {
   }
 
   return (
-    <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div className="w-full bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen">
       <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
         {/* Enhanced Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl animate-pulse delay-500"></div>
         </div>
 
         {/* Enhanced Header Section */}
-        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-8 text-white overflow-hidden">
-          <div className="absolute inset-0 bg-blue-800/20"></div>
+        <div className="relative bg-gradient-to-r from-blue-800 via-blue-900 to-blue-800 p-8 text-white overflow-hidden">
+          <div className="absolute inset-0 bg-blue-900/20"></div>
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               <div className="flex items-center gap-4">
@@ -403,7 +432,7 @@ const UserManagement = () => {
             {/* Table Container */}
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gradient-to-r from-blue-600/90 to-indigo-600/90 text-white">
+                <thead className="bg-gradient-to-r from-blue-800/90 to-blue-800/90 text-white">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">User ID</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Name</th>
@@ -449,7 +478,7 @@ const UserManagement = () => {
                           </button>
                           <button
                             onClick={() => handleResetPassword(user)}
-                            className="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 rounded-lg transition-all duration-200"
+                            className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-all duration-200"
                             disabled={resetPasswordMutation.isLoading}
                             title="Reset Password"
                           >
@@ -481,7 +510,7 @@ const UserManagement = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl max-w-lg w-full mx-4 border border-white/20 relative overflow-hidden">
             {/* Modal Background Effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-blue-50/50"></div>
             
             <div className="relative z-10 p-8">
               <div className="flex items-center gap-3 mb-6">
@@ -535,8 +564,10 @@ const UserManagement = () => {
                         required
                       >
                         <option value="">Select lab</option>
-                        {['LAB01', 'LAB02', 'LAB03', 'LAB04', 'LAB05', 'LAB06', 'LAB07', 'LAB08'].map((lab) => (
-                          <option key={lab} value={lab}>{lab}</option>
+                        {availableLabs.map((lab) => (
+                          <option key={lab.labId} value={lab.labId}>
+                            {lab.labName} ({lab.labId})
+                          </option>
                         ))}
                       </select>
                       <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -655,7 +686,7 @@ const UserManagement = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-white/20 relative overflow-hidden">
             {/* Modal Background Effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-blue-50/50"></div>
             
             <div className="relative z-10 p-8">
               <div className="flex items-center gap-3 mb-6">
@@ -805,7 +836,7 @@ const UserManagement = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-white/20 relative overflow-hidden">
             {/* Modal Background Effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-blue-50/50"></div>
             
             <div className="relative z-10 p-8">
               <div className="flex items-center gap-3 mb-6">

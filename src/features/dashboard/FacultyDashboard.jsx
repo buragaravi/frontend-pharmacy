@@ -5,6 +5,7 @@ import RequestPage from '../requests/RequestPage';
 import MyRequestsPage from '../requests/MyRequestsPage';
 import CreateRequestForm from '../requests/CreateRequestForm';
 import ProductList from '../products/ProductList';
+import RequirementsPage from '../requirements/RequirementsPage';
 import { useNavigate } from 'react-router-dom';
 
 const menuItems = [
@@ -17,6 +18,11 @@ const menuItems = [
     key: 'request', 
     label: 'New Request', 
     component: CreateRequestForm
+  },
+  { 
+    key: 'requirements', 
+    label: 'Requirements', 
+    component: RequirementsPage
   },
   { 
     key: 'products', 

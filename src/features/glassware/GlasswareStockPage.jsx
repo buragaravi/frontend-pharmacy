@@ -169,7 +169,7 @@ const PrintableQRView = ({ groupedStock }) => {
 
 const getLabDisplayName = (labId) => {
   const labNames = {
-    'central-store': 'Central Store ',
+    'central-store': 'Central Store',
     'LAB01': 'Lab 01',
     'LAB02': 'Lab 02',
     'LAB03': 'Lab 03',
@@ -478,19 +478,19 @@ const TableView = ({ groupedStock, labColorMap, searchTerm }) => {
   );
 };
 
-const GlasswareStockPage = () => {
+const GlasswareStockPage = ({ labId: propLabId }) => {
   const [allStock, setAllStock] = useState([]);
   const [groupedStock, setGroupedStock] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLab, setSelectedLab] = useState('all');
-  const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
+  const [selectedLab, setSelectedLab] = useState(propLabId || 'all');
+  const [viewMode, setViewMode] = useState('table'); // 'cards' or 'table'
   const navigate = useNavigate();
 
   const labList = [
     { id: 'all', name: 'All Labs' },
-    { id: 'central-store', name: 'Central Store ' },
+    { id: 'central-store', name: 'Central Store' },
     { id: 'LAB01', name: 'Lab 01' },
     { id: 'LAB02', name: 'Lab 02' },
     { id: 'LAB03', name: 'Lab 03' },
@@ -537,6 +537,13 @@ const GlasswareStockPage = () => {
     fetchAllStock();
   }, []);
 
+  // Update selectedLab when propLabId changes
+  useEffect(() => {
+    if (propLabId) {
+      setSelectedLab(propLabId);
+    }
+  }, [propLabId]);
+
   // Filter based on search term and selected lab
   const filteredGroupedStock = React.useMemo(() => {
     let filtered = { ...groupedStock };
@@ -577,26 +584,26 @@ const GlasswareStockPage = () => {
   const totalLabs = Object.keys(groupedStock).length;
 
   return (
-    <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div className="w-full bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen">
       <GlobalPrintStyles />
       
       {/* Background floating bubbles */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-20 left-10 w-16 h-16 bg-blue-200/20 rounded-full blur-lg bubble-float-1"></div>
-        <div className="absolute top-40 right-20 w-12 h-12 bg-indigo-200/15 rounded-full blur-md bubble-float-2"></div>
+        <div className="absolute top-40 right-20 w-12 h-12 bg-blue-200/15 rounded-full blur-md bubble-float-2"></div>
         <div className="absolute top-60 left-1/4 w-20 h-20 bg-cyan-200/10 rounded-full blur-xl bubble-float-3"></div>
-        <div className="absolute top-80 right-1/3 w-14 h-14 bg-purple-200/15 rounded-full blur-lg bubble-float-4"></div>
+        <div className="absolute top-80 right-1/3 w-14 h-14 bg-blue-200/15 rounded-full blur-lg bubble-float-4"></div>
         <div className="absolute bottom-40 left-1/3 w-18 h-18 bg-blue-300/10 rounded-full blur-md bubble-float-1"></div>
-        <div className="absolute bottom-60 right-10 w-16 h-16 bg-indigo-300/12 rounded-full blur-lg bubble-float-2"></div>
+        <div className="absolute bottom-60 right-10 w-16 h-16 bg-blue-300/12 rounded-full blur-lg bubble-float-2"></div>
         <div className="absolute top-1/2 left-5 w-10 h-10 bg-cyan-300/8 rounded-full blur-sm bubble-float-3"></div>
-        <div className="absolute top-1/3 right-5 w-8 h-8 bg-purple-300/10 rounded-full blur-sm bubble-float-4"></div>
+        <div className="absolute top-1/3 right-5 w-8 h-8 bg-blue-300/10 rounded-full blur-sm bubble-float-4"></div>
       </div>
       
       <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
         {/* Enhanced Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
       
       {/* Breadcrumb Navigation */}
@@ -616,7 +623,7 @@ const GlasswareStockPage = () => {
       </div>
 
       {/* Enhanced Header Section - Mobile Responsive */}
-      <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-2 sm:p-4 lg:p-6 text-white overflow-hidden rounded-t-3xl shadow-lg">
+      <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-2 sm:p-4 lg:p-6 text-white overflow-hidden rounded-t-3xl shadow-lg">
         <div className="absolute inset-0 bg-blue-800/20"></div>
         <div className="relative z-10">
           {/* Title and Controls Section */}
@@ -677,21 +684,23 @@ const GlasswareStockPage = () => {
                   </div>
                 </div>
                 
-                {/* Lab Filter */}
-                <div className="bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded border border-white/30 min-w-0 flex-1 xl:flex-initial">
-                  <div className="text-xs text-blue-100 mb-1 font-medium">Lab</div>
-                  <select 
-                    value={selectedLab}
-                    onChange={(e) => setSelectedLab(e.target.value)}
-                    className="px-2 py-1 w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded text-white font-medium focus:outline-none focus:ring-1 focus:ring-white/50 text-xs min-w-20 xl:min-w-28"
-                  >
-                    {labList.map(lab => (
-                      <option key={lab.id} value={lab.id} className="bg-blue-800 text-white">
-                        {lab.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {/* Lab Filter - Only show if no specific labId is provided */}
+                {!propLabId && (
+                  <div className="bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded border border-white/30 min-w-0 flex-1 xl:flex-initial">
+                    <div className="text-xs text-blue-100 mb-1 font-medium">Lab</div>
+                    <select 
+                      value={selectedLab}
+                      onChange={(e) => setSelectedLab(e.target.value)}
+                      className="px-2 py-1 w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded text-white font-medium focus:outline-none focus:ring-1 focus:ring-white/50 text-xs min-w-20 xl:min-w-28"
+                    >
+                      {labList.map(lab => (
+                        <option key={lab.id} value={lab.id} className="bg-blue-800 text-white">
+                          {lab.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 
                 {/* Print Button */}
                 <div className="bg-white/20 backdrop-blur-sm px-2 py-1.5 rounded border border-white/30">
@@ -733,7 +742,7 @@ const GlasswareStockPage = () => {
           <div className="w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
         </div>
         <div className="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2">
-          <div className="w-32 h-32 bg-indigo-300/20 rounded-full blur-2xl"></div>
+          <div className="w-32 h-32 bg-blue-300/20 rounded-full blur-2xl"></div>
         </div>
       </div>
 

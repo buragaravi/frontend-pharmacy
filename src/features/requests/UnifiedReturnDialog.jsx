@@ -4,17 +4,17 @@ import Swal from 'sweetalert2';
 import EquipmentQRScanner from '../equipment/EquipmentQRScanner';
 
 const THEME = {
-  card: 'bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl',
-  border: 'border-[#BCE0FD]/20',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
+  card: 'bg-white/95 backdrop-blur-md border border-blue-200/30 shadow-xl',
+  border: 'border-blue-200/20',
+  primaryText: 'text-blue-800',
+  secondaryText: 'text-blue-600',
   mutedText: 'text-gray-600',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
+  primaryBg: 'bg-blue-800',
+  secondaryBg: 'bg-blue-600',
+  hoverBg: 'hover:bg-blue-700',
   inputBg: 'bg-gray-50/80',
-  inputBorder: 'border-[#BCE0FD]/30',
-  inputFocus: 'focus:ring-2 focus:ring-[#0B3861]/20 focus:border-[#0B3861]',
+  inputBorder: 'border-blue-200/30',
+  inputFocus: 'focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800',
   cardHover: 'hover:bg-gray-50/50 transition-colors duration-200'
 };
 
@@ -411,7 +411,7 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
                               className={`px-3 py-2 rounded-md text-xs font-medium transition-colors min-h-[40px] min-w-[60px] ${
                                 scanning[`${eqKey}_${idx}`] 
                                   ? 'bg-red-100 text-red-700 hover:bg-red-200' 
-                                  : `${THEME.secondaryBg} text-white hover:bg-[#42A5F5]`
+                                  : `${THEME.secondaryBg} text-white hover:bg-blue-500`
                               }`}
                               onClick={() => setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: !s[`${eqKey}_${idx}`] }))}
                             >
@@ -595,7 +595,7 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
           <button 
             onClick={handleReturn} 
             disabled={loading} 
-            className={`px-6 py-2 rounded-lg ${THEME.primaryBg} text-white font-medium text-sm hover:bg-[#1A365D] transition-colors order-1 sm:order-2 min-h-[44px] ${
+            className={`px-6 py-2 rounded-lg ${THEME.primaryBg} text-white font-medium text-sm hover:bg-blue-900 transition-colors order-1 sm:order-2 min-h-[44px] ${
               loading ? 'opacity-60 cursor-not-allowed' : ''
             }`}
           >

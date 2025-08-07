@@ -5,13 +5,8 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import RequestCard from './RequestCard';
 import RequestDetailsModal from './RequestDetailsModal';
-import { useResponsiveColors } from '../../hooks/useResponsiveColors';
-import SafeButton from '../../components/SafeButton';
 
 const RequestListPage = () => {
-  // Color utilities for cross-platform compatibility
-  const { getSafeBackground, getSafeBackdrop } = useResponsiveColors();
-  
   const [requests, setRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);

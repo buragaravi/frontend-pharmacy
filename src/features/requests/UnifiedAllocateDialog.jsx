@@ -4,17 +4,17 @@ import { toast } from 'react-toastify';
 import EquipmentQRScanner from '../equipment/EquipmentQRScanner';
 
 const THEME = {
-  card: 'bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl',
-  border: 'border-[#BCE0FD]/20',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
+  card: 'bg-white/95 backdrop-blur-md border border-blue-200/30 shadow-xl',
+  border: 'border-blue-200/20',
+  primaryText: 'text-blue-800',
+  secondaryText: 'text-blue-600',
   mutedText: 'text-gray-600',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
+  primaryBg: 'bg-blue-800',
+  secondaryBg: 'bg-blue-600',
+  hoverBg: 'hover:bg-blue-700',
   inputBg: 'bg-gray-50/80',
-  inputBorder: 'border-[#BCE0FD]/30',
-  inputFocus: 'focus:ring-2 focus:ring-[#0B3861]/20 focus:border-[#0B3861]',
+  inputBorder: 'border-blue-200/30',
+  inputFocus: 'focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800',
   cardHover: 'hover:bg-gray-50/50 transition-colors duration-200'
 };
 

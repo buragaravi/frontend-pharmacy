@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -14,7 +14,37 @@ const RegisterPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    
+    // Dynamic labs state
+    const [availableLabs, setAvailableLabs] = useState([]);
+    const [labsLoading, setLabsLoading] = useState(true);
+    
     const navigate = useNavigate();
+
+    // Fetch available labs
+    useEffect(() => {
+        const fetchLabs = async () => {
+            try {
+                setLabsLoading(true);
+                const response = await axios.get('https://backend-pharmacy-5541.onrender.com/api/labs?includeInactive=false');
+                const labs = response.data?.data || [];
+                setAvailableLabs(labs);
+            } catch (error) {
+                console.error('Error fetching labs:', error);
+                // Fallback to central-store if API fails
+                setAvailableLabs([{ 
+                    labId: 'central-store', 
+                    labName: 'Central Store', 
+                    isSystem: true, 
+                    isActive: true 
+                }]);
+            } finally {
+                setLabsLoading(false);
+            }
+        };
+
+        fetchLabs();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -142,8 +172,10 @@ const RegisterPage = () => {
                                                 required
                                             >
                                                 <option value="">Select your lab</option>
-                                                {['LAB01', 'LAB02', 'LAB03', 'LAB04', 'LAB05', 'LAB06', 'LAB07', 'LAB08'].map((lab) => (
-                                                    <option key={lab} value={lab}>{lab}</option>
+                                                {availableLabs.map((lab) => (
+                                                    <option key={lab.labId} value={lab.labId}>
+                                                        {lab.labName} ({lab.labId})
+                                                    </option>
                                                 ))}
                                             </select>
                                             {/* Custom dropdown arrow */}

@@ -38,7 +38,7 @@ const CommentSection = ({ quotationId, comments: propComments, createdByRole, st
   // Helper to get display name for role
   const getDisplayName = (role) => {
     if (role === 'admin') return 'Admin';
-    if (role === 'central_store_admin') return 'Central Store Admin';
+    if (role === 'central_store_admin') return 'Central Store';
     if (role === 'lab_assistant') return 'Lab Assistant';
     return role;
   };
@@ -49,11 +49,17 @@ const CommentSection = ({ quotationId, comments: propComments, createdByRole, st
     return 'justify-start';
   };
 
-  // Helper to determine bubble color
+  // Helper to determine bubble color with vibrant blue theme
   const getBubbleColor = (role) => {
-    if (role === 'admin') return 'bg-[#E1F1FF] text-[#0B3861]';
-    if (role === 'central_store_admin') return 'bg-[#F9F3F7] text-[#6D123F]';
-    return 'bg-gray-100 text-gray-700';
+    if (userRole === role) {
+      // Current user - vibrant blue
+      return 'bg-gradient-to-r from-[#2196F3] to-[#1976D2] text-white';
+    } else {
+      // Other users - light blue/white
+      if (role === 'admin') return 'bg-gradient-to-r from-[#E3F2FD] to-[#BBDEFB] text-[#1976D2] border border-[#2196F3]/20';
+      if (role === 'central_store_admin') return 'bg-gradient-to-r from-[#F3E5F5] to-[#E1BEE7] text-[#7B1FA2] border border-[#9C27B0]/20';
+      return 'bg-gradient-to-r from-[#F5F5F5] to-[#E0E0E0] text-[#424242] border border-gray-300';
+    }
   };
 
   // Filter out redundant comments (same text, case-insensitive, trimmed), keep only the first occurrence
@@ -130,77 +136,97 @@ const CommentSection = ({ quotationId, comments: propComments, createdByRole, st
   };
 
   return (
-    <div className="mt-6 border-t border-[#E8D8E1] pt-4">
+    <div className="mt-6 border-t border-[#E3F2FD] pt-6">
       <div className="flex items-center mb-4">
-        <CommentIcon className="text-[#6D123F] mr-2" />
-        <h4 className="font-semibold text-[#6D123F]">Comments</h4>
+        <div className="p-2 bg-gradient-to-r from-[#2196F3] to-[#1976D2] rounded-xl text-white mr-3">
+          <CommentIcon />
+        </div>
+        <h4 className="font-semibold text-[#1976D2] text-lg">Discussion</h4>
       </div>
+      
       {fetching ? (
-        <div className="bg-[#F9F3F7] p-4 rounded-lg mb-4 text-[#9C4668] italic">Loading comments...</div>
+        <div className="bg-gradient-to-r from-[#E3F2FD] to-[#BBDEFB] p-4 rounded-2xl mb-4 text-[#1976D2] italic flex items-center">
+          <div className="w-5 h-5 border-2 border-[#2196F3] border-t-transparent rounded-full animate-spin mr-3" />
+          Loading conversation...
+        </div>
       ) : comments.length > 0 ? (
-        <div className="p-2 rounded-lg mb-4 max-h-60 overflow-y-auto flex flex-col gap-2">
+        <div className="bg-gradient-to-b from-[#F3F9FF] to-[#E8F4FD] p-4 rounded-2xl mb-4 max-h-64 overflow-y-auto space-y-3 custom-scrollbar">
           {isChatMode ? (
             getUniqueComments(comments).map((c, i) => (
-              <div key={i} className={`flex ${getMessageAlign(c.role)}`}> 
-                <div className={`rounded-xl px-4 py-2 shadow-sm ${getBubbleColor(c.role)} max-w-[70%]`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-xs">{getDisplayName(c.role)}</span>
-                    <span className="text-[10px] text-gray-400">{c.createdAt ? new Date(c.createdAt).toLocaleString() : ''}</span>
+              <div key={i} className={`flex ${getMessageAlign(c.role)} animate-fadeIn`}>
+                <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${getBubbleColor(c.role)}`}>
+                  <div className="flex items-center mb-1">
+                    <span className="text-xs font-medium opacity-80">
+                      {getDisplayName(c.role)}
+                    </span>
+                    <span className="text-xs opacity-60 ml-2">
+                      {new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
-                  <div className="whitespace-pre-line text-sm">{c.text}</div>
+                  <p className="text-sm leading-relaxed">{c.text}</p>
                 </div>
               </div>
             ))
           ) : (
             getUniqueComments(comments).map((c, i) => (
-              <div key={i} className="mb-2">
-                <span className="font-semibold text-[#6D123F]">{getDisplayName(c.role)}</span>
-                <span className="mx-2 text-xs text-gray-500">{c.createdAt ? new Date(c.createdAt).toLocaleString() : ''}</span>
-                <div className="text-[#6D123F]">{c.text}</div>
+              <div key={i} className="bg-white/70 backdrop-blur-sm border border-[#E3F2FD] rounded-xl p-3 hover:bg-white/90 transition-all duration-200">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs font-semibold text-[#2196F3] bg-[#E3F2FD] px-2 py-1 rounded-full">
+                    {getDisplayName(c.role)}
+                  </span>
+                  <span className="text-xs text-[#1976D2] opacity-70">
+                    {new Date(c.createdAt).toLocaleDateString()} {new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+                <p className="text-sm text-[#1976D2] leading-relaxed">{c.text}</p>
               </div>
             ))
           )}
         </div>
       ) : (
-        <div className="bg-[#F9F3F7] p-4 rounded-lg mb-4">
-          <p className="text-[#9C4668] italic">No comments yet</p>
+        <div className="bg-gradient-to-r from-[#E3F2FD] to-[#BBDEFB] p-6 rounded-2xl mb-4 text-center">
+          <CommentIcon className="w-8 h-8 text-[#2196F3] mx-auto mb-2 opacity-60" />
+          <p className="text-[#1976D2] text-sm font-medium">No comments yet</p>
+          <p className="text-[#2196F3] text-xs mt-1">Start the conversation below</p>
         </div>
       )}
+
       {error && (
-        <div className="mb-4 p-2 bg-red-100 text-red-700 rounded text-sm">{error}</div>
+        <div className="bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-700 p-3 rounded-xl mb-4 text-sm flex items-center">
+          <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+          {error}
+        </div>
       )}
+
       {canAddComment() && (
-        <div className="sticky bottom-0 left-0 right-0 bg-white z-10 flex gap-2 mt-2 py-2 px-1 rounded-xl shadow-md border border-[#E8D8E1]">
-          <textarea
-            rows="1"
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            className="flex-1 px-4 py-2 rounded-full border border-[#E8D8E1] focus:outline-none focus:ring-2 focus:ring-[#6D123F] text-[#6D123F] bg-white resize-none shadow-sm"
-            disabled={isLoading}
-            style={{ minHeight: 36, maxHeight: 80, fontSize: 15, marginRight: 8 }}
-          />
-          <button
-            onClick={handleSubmit}
-            disabled={!newComment.trim() || isLoading}
-            className={`h-10 w-10 flex items-center justify-center rounded-full transition-colors shadow ${
-              newComment.trim() && !isLoading
-                ? 'bg-[#6D123F] text-white hover:bg-[#5A0F33]'
-                : 'bg-[#F5EBF1] text-[#9C4668] cursor-not-allowed'
-            }`}
-            title="Send"
-            style={{ minWidth: 40, minHeight: 40 }}
-          >
-            {isLoading ? (
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            ) : (
-              <SendIcon />
-            )}
-          </button>
+        <div className="relative">
+          <div className="flex items-end space-x-3 bg-gradient-to-r from-[#F3F9FF] to-[#E8F4FD] p-4 rounded-2xl border border-[#E3F2FD]">
+            <div className="flex-1">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={isChatMode ? "Type your message..." : "Add a comment..."}
+                className="w-full px-4 py-3 text-sm border border-[#E3F2FD] rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-[#2196F3] focus:border-transparent bg-white/90 backdrop-blur-sm transition-all duration-200"
+                rows="2"
+                disabled={isLoading}
+              />
+              <p className="text-xs text-[#2196F3] mt-1 opacity-70">Press Enter to send, Shift+Enter for new line</p>
+            </div>
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading || !newComment.trim()}
+              className="bg-gradient-to-r from-[#2196F3] to-[#1976D2] text-white p-3 rounded-xl hover:from-[#1976D2] hover:to-[#1565C0] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <SendIcon />
+              )}
+            </button>
+          </div>
         </div>
       )}
     </div>

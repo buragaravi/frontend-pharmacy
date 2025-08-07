@@ -109,9 +109,9 @@ export const getExperimentDateStatus = (experimentDate, isAdmin = false) => {
     case 'expired_admin_only':
       return {
         ...validation,
-        color: 'text-purple-600',
-        bgColor: 'bg-purple-50',
-        borderColor: 'border-purple-200',
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-50',
+        borderColor: 'border-blue-200',
         icon: '🔒',
         label: `Admin Only (${validation.daysOverdue} day${validation.daysOverdue > 1 ? 's' : ''} overdue)`,
         urgency: 'admin_required'

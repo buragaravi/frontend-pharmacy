@@ -32,7 +32,7 @@ const LabDistributionChart = () => {
         // Format data for better display
         const formattedData = response.data.map(lab => ({
           ...lab,
-          name: lab.labId === 'central-store' ? 'Central Store ' : `Lab ${lab.labId.replace('LAB0', '')}`,
+          name: lab.labId === 'central-store' ? 'Central Store' : `Lab ${lab.labId.replace('LAB0', '')}`,
           value: lab.totalQuantity // for pie chart
         }));
         setData(formattedData);

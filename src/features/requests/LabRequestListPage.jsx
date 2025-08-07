@@ -31,21 +31,21 @@ const CalendarIcon = () => (
 
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center p-8">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0B3861]"></div>
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-800"></div>
   </div>
 );
 
 // Constants for theming
 const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
+  background: 'bg-gradient-to-br from-blue-50 to-blue-100',
   card: 'bg-white',
-  border: 'border-[#BCE0FD]',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  border: 'border-blue-200',
+  primaryText: 'text-blue-800',
+  secondaryText: 'text-blue-600',
+  primaryBg: 'bg-blue-800',
+  secondaryBg: 'bg-blue-600',
+  hoverBg: 'hover:bg-blue-700',
+  inputFocus: 'focus:ring-blue-800 focus:border-blue-800'
 };
 
 const statusCategories = [
@@ -54,7 +54,7 @@ const statusCategories = [
   { status: 'approved', label: 'Approved', color: 'bg-green-100 text-green-800' },
   { status: 'rejected', label: 'Rejected', color: 'bg-red-100 text-red-800' },
   { status: 'fulfilled', label: 'Fulfilled', color: 'bg-blue-100 text-blue-800' },
-  { status: 'partially_fulfilled', label: 'Partially Fulfilled', color: 'bg-purple-100 text-purple-800' },
+  { status: 'partially_fulfilled', label: 'Partially Fulfilled', color: 'bg-blue-100 text-blue-800' },
   { status: 'completed', label: 'Completed', color: 'bg-gray-200 text-gray-800' }
 ];
 
@@ -432,6 +432,26 @@ const LabRequestListPage = ({ labId: propLabId }) => {
             ))}
           </div>
 
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+            {statusCategories.slice(1).map(category => {
+              const count = requests.filter(req => req.status === category.status).length;
+              return (
+                <div
+                  key={category.status}
+                  className="bg-white/90 backdrop-blur-sm rounded-xl p-4 border border-blue-100/50 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+                  onClick={() => handleStatusClick(category.status)}
+                >
+                  <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg mb-2 ${category.color}`}>
+                    <span className="text-sm font-bold">{count}</span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-700">{category.label}</p>
+                  <p className="text-xs text-gray-500">Click to filter</p>
+                </div>
+              );
+            })}
+          </div>
+
           {/* Content */}
           {loading ? (
             <LoadingSpinner />
@@ -445,31 +465,44 @@ const LabRequestListPage = ({ labId: propLabId }) => {
               </p>
             </div>
           ) : (
-            <div className="grid gap-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {filteredRequests.map(req => (
-                <RequestCard
-                  key={req._id}
-                  request={req}
-                  userRole={userRole}
-                  onClick={() => handleOpenDetails(req)}
-                  showStatus
-                  className={`${THEME.card} ${THEME.border} hover:shadow-lg transition-shadow`}
-                  actionButton={
-                    <>
-                      {(req.status === 'pending' || req.status === 'partially_fulfilled') && (
-                        <button
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleOpenUnifiedDialog(req);
-                          }}
-                          className={`px-3 py-1 ${THEME.primaryBg} text-white rounded-lg font-medium ${THEME.hoverBg} transition-colors text-xs`}
-                        >
-                          Allocate
-                        </button>
-                      )}
-                    </>
-                  }
-                />
+                <div key={req._id} className="group">
+                  <RequestCard
+                    key={req._id}
+                    request={req}
+                    userRole={userRole}
+                    onClick={() => handleOpenDetails(req)}
+                    showStatus
+                    className="bg-white/90 backdrop-blur-sm border border-blue-100/50 hover:shadow-xl transition-all duration-300 rounded-xl p-4 cursor-pointer transform group-hover:scale-105"
+                    actionButton={
+                      <>
+                        {/* Only show allocate button for approved requests */}
+                        {req.status === 'approved' && (
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleOpenUnifiedDialog(req);
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-300 text-sm shadow-lg hover:shadow-xl transform hover:scale-105"
+                          >
+                            Allocate Resources
+                          </button>
+                        )}
+                        {/* Disabled button for non-approved requests */}
+                        {req.status !== 'approved' && (req.status === 'pending' || req.status === 'partially_fulfilled') && (
+                          <button
+                            disabled
+                            className="px-4 py-2 bg-gray-400 text-white rounded-lg font-medium cursor-not-allowed transition-all duration-300 text-sm opacity-50"
+                            title={req.status === 'pending' ? 'Pending admin approval' : 'Request not approved'}
+                          >
+                            {req.status === 'pending' ? 'Awaiting Approval' : 'Allocate Resources'}
+                          </button>
+                        )}
+                      </>
+                    }
+                  />
+                </div>
               ))}
             </div>
           )}

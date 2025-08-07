@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import EnhancedCourseSelector from '../../components/EnhancedCourseSelector';
+import SubjectSelector from '../../components/SubjectSelector';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -24,28 +26,30 @@ api.interceptors.request.use(
   }
 );
 
-const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8];
-
 const ExperimentSelector = ({ onExperimentSelect }) => {
-  const [selectedSemester, setSelectedSemester] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedSubject, setSelectedSubject] = useState(null);
   const [selectedExperiment, setSelectedExperiment] = useState('');
 
-  // Fetch all experiments once
-  const { data: allExperiments = [], isLoading } = useQuery({
-    queryKey: ['experiments-all'],
+  // Fetch experiments for the selected subject
+  const { data: experiments = [], isLoading } = useQuery({
+    queryKey: ['experiments-by-subject', selectedSubject?._id],
     queryFn: async () => {
-      const response = await api.get('/experiments');
-      return response.data;
+      if (!selectedSubject) return [];
+      const response = await api.get(`/experiments/subject/${selectedSubject._id}`);
+      return response.data || [];
     },
+    enabled: !!selectedSubject,
   });
 
-  // Filter experiments by selected semester
-  const filteredExperiments = selectedSemester
-    ? allExperiments.filter(exp => String(exp.semester) === String(selectedSemester))
-    : [];
+  const handleCourseSelect = (course) => {
+    setSelectedCourse(course);
+    setSelectedSubject(null);
+    setSelectedExperiment('');
+  };
 
-  const handleSemesterChange = (e) => {
-    setSelectedSemester(e.target.value);
+  const handleSubjectSelect = (subject) => {
+    setSelectedSubject(subject);
     setSelectedExperiment('');
   };
 
@@ -53,53 +57,65 @@ const ExperimentSelector = ({ onExperimentSelect }) => {
     const experimentId = e.target.value;
     setSelectedExperiment(experimentId);
     // Find the selected experiment from the filtered list
-    const experiment = filteredExperiments.find(exp => exp._id === experimentId);
+    const experiment = experiments.find(exp => exp._id === experimentId);
     if (experiment) {
       onExperimentSelect({
         experimentId: experiment._id,
         experimentName: experiment.name,
-        subject: experiment.subject,
-        defaultChemicals: experiment.defaultChemicals || []
+        subjectId: selectedSubject._id,
+        subjectName: selectedSubject.name,
+        subjectCode: selectedSubject.code,
+        courseId: selectedCourse._id, // Add courseId for batch selection
+        courseName: selectedCourse.courseName,
+        courseCode: selectedCourse.courseCode,
+        defaultChemicals: experiment.defaultChemicals || [],
+        defaultGlassware: experiment.defaultGlassware || [],
+        defaultEquipment: experiment.defaultEquipment || []
       });
     }
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
       <div>
-        <label className="block text-sm font-medium text-[#6D123F] mb-1">
-          Semester
+        <label className="block text-sm font-medium text-blue-800 mb-1">
+          Course
         </label>
-        <select
-          value={selectedSemester}
-          onChange={handleSemesterChange}
-          className="w-full px-3 py-2 text-sm md:text-base border border-[#E8D8E1] rounded-lg focus:ring-2 focus:ring-[#6D123F] focus:border-[#6D123F] transition-colors"
-          required
-        >
-          <option value="">Select Semester</option>
-          {SEMESTERS.map((sem) => (
-            <option key={sem} value={sem}>
-              Semester {sem}
-            </option>
-          ))}
-        </select>
+        <EnhancedCourseSelector
+          selectedCourse={selectedCourse}
+          onCourseSelect={handleCourseSelect}
+          placeholder="Select Course"
+        />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[#6D123F] mb-1">
+        <label className="block text-sm font-medium text-blue-800 mb-1">
+          Subject
+        </label>
+        <SubjectSelector
+          selectedCourse={selectedCourse}
+          selectedSubject={selectedSubject}
+          onSubjectSelect={handleSubjectSelect}
+          placeholder="Select Subject"
+          disabled={!selectedCourse}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-blue-800 mb-1">
           Experiment
         </label>
         <select
           value={selectedExperiment}
           onChange={handleExperimentChange}
-          className="w-full px-3 py-2 text-sm md:text-base border border-[#E8D8E1] rounded-lg focus:ring-2 focus:ring-[#6D123F] focus:border-[#6D123F] transition-colors"
+          className="w-full px-3 py-2 text-sm md:text-base border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-800 focus:border-blue-800 transition-colors"
           required
-          disabled={!selectedSemester || isLoading}
+          disabled={!selectedSubject || isLoading}
         >
           <option value="">Select Experiment</option>
-          {filteredExperiments.map((exp) => (
+          {experiments.map((exp) => (
             <option key={exp._id} value={exp._id}>
-              {exp.name} ({exp.subject})
+              {exp.name}
             </option>
           ))}
         </select>
