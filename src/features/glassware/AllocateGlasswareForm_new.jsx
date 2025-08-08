@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
-const labOptions = [
-  { label: 'Lab 1', value: 'LAB01' },
-  { label: 'Lab 2', value: 'LAB02' },
-  { label: 'Lab 3', value: 'LAB03' },
-  { label: 'Lab 4', value: 'LAB04' },
-  { label: 'Lab 5', value: 'LAB05' },
-  { label: 'Lab 6', value: 'LAB06' },
-  { label: 'Lab 7', value: 'LAB07' },
-  { label: 'Lab 8', value: 'LAB08' },
-];
+import useLabs from '../../hooks/useLabs';
 
 const AllocateGlasswareForm = () => {
+  // Fetch labs dynamically
+  const { labs, loading: labsLoading } = useLabs();
   const [labId, setLabId] = useState('');
   const [glasswares, setGlasswares] = useState([{ glasswareName: '', quantity: 0, glasswareId: '', unit: '', description: '' }]);
   const [availableGlasswares, setAvailableGlasswares] = useState([]);
@@ -170,13 +162,14 @@ const AllocateGlasswareForm = () => {
             <select
               value={labId}
               onChange={(e) => setLabId(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+              disabled={labsLoading}
               required
             >
-              <option value="">Select Lab</option>
-              {labOptions.map((lab) => (
-                <option key={lab.value} value={lab.value}>
-                  {lab.label}
+              <option value="">{labsLoading ? 'Loading labs...' : 'Select Lab'}</option>
+              {labs.map((lab) => (
+                <option key={lab.labId} value={lab.labId}>
+                  {lab.labId} - {lab.labName}
                 </option>
               ))}
             </select>

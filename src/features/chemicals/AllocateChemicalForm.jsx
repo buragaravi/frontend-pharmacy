@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import useLabs from '../../hooks/useLabs';
 
 // Glassmorphic theme constants
 const THEME = {
@@ -20,18 +21,10 @@ const THEME = {
   shadow: 'shadow-xl shadow-blue-500/10',
 };
 
-const labOptions = [
-  { label: 'Lab 1', value: 'LAB01' },
-  { label: 'Lab 2', value: 'LAB02' },
-  { label: 'Lab 3', value: 'LAB03' },
-  { label: 'Lab 4', value: 'LAB04' },
-  { label: 'Lab 5', value: 'LAB05' },
-  { label: 'Lab 6', value: 'LAB06' },
-  { label: 'Lab 7', value: 'LAB07' },
-  { label: 'Lab 8', value: 'LAB08' },
-];
-
 const AllocateChemicalForm = () => {
+  // Fetch labs dynamically
+  const { labs, loading: labsLoading } = useLabs();
+  
   const [labId, setLabId] = useState('');
   const [chemicals, setChemicals] = useState([{ chemicalName: '', quantity: 0, chemicalMasterId: '', unit: '', expiryDate: '' }]);
   const [availableChemicals, setAvailableChemicals] = useState([]);
@@ -279,12 +272,13 @@ const AllocateChemicalForm = () => {
               value={labId}
               onChange={(e) => setLabId(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              disabled={labsLoading}
               required
             >
-              <option value="">Choose a laboratory</option>
-              {labOptions.map((lab) => (
-                <option key={lab.value} value={lab.value}>
-                  {lab.label}
+              <option value="">{labsLoading ? 'Loading labs...' : 'Choose a laboratory'}</option>
+              {labs.map((lab) => (
+                <option key={lab.labId} value={lab.labId}>
+                  {lab.labId} - {lab.labName}
                 </option>
               ))}
             </select>

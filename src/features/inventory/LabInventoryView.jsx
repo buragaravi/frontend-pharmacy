@@ -26,8 +26,11 @@ import {
   MenuItem,
 } from '@mui/material';
 import { LocalShipping as ShipIcon } from '@mui/icons-material';
+import useLabs from '../../hooks/useLabs';
 
 const LabInventoryView = ({ labId }) => {
+  // Fetch labs dynamically
+  const { labs, loading: labsLoading } = useLabs();
   const [chemicals, setChemicals] = useState([]);
   const [liveStock, setLiveStock] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -227,11 +230,14 @@ const LabInventoryView = ({ labId }) => {
                   name="targetLabId"
                   value={allocation.targetLabId}
                   onChange={handleInputChange}
+                  disabled={labsLoading}
                   sx={{ '& fieldset': { borderColor: '#BCE0FD' } }}
                 >
-                  <MenuItem value="LAB01">LAB01</MenuItem>
-                  <MenuItem value="LAB02">LAB02</MenuItem>
-                  <MenuItem value="LAB03">LAB03</MenuItem>
+                  {labs.map((lab) => (
+                    <MenuItem key={lab.labId} value={lab.labId}>
+                      {lab.labId} - {lab.labName}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>

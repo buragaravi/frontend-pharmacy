@@ -115,7 +115,7 @@ const QuotationPage = () => {
   return (
     <div className="min-h-screen bg-white w-full">
       {/* Header Section */}
-      <div className="w-full bg-gradient-to-r from-[#2196F3] via-[#1E88E5] to-[#1976D2] rounded-b-3xl p-4 shadow-lg">
+      <div className="w-full bg-blue-600 rounded-b-3xl p-4 shadow-lg">
         <div className="w-full max-w-full mx-auto">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-4 w-full">
             <div className="flex items-center space-x-3">

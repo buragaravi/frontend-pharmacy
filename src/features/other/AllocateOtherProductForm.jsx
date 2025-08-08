@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
-const labOptions = [
-  { label: 'Lab 1', value: 'LAB01' },
-  { label: 'Lab 2', value: 'LAB02' },
-  { label: 'Lab 3', value: 'LAB03' },
-  { label: 'Lab 4', value: 'LAB04' },
-  { label: 'Lab 5', value: 'LAB05' },
-  { label: 'Lab 6', value: 'LAB06' },
-  { label: 'Lab 7', value: 'LAB07' },
-  { label: 'Lab 8', value: 'LAB08' },
-];
+import useLabs from '../../hooks/useLabs';
 
 const AllocateOtherProductForm = () => {
+  // Fetch labs dynamically
+  const { labs, loading: labsLoading } = useLabs();
   const [labId, setLabId] = useState('');
   const [products, setProducts] = useState([{ productName: '', quantity: 0, productId: '', unit: '', description: '' }]);
   const [availableProducts, setAvailableProducts] = useState([]);
@@ -101,10 +93,16 @@ const AllocateOtherProductForm = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-[#0B3861]">Select Lab</label>
-          <select value={labId} onChange={(e) => setLabId(e.target.value)} className="w-full px-3 py-2 border border-[#BCE0FD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B3861]" required>
-            <option value=""> Select Lab</option>
-            {labOptions.map((lab) => (
-              <option key={lab.value} value={lab.value} className="text-[#0B3861]">{lab.label}</option>
+          <select 
+            value={labId} 
+            onChange={(e) => setLabId(e.target.value)} 
+            className="w-full px-3 py-2 border border-[#BCE0FD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B3861] disabled:opacity-50" 
+            disabled={labsLoading}
+            required
+          >
+            <option value="">{labsLoading ? 'Loading labs...' : 'Select Lab'}</option>
+            {labs.map((lab) => (
+              <option key={lab.labId} value={lab.labId} className="text-[#0B3861]">{lab.labId} - {lab.labName}</option>
             ))}
           </select>
         </div>

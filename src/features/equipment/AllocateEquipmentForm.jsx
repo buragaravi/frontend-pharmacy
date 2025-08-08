@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import EquipmentQRScanner from './EquipmentQRScanner';
+import useLabs from '../../hooks/useLabs';
 
 // Glassmorphic theme constants
 const THEME = {
@@ -21,18 +22,9 @@ const THEME = {
   shadow: 'shadow-xl shadow-blue-500/10',
 };
 
-const labOptions = [
-  { label: 'Lab 1', value: 'LAB01' },
-  { label: 'Lab 2', value: 'LAB02' },
-  { label: 'Lab 3', value: 'LAB03' },
-  { label: 'Lab 4', value: 'LAB04' },
-  { label: 'Lab 5', value: 'LAB05' },
-  { label: 'Lab 6', value: 'LAB06' },
-  { label: 'Lab 7', value: 'LAB07' },
-  { label: 'Lab 8', value: 'LAB08' },
-];
-
 const AllocateEquipmentForm = () => {
+  // Fetch labs dynamically
+  const { labs, loading: labsLoading } = useLabs();
   const [labId, setLabId] = useState('');
   const [qrData, setQrData] = useState('');
   const [itemId, setItemId] = useState('');
@@ -295,10 +287,10 @@ const AllocateEquipmentForm = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               >
-                <option value="">Select Lab</option>
-                {labOptions.map((lab) => (
-                  <option key={lab.value} value={lab.value}>
-                    {lab.label}
+                <option value="">{labsLoading ? 'Loading labs...' : 'Select Lab'}</option>
+                {labs.map((lab) => (
+                  <option key={lab.labId} value={lab.labId}>
+                    {lab.labId} - {lab.labName}
                   </option>
                 ))}
               </select>

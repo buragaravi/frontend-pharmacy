@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-
-const LAB_IDS = [
-  'LAB01', 'LAB02', 'LAB03', 'LAB04', 'LAB05', 'LAB06', 'LAB07', 'LAB08'
-];
+import useLabs from '../../hooks/useLabs';
 
 const CreateGlasswareRequestForm = () => {
   const [labId, setLabId] = useState('');
   const [glasswares, setGlasswares] = useState([
     { glasswareName: '', quantity: '', unit: '', glasswareId: '', suggestions: [], showSuggestions: false, availableQuantity: null }
   ]);
+  
+  // Fetch labs dynamically
+  const { labs, loading: labsLoading } = useLabs();
 
   const createRequestMutation = useMutation({
     mutationFn: async (requestData) => {
@@ -116,10 +116,16 @@ const CreateGlasswareRequestForm = () => {
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             <div>
               <label className="block text-sm font-medium text-[#0B3861] mb-1">Lab ID</label>
-              <select value={labId} onChange={(e) => setLabId(e.target.value)} required className="w-full px-3 py-2 text-sm md:text-base border border-[#0B3861] rounded-lg focus:ring-[#0B3861] focus:border-[#0B3861] transition-colors">
-                <option value="">Select Lab</option>
-                {LAB_IDS.map((id) => (
-                  <option key={id} value={id}>{id}</option>
+              <select 
+                value={labId} 
+                onChange={(e) => setLabId(e.target.value)} 
+                required 
+                disabled={labsLoading}
+                className="w-full px-3 py-2 text-sm md:text-base border border-[#0B3861] rounded-lg focus:ring-[#0B3861] focus:border-[#0B3861] transition-colors disabled:opacity-50"
+              >
+                <option value="">{labsLoading ? 'Loading labs...' : 'Select Lab'}</option>
+                {labs.map((lab) => (
+                  <option key={lab.labId} value={lab.labId}>{lab.labId} - {lab.labName}</option>
                 ))}
               </select>
             </div>

@@ -14,7 +14,7 @@ import {
   FiCalendar, FiTrendingUp, FiActivity, FiCheckCircle, FiAlertCircle, FiPrinter
 } from 'react-icons/fi';
 
-const COLORS = ['#0B3861', '#64B5F6', '#1E88E5', '#BCE0FD', '#F5F9FD', '#E1F1FF'];
+const COLORS = ['#2563eb', '#3b82f6', '#1d4ed8', '#60a5fa', '#93c5fd', '#dbeafe'];
 
 // Toast notification system
 const ToastNotification = ({ toast, onClose }) => (
@@ -45,50 +45,38 @@ const ToastNotification = ({ toast, onClose }) => (
 
 // Loading component with shimmer effect
 const LoadingSpinner = () => (
-  <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100">
-    <style>{`
-      @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-      }
-      .shimmer {
-        background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-        background-size: 200% 100%;
-        animation: shimmer 2s infinite linear;
-      }
-    `}</style>
-    
+  <div className="min-h-screen w-full flex items-center justify-center bg-white">
     <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-      <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8">
-        <div className="h-24 bg-gradient-to-r from-blue-600 to-blue-800 shimmer" />
+      <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8 border border-gray-200">
+        <div className="h-24 bg-gradient-to-r from-blue-600 to-blue-700 animate-pulse" />
         <div className="p-8">
           <div className="flex justify-between items-center mb-8">
-            <div className="shimmer h-12 w-80 rounded-xl" />
+            <div className="h-12 w-80 bg-gray-200 rounded-xl animate-pulse" />
             <div className="flex gap-4">
-              <div className="shimmer h-12 w-32 rounded-lg" />
-              <div className="shimmer h-12 w-24 rounded-lg" />
+              <div className="h-12 w-32 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="h-12 w-24 bg-gray-200 rounded-lg animate-pulse" />
             </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="bg-gray-50 rounded-xl p-6">
-                <div className="shimmer h-8 w-20 rounded mb-2" />
-                <div className="shimmer h-4 w-32 rounded" />
+                <div className="h-8 w-20 bg-gray-200 rounded mb-2 animate-pulse" />
+                <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
               </div>
             ))}
           </div>
           
           <div className="overflow-hidden rounded-xl border border-gray-200">
-            <div className="shimmer h-64 w-full" />
+            <div className="h-64 w-full bg-gray-200 animate-pulse" />
           </div>
         </div>
       </div>
       
       <div className="flex items-center justify-center">
         <div className="flex items-center space-x-3 text-blue-600">
-          <FiRefreshCw className="h-6 w-6 animate-spin" />
-          <span className="text-lg font-medium">Loading transactions...</span>
+          <FiRefreshCw className="h-5 w-5 animate-spin" />
+          <span className="text-base font-medium">Loading transactions...</span>
         </div>
       </div>
     </div>
@@ -412,12 +400,12 @@ const TransactionsPage = ({ labId: propLabId }) => {
       const leftMargin = 15;
       const rightMargin = 15;
       const contentWidth = pageWidth - leftMargin - rightMargin;
-      const deepSeaBlue = [11, 56, 97];
-      const skyBlue = [33, 150, 243];
+      const blue600 = [37, 99, 235]; // #2563eb (blue-600)
+      const blue500 = [59, 130, 246]; // #3b82f6 (blue-500)
       const white = [255, 255, 255];
       
       // Header
-      doc.setFillColor(...deepSeaBlue);
+      doc.setFillColor(...blue600);
       doc.rect(0, 0, pageWidth, 18, 'F');
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(20);
@@ -427,7 +415,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
       // Report details
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(11);
-      doc.setTextColor(...deepSeaBlue);
+      doc.setTextColor(...blue600);
       let y = 24;
       doc.text(`Generated on: ${new Date().toLocaleDateString()}`, leftMargin, y);
       doc.text(`Total Transactions: ${filteredTransactions.length}`, leftMargin + 100, y);
@@ -472,11 +460,11 @@ const TransactionsPage = ({ labId: propLabId }) => {
             overflow: 'linebreak',
             font: 'helvetica',
             textColor: [33, 37, 41],
-            lineColor: skyBlue,
+            lineColor: blue500,
             fillColor: white
           },
           headStyles: {
-            fillColor: deepSeaBlue,
+            fillColor: blue600,
             textColor: 255,
             fontStyle: 'bold',
             halign: 'center',
@@ -612,7 +600,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100"
+      className="min-h-screen w-full flex items-center justify-center bg-white"
     >
       <div className="text-center p-8">
         <FiAlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
@@ -631,72 +619,16 @@ const TransactionsPage = ({ labId: propLabId }) => {
   );
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-100">
-      {/* Global styles for smooth scrolling and animations */}
-      <style>{`
-        @media (prefers-reduced-motion: no-preference) {
-          * {
-            scroll-behavior: smooth;
-          }
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-        .glass-effect {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-      `}</style>
-
-      {/* Breadcrumb Navigation */}
-      <div className="w-full bg-white/70 backdrop-blur-sm border-b border-gray-200/30">
-        <div className="w-full px-4 py-2">
-          <nav className="flex items-center space-x-1.5 text-xs">
-            <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z" />
-            </svg>
-            <span className="text-gray-500">Admin Dashboard</span>
-            <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-            <span className="text-gray-500">Reports</span>
-            <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-            <span className="text-blue-600 font-medium">Transactions</span>
-          </nav>
-        </div>
-      </div>
-
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-white rounded-3xl shadow-2xl overflow-hidden w-full border border-white/20"
-        >
-          {/* Enhanced header with gradient and better typography */}
-          <div className="relative p-8 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-blue-800/20" />
+    <div className="w-full bg-white">
+      <div className="w-full">
+          {/* Enhanced header with blue-600 background */}
+          <div className="relative p-4 rounded-b-3xl bg-blue-600 text-white overflow-hidden">
             <div className="relative z-10">
               <motion.h1 
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="text-3xl lg:text-4xl font-bold mb-2"
+                className="text-base lg:text-lg font-bold mb-1"
               >
                 Transaction Analytics
               </motion.h1>
@@ -704,7 +636,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="text-blue-100 text-lg"
+                className="text-blue-100 text-sm"
               >
                 Monitor and analyze all chemical transactions across your laboratory network
               </motion.p>
@@ -735,7 +667,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
                   <input
                     ref={searchInputRef}
                     type="text"
-                    className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                    className="block w-full pl-12 pr-4 py-2 border border-gray-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-sm"
                     placeholder="Search transactions... (Press '/' to focus)"
                     value={searchTerm}
                     onChange={handleSearch}
@@ -757,10 +689,10 @@ const TransactionsPage = ({ labId: propLabId }) => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowFilters(!showFilters)}
-                    className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                    className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all duration-200"
                   >
-                    <FiFilter className="h-5 w-5" />
-                    <span className="font-medium">Date Range</span>
+                    <FiFilter className="h-4 w-4" />
+                    <span className="font-medium text-sm">Date Range</span>
                   </motion.button>
                 </div>
               </div>
@@ -776,26 +708,26 @@ const TransactionsPage = ({ labId: propLabId }) => {
                   >
                     <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
                       <div className="flex items-center gap-2">
-                        <FiCalendar className="h-5 w-5 text-blue-600" />
-                        <label className="font-semibold text-gray-700">From:</label>
+                        <FiCalendar className="h-4 w-4 text-blue-600" />
+                        <label className="font-medium text-gray-700 text-sm">From:</label>
                         <input
                           type="date"
                           value={dateRange.from}
                           max={dateRange.to}
                           onChange={e => setDateRange(r => ({ ...r, from: e.target.value }))}
-                          className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 bg-white focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                         />
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <label className="font-semibold text-gray-700">To:</label>
+                        <label className="font-medium text-gray-700 text-sm">To:</label>
                         <input
                           type="date"
                           value={dateRange.to}
                           min={dateRange.from}
                           max={formatDate(new Date())}
                           onChange={e => setDateRange(r => ({ ...r, to: e.target.value }))}
-                          className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 bg-white focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                         />
                       </div>
                       
@@ -803,7 +735,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          className={`px-6 py-2 rounded-lg font-semibold shadow transition ${
+                          className={`px-4 py-2 rounded-lg font-medium shadow transition text-sm ${
                             globalFilterApplied 
                               ? 'bg-green-600 text-white hover:bg-green-700' 
                               : 'bg-blue-600 text-white hover:bg-blue-700'
@@ -819,7 +751,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
                             animate={{ opacity: 1, x: 0 }}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg font-semibold shadow border border-gray-300 hover:bg-gray-200 transition"
+                            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium shadow border border-gray-300 hover:bg-gray-200 transition text-sm"
                             onClick={handleResetGlobalFilter}
                           >
                             Reset
@@ -843,16 +775,16 @@ const TransactionsPage = ({ labId: propLabId }) => {
                 whileHover={{ scale: 1.02 }}
                 className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border-l-8 border-blue-600 flex flex-col items-center"
               >
-                <span className="text-3xl md:text-4xl font-bold text-blue-600">{totalTransactions}</span>
-                <span className="text-blue-600 font-semibold mt-2 text-center text-sm md:text-base">Total Transactions</span>
+                <span className="text-2xl md:text-3xl font-bold text-blue-600">{totalTransactions}</span>
+                <span className="text-blue-600 font-medium mt-1 text-center text-xs md:text-sm">Total Transactions</span>
               </motion.div>
               
               <motion.div 
                 whileHover={{ scale: 1.02 }}
                 className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border-l-8 border-blue-500 flex flex-col items-center"
               >
-                <span className="text-3xl md:text-4xl font-bold text-blue-500">{totalQuantity}</span>
-                <span className="text-blue-500 font-semibold mt-2 text-center text-sm md:text-base">Total Drugs Moved</span>
+                <span className="text-2xl md:text-3xl font-bold text-blue-500">{totalQuantity}</span>
+                <span className="text-blue-500 font-medium mt-1 text-center text-xs md:text-sm">Total Drugs Moved</span>
               </motion.div>
               
               {(role === 'admin' || role === 'central_store_admin') && (
@@ -860,8 +792,8 @@ const TransactionsPage = ({ labId: propLabId }) => {
                   whileHover={{ scale: 1.02 }}
                   className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border-l-8 border-blue-500 flex flex-col items-center"
                 >
-                  <span className="text-xl md:text-2xl font-bold text-blue-500">{mostActiveLab}</span>
-                  <span className="text-blue-500 font-semibold mt-2 text-center text-sm md:text-base">Most Active Lab</span>
+                  <span className="text-lg md:text-xl font-bold text-blue-500">{mostActiveLab}</span>
+                  <span className="text-blue-500 font-medium mt-1 text-center text-xs md:text-sm">Most Active Lab</span>
                 </motion.div>
               )}
             </motion.div>
@@ -878,22 +810,23 @@ const TransactionsPage = ({ labId: propLabId }) => {
                 style={{ minWidth: 0 }}
               >
                 <div className="flex flex-wrap justify-between items-center mb-2 gap-2">
-                  <h3 className="text-base md:text-lg font-bold text-gray-900">Transactions by Type</h3>
+                  <h3 className="text-sm md:text-base font-bold text-gray-900">Transactions by Type</h3>
                   <div className="flex gap-2 items-center">
                     <select
                       value={typeChartLab}
                       onChange={e => setTypeChartLab(e.target.value)}
-                      className="border border-gray-300 rounded px-2 py-1 text-gray-700 text-xs bg-white focus:ring-2 focus:ring-blue-500"
+                      className="border border-gray-300 rounded px-2 py-1 text-gray-700 text-xs bg-white focus:ring-2 focus:ring-blue-600"
                     >
                       <option value="all">All Labs</option>
-                      {allLabs.map(lab => (
-                        <option key={lab} value={lab}>{lab}</option>
+                      <option value="central-store">Central Store</option>
+                      {labs.map(lab => (
+                        <option key={lab.labId} value={lab.labId}>{lab.labName}</option>
                       ))}
                     </select>
                     <select
                       value={typeChartRange}
                       onChange={e => setTypeChartRange(e.target.value)}
-                      className="border border-gray-300 rounded px-2 py-1 text-gray-700 text-xs focus:ring-2 focus:ring-blue-500"
+                      className="border border-gray-300 rounded px-2 py-1 text-gray-700 text-xs focus:ring-2 focus:ring-blue-600"
                     >
                       <option value="7d">Last 7 days</option>
                       <option value="30d">Last 30 days</option>
@@ -937,12 +870,12 @@ const TransactionsPage = ({ labId: propLabId }) => {
                 style={{ minWidth: 0 }}
               >
                 <div className="flex flex-wrap justify-between items-center mb-2 gap-2">
-                  <h3 className="text-base md:text-lg font-bold text-gray-900">Distribution by Lab</h3>
+                  <h3 className="text-sm md:text-base font-bold text-gray-900">Distribution by Lab</h3>
                   <div className="flex gap-2 items-center">
                     <select
                       value={labChartType}
                       onChange={e => setLabChartType(e.target.value)}
-                      className="border border-gray-300 rounded px-2 py-1 text-gray-700 text-xs bg-white focus:ring-2 focus:ring-blue-500"
+                      className="border border-gray-300 rounded px-2 py-1 text-gray-700 text-xs bg-white focus:ring-2 focus:ring-blue-600"
                     >
                       <option value="all">All Types</option>
                       {allTypes.map(type => (
@@ -952,7 +885,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
                     <select
                       value={labChartChemical}
                       onChange={e => setLabChartChemical(e.target.value)}
-                      className="border border-gray-300 rounded px-2 py-1 text-gray-700 text-xs bg-white focus:ring-2 focus:ring-blue-500"
+                      className="border border-gray-300 rounded px-2 py-1 text-gray-700 text-xs bg-white focus:ring-2 focus:ring-blue-600"
                     >
                       <option value="all">All Chemicals</option>
                       {allChemicals.map(chem => (
@@ -962,7 +895,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
                     <select
                       value={labChartRange}
                       onChange={e => setLabChartRange(e.target.value)}
-                      className="border border-gray-300 rounded px-2 py-1 text-gray-700 text-xs focus:ring-2 focus:ring-blue-500"
+                      className="border border-gray-300 rounded px-2 py-1 text-gray-700 text-xs focus:ring-2 focus:ring-blue-600"
                     >
                       <option value="7d">Last 7 days</option>
                       <option value="30d">Last 30 days</option>
@@ -1018,7 +951,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleLabFilterChange('all')}
-                      className={`px-4 py-2 rounded-lg font-medium text-xs md:text-sm transition-colors ${
+                      className={`px-3 py-1 rounded-lg font-medium text-xs transition-colors ${
                         selectedLabFilter === 'all'
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600 border border-gray-300'
@@ -1030,7 +963,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleLabFilterChange('central')}
-                      className={`px-4 py-2 rounded-lg font-medium text-xs md:text-sm transition-colors ${
+                      className={`px-3 py-1 rounded-lg font-medium text-xs transition-colors ${
                         selectedLabFilter === 'central'
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600 border border-gray-300'
@@ -1038,24 +971,21 @@ const TransactionsPage = ({ labId: propLabId }) => {
                     >
                       Central Store
                     </motion.button>
-                    {[...Array(8)].map((_, i) => {
-                      const lab = `LAB0${i + 1}`;
-                      return (
-                        <motion.button
-                          key={lab}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => handleLabFilterChange(lab)}
-                          className={`px-4 py-2 rounded-lg font-medium text-xs md:text-sm transition-colors ${
-                            selectedLabFilter === lab
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600 border border-gray-300'
-                          }`}
-                        >
-                          {lab}
-                        </motion.button>
-                      );
-                    })}
+                    {labs.map((lab) => (
+                      <motion.button
+                        key={lab.labId}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleLabFilterChange(lab.labId)}
+                        className={`px-3 py-1 rounded-lg font-medium text-xs transition-colors ${
+                          selectedLabFilter === lab.labId
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600 border border-gray-300'
+                        }`}
+                      >
+                        {lab.labName}
+                      </motion.button>
+                    ))}
                   </div>
                 )}
                 {/* Print All Transactions Button */}
@@ -1065,7 +995,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handlePrintAllTransactionsPDF}
                   disabled={isPrinting || filteredTransactions.length === 0}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-xs transition-all duration-200 ${
                     isPrinting || filteredTransactions.length === 0
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
@@ -1089,31 +1019,31 @@ const TransactionsPage = ({ labId: propLabId }) => {
 
               
               {/* Transaction Count */}
-              <div className="mb-4 text-xs md:text-sm text-gray-600">
+              <div className="mb-3 text-xs text-gray-600">
                 Showing {indexOfFirstTransaction + 1}-{Math.min(indexOfLastTransaction, filteredTransactions.length)} of {filteredTransactions.length} transactions
               </div>
 
               {/* Table */}
               {filteredTransactions.length === 0 ? (
-                <div className="bg-gray-50 p-8 rounded-xl border border-gray-200 text-center">
-                  <FiSearch className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 text-lg font-medium">No transactions found</p>
-                  <p className="text-gray-500 text-sm mt-2">Try adjusting your search or filter criteria</p>
+                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 text-center">
+                  <FiSearch className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-600 text-base font-medium">No transactions found</p>
+                  <p className="text-gray-500 text-xs mt-1">Try adjusting your search or filter criteria</p>
                 </div>
               ) : (
                 <>
-                  <div className="overflow-x-auto rounded-xl border border-gray-200 mb-4 custom-scrollbar">
-                    <table className="min-w-full text-xs md:text-sm">
+                  <div className="overflow-x-auto rounded-xl border border-gray-200 mb-4">
+                    <table className="min-w-full text-xs">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-4 md:px-6 py-3 text-left font-semibold text-gray-900">Chemical</th>
-                          <th className="px-4 md:px-6 py-3 text-left font-semibold text-gray-900">Quantity</th>
-                          <th className="px-4 md:px-6 py-3 text-left font-semibold text-gray-900">Unit</th>
-                          <th className="px-4 md:px-6 py-3 text-left font-semibold text-gray-900">Type</th>
-                          <th className="px-4 md:px-6 py-3 text-left font-semibold text-gray-900">From Lab</th>
-                          <th className="px-4 md:px-6 py-3 text-left font-semibold text-gray-900">To Lab</th>
-                          <th className="px-4 md:px-6 py-3 text-left font-semibold text-gray-900">By</th>
-                          <th className="px-4 md:px-6 py-3 text-left font-semibold text-gray-900">Date</th>
+                          <th className="px-3 md:px-4 py-2 text-left font-medium text-gray-900 text-xs">Chemical</th>
+                          <th className="px-3 md:px-4 py-2 text-left font-medium text-gray-900 text-xs">Quantity</th>
+                          <th className="px-3 md:px-4 py-2 text-left font-medium text-gray-900 text-xs">Unit</th>
+                          <th className="px-3 md:px-4 py-2 text-left font-medium text-gray-900 text-xs">Type</th>
+                          <th className="px-3 md:px-4 py-2 text-left font-medium text-gray-900 text-xs">From Lab</th>
+                          <th className="px-3 md:px-4 py-2 text-left font-medium text-gray-900 text-xs">To Lab</th>
+                          <th className="px-3 md:px-4 py-2 text-left font-medium text-gray-900 text-xs">By</th>
+                          <th className="px-3 md:px-4 py-2 text-left font-medium text-gray-900 text-xs">Date</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 bg-white">
@@ -1125,35 +1055,35 @@ const TransactionsPage = ({ labId: propLabId }) => {
                             transition={{ delay: index * 0.02 }}
                             className="hover:bg-blue-50 transition-colors"
                           >
-                            <td className="px-4 md:px-6 py-4 text-gray-900">
+                            <td className="px-3 md:px-4 py-3 text-gray-900 text-xs">
                               {tx.chemicalName || (
                                 <span className="flex items-center">
                                   <span className="text-gray-500 italic">Unnamed Chemical</span>
-                                  <span className="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-full">
+                                  <span className="ml-2 px-1 py-0.5 text-xs bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-full">
                                     Missing
                                   </span>
                                 </span>
                               )}
                             </td>
-                            <td className="px-4 md:px-6 py-4 text-gray-900 font-medium">{parseInt(tx.quantity)}</td>
-                            <td className="px-4 md:px-6 py-4 text-gray-700">{tx.unit}</td>
-                            <td className="px-4 md:px-6 py-4">
-                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getTransactionTypeColor(tx.transactionType)}`}>
+                            <td className="px-3 md:px-4 py-3 text-gray-900 font-medium text-xs">{parseInt(tx.quantity)}</td>
+                            <td className="px-3 md:px-4 py-3 text-gray-700 text-xs">{tx.unit}</td>
+                            <td className="px-3 md:px-4 py-3">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTransactionTypeColor(tx.transactionType)}`}>
                                 {tx.transactionType}
                               </span>
                             </td>
-                            <td className="px-4 md:px-6 py-4 text-gray-900">
+                            <td className="px-3 md:px-4 py-3 text-gray-900 text-xs">
                               <span className={`font-medium ${tx.fromLabId === 'central-store' ? 'text-blue-600' : 'text-gray-900'}`}>
                                 {getLabDisplayName(tx.fromLabId)}
                               </span>
                             </td>
-                            <td className="px-4 md:px-6 py-4 text-gray-900">
+                            <td className="px-3 md:px-4 py-3 text-gray-900 text-xs">
                               <span className={`font-medium ${tx.toLabId === 'central-store' ? 'text-blue-600' : 'text-gray-900'}`}>
                                 {getLabDisplayName(tx.toLabId)}
                               </span>
                             </td>
-                            <td className="px-4 md:px-6 py-4 text-gray-700">{tx.createdBy?.name || 'Admin or Central Store'}</td>
-                            <td className="px-4 md:px-6 py-4 text-gray-700">
+                            <td className="px-3 md:px-4 py-3 text-gray-700 text-xs">{tx.createdBy?.name || 'Admin or Central Store'}</td>
+                            <td className="px-3 md:px-4 py-3 text-gray-700 text-xs">
                               {new Date(tx.createdAt).toLocaleString()}
                             </td>
                           </motion.tr>
@@ -1223,7 +1153,6 @@ const TransactionsPage = ({ labId: propLabId }) => {
               )}
             </motion.div>
           </div>
-        </motion.div>
       </div>
 
 

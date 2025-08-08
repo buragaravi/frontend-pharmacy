@@ -51,28 +51,64 @@ const CourseCard = ({ course, onEdit, onDelete, canManage, onViewDetails, onAddS
           </div>
         )}
 
-        {/* Batch Summary */}
+        {/* Course Stats Summary */}
         <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold text-gray-700">
-              Batches ({course.batches.length})
-            </span>
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-            >
-              <svg 
-                className={`w-4 h-4 transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+          <div className="grid grid-cols-2 gap-4 mb-3">
+            {/* Batches Count */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-semibold text-blue-700">
+                  Batches
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsExpanded(!isExpanded);
+                  }}
+                  className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                >
+                  <svg 
+                    className={`w-4 h-4 transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+              <div className="text-xl font-bold text-blue-600 mb-1">
+                {course.batches.length}
+              </div>
+              <div className="text-xs text-blue-600">
+                {activeBatches.length} active • {course.batches.length - activeBatches.length} inactive
+              </div>
+            </div>
+
+            {/* Subjects Count */}
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-semibold text-purple-700">
+                  Subjects
+                </span>
+                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <div className="text-xl font-bold text-purple-600 mb-1">
+                {course.subjectsCount !== undefined ? course.subjectsCount : '...'}
+              </div>
+              <div className="text-xs text-purple-600">
+                {course.subjectsCount !== undefined 
+                  ? (course.subjectsCount > 0 ? 'Click to view details' : 'No subjects yet')
+                  : 'Loading...'
+                }
+              </div>
+            </div>
           </div>
           
-          <div className="flex flex-wrap gap-2 mb-2">
+          {/* Academic Years */}
+          <div className="flex flex-wrap gap-2">
             {academicYears.slice(0, 3).map(year => (
               <span
                 key={year}
@@ -86,10 +122,6 @@ const CourseCard = ({ course, onEdit, onDelete, canManage, onViewDetails, onAddS
                 +{academicYears.length - 3} more
               </span>
             )}
-          </div>
-          
-          <div className="text-xs text-gray-500">
-            {activeBatches.length} active • {course.batches.length - activeBatches.length} inactive
           </div>
         </div>
 

@@ -6,6 +6,7 @@ import MyRequestsPage from '../requests/MyRequestsPage';
 import CreateRequestForm from '../requests/CreateRequestForm';
 import ProductList from '../products/ProductList';
 import RequirementsPage from '../requirements/RequirementsPage';
+import AuditRouter from '../audit/AuditRouter';
 import { useNavigate } from 'react-router-dom';
 
 const menuItems = [
@@ -28,6 +29,11 @@ const menuItems = [
     key: 'products', 
     label: 'Products', 
     component: () => <ProductList userRole="faculty" showAdminActions={false} />
+  },
+  { 
+    key: 'audit', 
+    label: 'Quality Audits', 
+    component: () => <AuditRouter />
   },
   { 
     key: 'profile', 

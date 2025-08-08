@@ -4,15 +4,11 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
 import ProductForm from '../products/ProductForm';
-import { useResponsiveColors } from '../../hooks/useResponsiveColors';
 import SafeButton from '../../components/SafeButton';
 
 const API_BASE = 'https://backend-pharmacy-5541.onrender.com/api';
 
 const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
-  // Color utilities
-  const { getSafeBackground, getSafeBackdrop } = useResponsiveColors();
-
   // Helper function to get category display name
   const getCategoryName = () => {
     const categoryNames = {
@@ -623,10 +619,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
   };
 
   return (
-    <div 
-      className="w-full h-auto"
-      style={getSafeBackground('background', '#f9fafb')}
-    >
+    <div className="w-full bg-white">
       {/* Draft Prompt Dialog */}
       {showDraftPrompt && (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 bg-black/40 backdrop-blur-sm overflow-y-auto">
@@ -634,14 +627,14 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
             <div className="text-xl font-bold mb-3 text-gray-800">Continue where you left off?</div>
             <div className="mb-6 text-gray-600">A draft {getCategoryName().toLowerCase()} invoice was found. Would you like to continue editing it or discard?</div>
             <div className="flex justify-center gap-4">
-              <button 
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105" 
+              <SafeButton 
+                variant="primary"
                 onClick={() => setShowDraftPrompt(false)}
               >
                 Continue Editing
-              </button>
-              <button 
-                className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl transition-all duration-200 transform hover:scale-105" 
+              </SafeButton>
+              <SafeButton 
+                variant="secondary"
                 onClick={() => {
                   localStorage.removeItem(DRAFT_KEY);
                   setShowDraftPrompt(false);
@@ -652,52 +645,40 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                 }}
               >
                 Discard Draft
-              </button>
+              </SafeButton>
             </div>
           </div>
         </div>
       )}
 
-      <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
-        {/* Enhanced Background Effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-
+      <div className="w-full max-w-none mx-auto bg-white overflow-hidden relative">
         {/* Enhanced Header Section */}
-        <div 
-          className="relative p-8 text-white overflow-hidden"
-          style={getSafeBackground('header', '#1d4ed8')}
-        >
+        <div className="relative p-2 rounded-3xl mt-4 text-white overflow-hidden bg-blue-600">
           <div className="absolute inset-0 bg-blue-800/20"></div>
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               <div className="flex items-center gap-4">
-                <div 
-                  className="p-4 rounded-2xl border border-white/30"
-                  style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
-                >
+                <div className="p-4 rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md">
                   {/* Dynamic icon based on category */}
                   {category === 'glassware' && (
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
                     </svg>
                   )}
                   {category === 'equipment' && (
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   )}
                   {category === 'others' && (
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
                   )}
                 </div>
                 <div>
-                  <h1 className="text-3xl lg:text-4xl font-bold mb-2">
+                  <h1 className="text-lg lg:text-xl font-bold mb-2">
                     {getCategoryName()} Invoice
                   </h1>
                   <p className="text-blue-100 text-lg">Create and manage your {getCategoryName().toLowerCase()} invoices</p>
@@ -705,10 +686,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                <div 
-                  className="px-6 py-3 rounded-2xl border border-white/30"
-                  style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
-                >
+                <div className="px-6 py-3 rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md">
                   <div className="text-sm text-blue-100">Voucher ID</div>
                   <div className="text-lg font-bold">{voucherId || 'Loading...'}</div>
                 </div>
@@ -726,10 +704,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
         </div>
 
         {/* Form Content */}
-        <div 
-          className="p-6"
-          style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.8)')}
-        >
+        <div className="p-6 bg-white/80 backdrop-blur-md">
           <form onSubmit={handleSubmit} className="space-y-6">
             
             {/* Enhanced Alert Messages */}
@@ -1208,23 +1183,27 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                 {/* Buttons Container - Always side by side */}
                 <div className="flex flex-row gap-2 w-full sm:w-auto order-1 sm:order-2">
                   {/* Add Product Button - Show on all screens */}
-                  <button
+                  <SafeButton
                     type="button"
                     onClick={addLineItem}
-                    className="flex-1 sm:flex-none px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg text-xs sm:text-sm"
+                    variant="success"
+                    size="sm"
+                    className="flex-1 sm:flex-none text-xs sm:text-sm"
                   >
                     <svg className="w-3 sm:w-4 h-3 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     <span className="hidden xs:inline">Add Product</span>
                     <span className="xs:hidden">Add</span>
-                  </button>
+                  </SafeButton>
                   
                   {/* Submit Button */}
-                  <button
+                  <SafeButton
                     type="submit"
                     disabled={submitting || !selectedVendor || !invoiceNumber || !invoiceDate || lineItems.some(item => !item.productId || !item.quantity || !item.totalPrice)}
-                    className="flex-1 sm:flex-none px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg disabled:cursor-not-allowed text-xs sm:text-sm"
+                    variant="primary"
+                    size="sm"
+                    className="flex-1 sm:flex-none text-xs sm:text-sm"
                   >
                     {submitting ? (
                       <>
@@ -1244,7 +1223,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                         <span className="xs:hidden">Create</span>
                       </>
                     )}
-                  </button>
+                  </SafeButton>
                 </div>
               </div>
             </div>
@@ -1276,19 +1255,20 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                         )}
                       </ul>
                     </div>
-                    <button
+                    <SafeButton
                       type="button"
                       onClick={() => {
                         setProductFormIndex(0);
                         setShowProductFormModal(true);
                       }}
-                      className="px-4 py-2 bg-yellow-200 hover:bg-yellow-300 text-yellow-800 font-medium rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 text-sm"
+                      variant="warning"
+                      size="sm"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
                       Register Missing Products
-                    </button>
+                    </SafeButton>
                   </div>
                 </div>
               </div>
@@ -1312,14 +1292,16 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                     {productFormIndex + 1} of {unregisteredProducts.length} products
                   </p>
                 </div>
-                <button
+                <SafeButton
                   onClick={() => setShowProductFormModal(false)}
-                  className="text-white/80 hover:text-white transition-colors duration-200 p-2 hover:bg-white/20 rounded-lg"
+                  variant="secondary"
+                  size="sm"
+                  className="text-white/80 hover:text-white"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                </button>
+                </SafeButton>
               </div>
             </div>
 

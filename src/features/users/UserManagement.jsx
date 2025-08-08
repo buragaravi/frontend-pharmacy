@@ -517,23 +517,13 @@
     return (
       <div 
         className="w-full"
-        style={getSafeBackground('light', '#eff6ff')}
       >
         <div 
-          className="w-full max-w-none mx-auto rounded-3xl shadow-2xl overflow-hidden relative"
-          style={getSafeBackdrop('12px', 'rgba(255, 255, 255, 0.9)')}
+          className="w-full max-w-none mx-auto overflow-hidden relative"
         >
-          {/* Enhanced Background Effects */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-          </div>
-
           {/* Enhanced Header Section */}
           <div 
-            className="relative p-6 md:p-8 text-white overflow-hidden"
-            style={getSafeBackground('header', '#1e3a8a')}
+            className="relative  p-3 bg-blue-600 rounded-b-3xl text-white overflow-hidden"
           >
             <div className="absolute inset-0 bg-blue-900/20"></div>
             <div className="relative z-10">
@@ -541,20 +531,20 @@
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="flex items-center gap-3 md:gap-4">
                     <div 
-                      className="p-3 md:p-4 rounded-2xl border border-white/30"
+                      className="p-1 md:p-4 rounded-2xl border border-white/30"
                       style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
                     >
-                      <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                       </svg>
                     </div>
                     <div>
-                      <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-1 md:mb-2">User Management</h1>
+                      <h1 className="text-xl lg:text-2xl font-bold mb-1 md:mb-2">User Management</h1>
                     </div>
                   </div>
                   
                   <SafeButton
-                    onClick={handleAddUser}
+                    onClick={handleAddUser} 
                     variant="success"
                     className="w-full sm:w-auto"
                   >

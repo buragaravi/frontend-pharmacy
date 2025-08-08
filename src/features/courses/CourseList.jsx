@@ -172,7 +172,42 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      setCourses(res.data?.data || []);
+      const coursesData = res.data?.data || [];
+      
+      // Fetch subjects count for each course using subjects API
+      const coursesWithSubjects = await Promise.all(
+        coursesData.map(async (course) => {
+          try {
+            // Get subjects by courseId to count them
+            const subjectsRes = await axios.get(
+              `https://backend-pharmacy-5541.onrender.com/api/subjects?courseId=${course._id}&isActive=true`,
+              {
+                headers: { Authorization: `Bearer ${token}` }
+              }
+            );
+            
+            // Count subjects from the API response
+            let subjectsCount = 0;
+            console.log(subjectsRes.data);
+            if (subjectsRes.data && subjectsRes.data.success && subjectsRes.data.data) {
+              subjectsCount = subjectsRes.data.data.length;
+            }
+            
+            return {
+              ...course,
+              subjectsCount
+            };
+          } catch (subjectError) {
+            console.warn(`Failed to fetch subjects for course ${course._id}:`, subjectError);
+            return {
+              ...course,
+              subjectsCount: 0
+            };
+          }
+        })
+      );
+      
+      setCourses(coursesWithSubjects);
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch courses');
@@ -232,18 +267,48 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
     const successCount = results.filter(result => result.success).length;
     if (successCount > 0) {
       Swal.fire({
-        title: 'Success!',
+        title: 'Subjects Created!',
         text: `${successCount} subject${successCount > 1 ? 's' : ''} created successfully`,
         icon: 'success',
-        confirmButtonColor: '#10B981'
+        confirmButtonColor: '#2563eb',
+        background: '#ffffff',
+        backdrop: 'rgba(0,0,0,0.4)',
+        customClass: {
+          popup: 'rounded-2xl shadow-2xl',
+          title: 'text-xl font-bold text-green-700',
+          content: 'text-gray-600'
+        },
+        showClass: {
+          popup: 'animate__animated animate__zoomIn animate__faster'
+        }
       });
-      // Optionally refresh courses or update UI
+      
+      // Refresh courses to update subjects count
       fetchCourses();
     }
   };
 
   // Handle course creation
   const handleCreateCourse = async (courseData) => {
+    // Show loading alert
+    Swal.fire({
+      title: 'Creating Course...',
+      text: 'Please wait while we process your request',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      background: '#ffffff',
+      backdrop: 'rgba(0,0,0,0.4)',
+      customClass: {
+        popup: 'rounded-2xl shadow-2xl',
+        title: 'text-xl font-bold text-gray-900',
+        content: 'text-gray-600'
+      },
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
@@ -254,9 +319,42 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
       setCourses([res.data.data, ...courses]);
       setShowForm(false);
       setError(null);
+      
+      // Show success message with SweetAlert
+      await Swal.fire({
+        icon: 'success',
+        title: 'Course Created!',
+        text: res.data.message || 'Course has been successfully created',
+        confirmButtonText: 'Excellent!',
+        confirmButtonColor: '#2563eb',
+        background: '#ffffff',
+        backdrop: 'rgba(0,0,0,0.4)',
+        customClass: {
+          popup: 'rounded-2xl shadow-2xl',
+          title: 'text-xl font-bold text-green-700',
+          content: 'text-gray-600'
+        },
+        showClass: {
+          popup: 'animate__animated animate__zoomIn animate__faster'
+        }
+      });
+      
       fetchStats(); // Refresh stats
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create course');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Creation Failed',
+        text: err.response?.data?.message || 'Failed to create course. Please try again.',
+        confirmButtonText: 'Try Again',
+        confirmButtonColor: '#ef4444',
+        background: '#ffffff',
+        backdrop: 'rgba(0,0,0,0.4)',
+        customClass: {
+          popup: 'rounded-2xl shadow-2xl',
+          title: 'text-xl font-bold text-red-700',
+          content: 'text-gray-600'
+        }
+      });
     } finally {
       setLoading(false);
     }
@@ -264,6 +362,25 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
 
   // Handle course update
   const handleUpdateCourse = async (id, courseData) => {
+    // Show loading alert
+    Swal.fire({
+      title: 'Updating Course...',
+      text: 'Please wait while we process your request',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      background: '#ffffff',
+      backdrop: 'rgba(0,0,0,0.4)',
+      customClass: {
+        popup: 'rounded-2xl shadow-2xl',
+        title: 'text-xl font-bold text-gray-900',
+        content: 'text-gray-600'
+      },
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
@@ -283,12 +400,22 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
         setError(null);
         
         // Show success message with SweetAlert
-        Swal.fire({
-          title: 'Success!',
-          text: 'Course updated successfully!',
+        await Swal.fire({
           icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#10B981'
+          title: 'Course Updated!',
+          text: res.data.message || 'Course has been successfully updated',
+          confirmButtonText: 'Excellent!',
+          confirmButtonColor: '#2563eb',
+          background: '#ffffff',
+          backdrop: 'rgba(0,0,0,0.4)',
+          customClass: {
+            popup: 'rounded-2xl shadow-2xl',
+            title: 'text-xl font-bold text-green-700',
+            content: 'text-gray-600'
+          },
+          showClass: {
+            popup: 'animate__animated animate__zoomIn animate__faster'
+          }
         });
         
         fetchStats(); // Refresh stats
@@ -298,15 +425,21 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
     } catch (err) {
       console.error('Update error:', err);
       const errorMessage = err.response?.data?.message || err.message || 'Failed to update course';
-      setError(errorMessage);
       
       // Show error message with SweetAlert
-      Swal.fire({
-        title: 'Error!',
-        text: errorMessage,
+      await Swal.fire({
         icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#EF4444'
+        title: 'Update Failed',
+        text: errorMessage,
+        confirmButtonText: 'Try Again',
+        confirmButtonColor: '#ef4444',
+        background: '#ffffff',
+        backdrop: 'rgba(0,0,0,0.4)',
+        customClass: {
+          popup: 'rounded-2xl shadow-2xl',
+          title: 'text-xl font-bold text-red-700',
+          content: 'text-gray-600'
+        }
       });
     } finally {
       setLoading(false);
@@ -316,17 +449,46 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
   // Handle course deletion
   const handleDeleteCourse = async (id) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'You want to delete this course? This action cannot be undone.',
+      title: 'Delete Course',
+      text: 'Are you sure you want to delete this course? This action cannot be undone.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#EF4444',
-      cancelButtonColor: '#6B7280',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel'
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel',
+      background: '#ffffff',
+      backdrop: 'rgba(0,0,0,0.4)',
+      customClass: {
+        popup: 'rounded-2xl shadow-2xl',
+        title: 'text-xl font-bold text-gray-900',
+        content: 'text-gray-600'
+      },
+      showClass: {
+        popup: 'animate__animated animate__zoomIn animate__faster'
+      }
     });
 
     if (!result.isConfirmed) return;
+
+    // Show loading alert
+    Swal.fire({
+      title: 'Deleting Course...',
+      text: 'Please wait while we process your request',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      background: '#ffffff',
+      backdrop: 'rgba(0,0,0,0.4)',
+      customClass: {
+        popup: 'rounded-2xl shadow-2xl',
+        title: 'text-xl font-bold text-gray-900',
+        content: 'text-gray-600'
+      },
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     setLoading(true);
     try {
@@ -339,23 +501,40 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
       setError(null);
       
       // Show success message
-      Swal.fire({
-        title: 'Deleted!',
-        text: 'Course has been deleted successfully.',
+      await Swal.fire({
         icon: 'success',
-        confirmButtonColor: '#10B981'
+        title: 'Course Deleted!',
+        text: 'Course has been successfully deleted',
+        confirmButtonText: 'Great!',
+        confirmButtonColor: '#2563eb',
+        background: '#ffffff',
+        backdrop: 'rgba(0,0,0,0.4)',
+        customClass: {
+          popup: 'rounded-2xl shadow-2xl',
+          title: 'text-xl font-bold text-green-700',
+          content: 'text-gray-600'
+        },
+        showClass: {
+          popup: 'animate__animated animate__zoomIn animate__faster'
+        }
       });
       
       fetchStats(); // Refresh stats
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete course');
-      
       // Show error message
-      Swal.fire({
-        title: 'Error!',
-        text: err.response?.data?.message || 'Failed to delete course',
+      await Swal.fire({
         icon: 'error',
-        confirmButtonColor: '#EF4444'
+        title: 'Deletion Failed',
+        text: err.response?.data?.message || 'Failed to delete course. Please try again.',
+        confirmButtonText: 'Try Again',
+        confirmButtonColor: '#ef4444',
+        background: '#ffffff',
+        backdrop: 'rgba(0,0,0,0.4)',
+        customClass: {
+          popup: 'rounded-2xl shadow-2xl',
+          title: 'text-xl font-bold text-red-700',
+          content: 'text-gray-600'
+        }
       });
     } finally {
       setLoading(false);
@@ -489,19 +668,19 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
           {/* Main Content Card */}
           <div className="glass-effect bg-white/90 rounded-2xl shadow-xl border border-white/20 overflow-hidden animate-slideInBottom">
             {/* Enhanced Header */}
-            <div className="relative p-6 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-700 text-white overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-800/20 to-blue-800/20"></div>
+            <div className="relative p-3 sm:p-4 lg:p-6 bg-gradient-to-r from-blue-600 to-blue-600 text-white overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-blue-600/20"></div>
               <div className="relative z-10">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 lg:gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="p-2 sm:p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                      <svg className="w-5 h-5 sm:w-6 sm:w-6 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
                     </div>
                     <div>
-                      <h1 className="text-3xl font-bold mb-1">Course Management</h1>
-                      <p className="text-blue-100 text-sm">Manage courses and academic batches</p>
+                      <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold mb-1">Course Management</h1>
+                      <p className="text-blue-100 text-sm sm:text-base">Manage courses and academic batches</p>
                     </div>
                   </div>
                   
@@ -511,12 +690,13 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                         setEditingCourse(null);
                         setShowForm(true);
                       }}
-                      className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-xl text-white font-semibold hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover-lift"
+                      className="px-4 sm:px-5 lg:px-6 py-2.5 sm:py-3 bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl text-white font-semibold hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover-lift text-sm sm:text-base"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
-                      Add Course
+                      <span className="hidden sm:inline">Add Course</span>
+                      <span className="sm:hidden">Add</span>
                     </button>
                   )}
                 </div>
@@ -524,38 +704,38 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
               
               {/* Decorative elements */}
               <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
-                <div className="w-40 h-40 bg-white/5 rounded-full"></div>
+                <div className="w-32 h-32 sm:w-40 sm:h-40 bg-white/5 rounded-full"></div>
               </div>
               <div className="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2">
-                <div className="w-32 h-32 bg-white/5 rounded-full"></div>
+                <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white/5 rounded-full"></div>
               </div>
             </div>
 
             {/* Controls Section */}
-            <div className="p-6 border-b border-gray-200/50 bg-white/80 backdrop-blur-sm">
-              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-200/50 bg-white/80 backdrop-blur-sm">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 lg:gap-4">
                 {/* Search and Filters */}
-                <div className="flex flex-col sm:flex-row gap-4 flex-1 mobile-stack">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-1 w-full lg:w-auto">
                   {/* Search Bar */}
-                  <div className="relative flex-1 max-w-md mobile-full">
+                  <div className="relative flex-1 max-w-full sm:max-w-md">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
                     </div>
                     <input
                       type="text"
-                      placeholder="Search courses, codes, departments..."
-                      className="block w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+                      placeholder="Search courses..."
+                      className="block w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md text-sm"
                       value={filters.search}
                       onChange={(e) => setFilters({...filters, search: e.target.value})}
                     />
                   </div>
 
                   {/* Filter Dropdowns */}
-                  <div className="flex gap-3 mobile-stack">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     <select
-                      className="px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md mobile-full"
+                      className="px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md text-sm w-full sm:w-auto"
                       value={filters.department}
                       onChange={(e) => setFilters({...filters, department: e.target.value})}
                     >
@@ -566,7 +746,7 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                     </select>
 
                     <select
-                      className="px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md mobile-full"
+                      className="px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md text-sm w-full sm:w-auto"
                       value={filters.academicYear}
                       onChange={(e) => setFilters({...filters, academicYear: e.target.value})}
                     >
@@ -577,7 +757,7 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                     </select>
 
                     <select
-                      className="px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md mobile-full"
+                      className="px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md text-sm w-full sm:w-auto"
                       value={filters.status}
                       onChange={(e) => setFilters({...filters, status: e.target.value})}
                     >
@@ -589,52 +769,54 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                 </div>
 
                 {/* View Toggle */}
-                <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1">
+                <div className="flex items-center gap-1 sm:gap-2 bg-gray-100 rounded-lg sm:rounded-xl p-1 w-full sm:w-auto">
                   <button
                     onClick={() => setViewMode('cards')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 view-toggle ${
+                    className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 view-toggle flex-1 sm:flex-none ${
                       viewMode === 'cards' 
                         ? 'bg-white text-blue-600 shadow-md' 
                         : 'text-gray-600 hover:text-blue-600'
                     }`}
                   >
-                    <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
-                    Cards
+                    <span className="hidden sm:inline">Cards</span>
+                    <span className="sm:hidden">Grid</span>
                   </button>
                   <button
                     onClick={() => setViewMode('table')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 view-toggle ${
+                    className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 view-toggle flex-1 sm:flex-none ${
                       viewMode === 'table' 
                         ? 'bg-white text-blue-600 shadow-md' 
                         : 'text-gray-600 hover:text-blue-600'
                     }`}
                   >
-                    <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H3a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
-                    Table
+                    <span className="hidden sm:inline">Table</span>
+                    <span className="sm:hidden">List</span>
                   </button>
                 </div>
               </div>
             </div>
 
             {/* Main Content Area */}
-            <div className="p-6 bg-white/60 backdrop-blur-sm min-h-[400px]">
+            <div className="p-3 sm:p-4 lg:p-6 bg-white/60 backdrop-blur-sm min-h-[400px]">
               {loading ? (
                 <div className="animate-fadeInScale">
                   {viewMode === 'cards' ? <CourseCardSkeleton /> : <CourseTableSkeleton />}
                 </div>
               ) : filteredCourses.length === 0 ? (
-                <div className="text-center py-16 animate-fadeInScale">
-                  <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-100 rounded-2xl flex items-center justify-center mb-6">
-                    <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="text-center py-12 sm:py-16 animate-fadeInScale">
+                  <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-100 to-blue-100 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6">
+                    <svg className="w-10 h-10 sm:w-12 sm:h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-700 mb-2">No courses found</h3>
-                  <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-700 mb-2">No courses found</h3>
+                  <p className="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6 max-w-md mx-auto px-4">
                     {filters.search || filters.department !== 'all' || filters.academicYear !== 'all' 
                       ? "Try adjusting your filters or search terms to find courses."
                       : "Get started by creating your first course with academic batches."
@@ -646,16 +828,17 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                         setEditingCourse(null);
                         setShowForm(true);
                       }}
-                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-600 rounded-xl text-white font-semibold hover:from-blue-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                      className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-600 rounded-lg sm:rounded-xl text-white font-semibold hover:from-blue-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
                     >
-                      Create Your First Course
+                      <span className="hidden sm:inline">Create Your First Course</span>
+                      <span className="sm:hidden">Create Course</span>
                     </button>
                   )}
                 </div>
               ) : (
                 <div className="animate-fadeInScale">
                   {viewMode === 'cards' ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                       {filteredCourses.map((course, index) => (
                         <div 
                           key={course._id} 
@@ -677,17 +860,17 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                       ))}
                     </div>
                   ) : (
-                    // Table View Implementation will go here
-                    <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-lg bg-white">
+                    // Responsive Table View
+                    <div className="overflow-x-auto rounded-lg sm:rounded-xl border border-gray-200 shadow-lg bg-white">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gradient-to-r from-blue-50 to-blue-50">
                           <tr>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Course</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider mobile-hide">Department</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider mobile-hide">Batches</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                            <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Course</th>
+                            <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider hidden sm:table-cell">Department</th>
+                            <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider hidden lg:table-cell">Batches</th>
+                            <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
                             {canManageCourses && (
-                              <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                              <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
                             )}
                           </tr>
                         </thead>
@@ -699,23 +882,31 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                               style={{ animationDelay: `${index * 0.05}s` }}
                               onClick={() => handleViewCourse(course)}
                             >
-                              <td className="px-6 py-4">
+                              <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                                 <div className="flex items-center">
-                                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-600 to-blue-600 flex items-center justify-center text-white font-bold text-sm sm:text-lg shadow-lg">
                                     {course.courseCode.charAt(0)}
                                   </div>
-                                  <div className="ml-4">
-                                    <div className="text-sm font-bold text-gray-900">{course.courseName}</div>
-                                    <div className="text-xs text-gray-500 font-medium">Code: {course.courseCode}</div>
+                                  <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+                                    <div className="text-sm sm:text-base font-bold text-gray-900 truncate">{course.courseName}</div>
+                                    <div className="text-xs sm:text-sm text-gray-500 font-medium">Code: {course.courseCode}</div>
+                                    {/* Show department on mobile */}
+                                    <div className="sm:hidden text-xs text-gray-500 mt-1">
+                                      {course.department || 'N/A'}
+                                    </div>
+                                    {/* Show batch info on mobile */}
+                                    <div className="lg:hidden text-xs text-gray-500 mt-1">
+                                      {course.batches.length} batch{course.batches.length !== 1 ? 'es' : ''} • {course.batches.filter(b => b.isActive).length} active
+                                    </div>
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-6 py-4 mobile-hide">
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                                  {course.department}
+                              <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 hidden sm:table-cell">
+                                <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-lg text-xs font-semibold bg-blue-100 text-blue-800">
+                                  {course.department || 'N/A'}
                                 </span>
                               </td>
-                              <td className="px-6 py-4 mobile-hide">
+                              <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 hidden lg:table-cell">
                                 <div className="text-sm font-semibold text-gray-900">
                                   {course.batches.length} batch{course.batches.length !== 1 ? 'es' : ''}
                                 </div>
@@ -723,36 +914,41 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
                                   {course.batches.filter(b => b.isActive).length} active
                                 </div>
                               </td>
-                              <td className="px-6 py-4">
-                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
+                              <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+                                <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold ${
                                   course.isActive 
                                     ? 'bg-green-100 text-green-800' 
                                     : 'bg-red-100 text-red-800'
                                 }`}>
-                                  {course.isActive ? 'Active' : 'Inactive'}
+                                  <span className="hidden sm:inline">{course.isActive ? 'Active' : 'Inactive'}</span>
+                                  <span className="sm:hidden">{course.isActive ? '✓' : '✗'}</span>
                                 </span>
                               </td>
                               {canManageCourses && (
-                                <td className="px-6 py-4 text-right">
-                                  <div className="flex justify-end gap-2">
+                                <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-right">
+                                  <div className="flex justify-end gap-1 sm:gap-2">
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setEditingCourse(course);
                                         setShowForm(true);
                                       }}
-                                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all duration-200 text-xs font-medium hover-lift"
+                                      className="px-2 sm:px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all duration-200 text-xs font-medium hover-lift"
+                                      title="Edit Course"
                                     >
-                                      Edit
+                                      <span className="hidden sm:inline">Edit</span>
+                                      <span className="sm:hidden">✏️</span>
                                     </button>
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleDeleteCourse(course._id);
                                       }}
-                                      className="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-all duration-200 text-xs font-medium hover-lift"
+                                      className="px-2 sm:px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-all duration-200 text-xs font-medium hover-lift"
+                                      title="Delete Course"
                                     >
-                                      Delete
+                                      <span className="hidden sm:inline">Delete</span>
+                                      <span className="sm:hidden">🗑️</span>
                                     </button>
                                   </div>
                                 </td>

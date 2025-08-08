@@ -4,7 +4,6 @@ import * as Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import ProductForm from '../products/ProductForm';
 import Swal from 'sweetalert2';
-import { useResponsiveColors } from '../../hooks/useResponsiveColors';
 import SafeButton from '../../components/SafeButton';
 
 const API_BASE = 'https://backend-pharmacy-5541.onrender.com/api';
@@ -19,9 +18,6 @@ const getAuthHeaders = () => {
 };
 
 const InvoiceForm = () => {
-    // ==================== COLOR SYSTEM ====================
-    const { getSafeBackground, getSafeBackdrop, getSafeClasses, colorMode, deviceInfo } = useResponsiveColors();
-    
     // ==================== STATE MANAGEMENT ====================
     // Vendor and Product Data
     const [vendors, setVendors] = useState([]);
@@ -587,25 +583,8 @@ const InvoiceForm = () => {
     };
 
     return (
-        <div 
-            className="w-full"
-            style={getSafeBackground('background', '#f9fafb')}
-        >
-            <div 
-                className={getSafeClasses(
-                    "w-full max-w-none mx-auto rounded-3xl shadow-2xl overflow-hidden relative",
-                    "bg-white"
-                )}
-                style={{
-                    ...getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.9)'),
-                }}
-            >
-                {/* Enhanced Background Effects */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-                </div>
-
+        <div className="w-full bg-white">
+            <div className="w-full max-w-none mx-auto  overflow-hidden relative bg-white ">
                 {showDraftPrompt && (
                     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 bg-black/40 backdrop-blur-sm overflow-y-auto">
                         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center border border-gray-200 my-4">
@@ -624,35 +603,26 @@ const InvoiceForm = () => {
                 )}
 
                 {/* Enhanced Header Section */}
-                <div 
-                    className="relative p-8 text-white overflow-hidden"
-                    style={getSafeBackground('header', '#1d4ed8')}
-                >
+                <div className="relative p-2 rounded-3xl mt-4 text-white overflow-hidden bg-blue-600">
                     <div className="absolute inset-0 bg-blue-800/20"></div>
                     <div className="relative z-10">
                         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                             <div className="flex items-center gap-4">
-                                <div 
-                                    className="p-4 rounded-2xl border border-white/30"
-                                    style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
-                                >
-                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="p-4 rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl lg:text-4xl font-bold mb-2">
+                                    <h1 className="text-lg lg:text-xl font-bold mb-2">
                                         Chemical Invoice
                                     </h1>
-                                    <p className="text-blue-100 text-lg">Create and manage your inventory invoices</p>
+                                    <p className="text-blue-100 text-md">Create and manage your inventory invoices</p>
                                 </div>
                             </div>
                             
                             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                                <div 
-                                    className="px-6 py-3 rounded-2xl border border-white/30"
-                                    style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
-                                >
+                                <div className="px-6 py-3 rounded-2xl border border-white/30 bg-white/20 backdrop-blur-md">
                                     <div className="text-sm text-blue-100">Voucher ID</div>
                                     <div className="text-lg font-bold">{voucherId || 'Loading...'}</div>
                                 </div>
@@ -669,23 +639,14 @@ const InvoiceForm = () => {
                     </div>
                 </div>
 
-                <div 
-                    className="p-6"
-                    style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.8)')}
-                >
+                <div className="p-6 bg-white/80 backdrop-blur-md">
                     <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Vendor Information, Invoice Details & File Upload Section - All in One Row */}
-                            <div 
-                                className="p-6 rounded-lg border border-gray-200 shadow-sm"
-                                style={getSafeBackground('light', '#ffffff')}
-                            >
+                            <div className="p-6 rounded-lg border border-gray-200 shadow-sm bg-white">
                                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                                     
                                     {/* Vendor Information */}
-                                    <div 
-                                        className="p-4 rounded-lg border border-green-200"
-                                        style={getSafeBackground('light', '#f0f9f0')}
-                                    >
+                                    <div className="p-4 rounded-lg border border-green-200 bg-green-50">
                                         <div className="flex items-center gap-2 mb-3">
                                             <div className="p-2 bg-green-100 rounded-md">
                                                 <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -744,10 +705,7 @@ const InvoiceForm = () => {
                                     </div>
 
                                     {/* Invoice Details */}
-                                    <div 
-                                        className="p-4 rounded-lg border border-blue-200"
-                                        style={getSafeBackground('light', '#f5f3ff')}
-                                    >
+                                    <div className="p-4 rounded-lg border border-blue-200 bg-violet-50">
                                         <div className="flex items-center gap-2 mb-3">
                                             <div className="p-2 bg-blue-100 rounded-md">
                                                 <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -792,10 +750,7 @@ const InvoiceForm = () => {
                                     </div>
 
                                     {/* File Upload Section */}
-                                    <div 
-                                        className="p-4 rounded-lg border border-blue-200"
-                                        style={getSafeBackground('light', '#eff6ff')}
-                                    >
+                                    <div className="p-4 rounded-lg border border-blue-200 bg-blue-50">
                                         <div className="flex items-center gap-2 mb-3">
                                             <div className="p-2 bg-blue-100 rounded-md">
                                                 <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -906,10 +861,7 @@ const InvoiceForm = () => {
                             </div>
                             
                             {/* Enhanced Line Items Section */}
-                            <div 
-                                className="p-6 rounded-lg border border-gray-200 shadow-sm"
-                                style={getSafeBackground('light', '#ffffff')}
-                            >
+                            <div className="p-6 rounded-lg border border-gray-200 shadow-sm bg-white">
                                 <div className="flex items-center gap-2 mb-4">
                                     <div className="p-2 bg-blue-100 rounded-md">
                                         <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -923,9 +875,7 @@ const InvoiceForm = () => {
                                     <div className="space-y-3 min-w-[800px]">
                                         {lineItems.map((item, idx) => (
                                             <div key={idx} 
-                                                className="grid grid-cols-12 gap-3 items-end rounded-lg p-4 border border-gray-200 relative hover:shadow-md transition-shadow duration-200"
-                                                style={getSafeBackground('light', '#f8f9ff')}
-                                            >
+                                                className="grid grid-cols-12 gap-3 items-end rounded-lg p-4 border border-gray-200 relative hover:shadow-md transition-shadow duration-200 bg-slate-50">
                                                 {/* Product Selection */}
                                                 <div className="col-span-3">
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">Product</label>
@@ -1041,10 +991,7 @@ const InvoiceForm = () => {
                             </div>
 
                             {/* Enhanced Total and Submit Section */}
-                            <div 
-                                className="p-6 rounded-xl border border-blue-200 shadow-sm"
-                                style={getSafeBackground('light', '#eff6ff')}
-                            >
+                            <div className="p-6 rounded-xl border border-blue-200 shadow-sm bg-blue-50">
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                     <div className="text-2xl font-bold text-blue-800">
                                         Total: ₹{totalInvoicePrice.toFixed(2)}
@@ -1095,19 +1042,10 @@ const InvoiceForm = () => {
         
         {/* Product Registration Modal for Missing Products */}
         {showProductFormModal && (
-                <div 
-                    className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 overflow-y-auto"
-                    style={getSafeBackdrop('10px', 'rgba(0, 0, 0, 0.3)')}
-                >
-                    <div 
-                        className="w-full max-w-2xl rounded-2xl shadow-xl border border-gray-200 overflow-hidden relative my-4"
-                        style={getSafeBackground('light', '#ffffff')}
-                    >
+                <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 overflow-y-auto bg-black/30 backdrop-blur-md">
+                    <div className="w-full max-w-2xl rounded-2xl shadow-xl border border-gray-200 overflow-hidden relative my-4 bg-white">
                         {/* Modal Header */}
-                        <div 
-                            className="text-white p-4 rounded-t-2xl"
-                            style={getSafeBackground('header', '#1d4ed8')}
-                        >
+                        <div className="text-white p-4 rounded-t-2xl bg-gradient-to-r from-blue-700 to-blue-600">
                             <div className="flex justify-between items-center">
                                 <div>
                                     <h3 className="text-lg font-bold">Register Missing Product</h3>

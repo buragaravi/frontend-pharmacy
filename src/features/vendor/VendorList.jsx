@@ -447,44 +447,22 @@ const VendorList = () => {
 
   return (
     <>
-      <div className="w-full bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen">
-        <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
-          {/* Enhanced Background Effects */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          </div>
-
-          {/* Breadcrumb Navigation - Matching Invoice Page */}
-          <div className="w-full bg-white/70 backdrop-blur-sm border-b border-gray-200/30">
-            <div className="w-full px-4 py-2">
-              <nav className="flex items-center space-x-1.5 text-xs">
-                <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z" />
-                </svg>
-                <span className="text-gray-500">Admin Dashboard</span>
-                <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-                <span className="text-blue-600 font-medium">Vendor Management</span>
-              </nav>
-            </div>
-          </div>
-
+      <div className="w-full">
+        <div className="w-full max-w-none mx-auto  overflow-hidden relative">
           {/* Enhanced Header Section - Beautiful Gradient at Top */}
-          <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-8 text-white overflow-hidden rounded-t-3xl">
+          <div className="relative bg-blue-600 p-2 text-white overflow-hidden rounded-b-3xl">
             <div className="absolute inset-0 bg-blue-800/20"></div>
             <div className="relative z-10">
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                 <div className="flex items-center gap-4">
                   <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                   </div>
                   <div>
-                    <h1 className="text-3xl lg:text-4xl font-bold mb-2">Vendor Management</h1>
-                    <p className="text-blue-100 text-lg">Manage vendors and track business relationships</p>
+                    <h1 className="text-lg lg:text-xl font-bold mb-2">Vendor Management</h1>
+                    <p className="text-blue-100 text-md">Manage vendors and track business relationships</p>
                   </div>
                 </div>
                 

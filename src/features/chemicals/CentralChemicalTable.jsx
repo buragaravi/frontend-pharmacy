@@ -7,6 +7,7 @@ import * as XLSX from 'xlsx';
 import { Dialog } from '@headlessui/react';
 import { ChartBarIcon, ChartPieIcon, ChevronDownIcon, TableCellsIcon, ViewColumnsIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
+import useLabs from '../../hooks/useLabs';
 
 const CentralChemicalTable = () => {
   const [view, setView] = useState('live');
@@ -61,7 +62,9 @@ const CentralChemicalTable = () => {
   const [showExpiring, setShowExpiring] = useState(false);
 
   const token = localStorage.getItem('token');
-  const LAB_IDS = ['LAB01', 'LAB02', 'LAB03', 'LAB04', 'LAB05', 'LAB06', 'LAB07', 'LAB08'];
+  
+  // Fetch labs dynamically
+  const { labs, loading: labsLoading, error: labsError } = useLabs();
 
   // Add fetch function
   const fetchChemicalDetails = async () => {
@@ -82,10 +85,12 @@ const CentralChemicalTable = () => {
   };
 
   useEffect(() => {
-    fetchData();
-    fetchChemicalDetails();
-    fetchLabDistribution();
-  }, [token]);
+    if (!labsLoading && labs.length > 0) {
+      fetchData();
+      fetchChemicalDetails();
+      fetchLabDistribution();
+    }
+  }, [token, labs, labsLoading]);
 
   useEffect(() => {
     if (showHistoricalData) {
@@ -108,8 +113,8 @@ const CentralChemicalTable = () => {
       });
 
       // Fetch data from all labs
-      const labPromises = LAB_IDS.map(labId => 
-        axios.get(`https://backend-pharmacy-5541.onrender.com/api/chemicals/live/${labId}`, {
+      const labPromises = labs.map(lab => 
+        axios.get(`https://backend-pharmacy-5541.onrender.com/api/chemicals/live/${lab.labId}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
       );
@@ -117,7 +122,7 @@ const CentralChemicalTable = () => {
       const labResponses = await Promise.all(labPromises);
       const labData = labResponses.map((response, index) => ({
         ...response.data,
-        labId: LAB_IDS[index]
+        labId: labs[index].labId
       }));
 
       // Process and combine the data

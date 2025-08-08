@@ -9,7 +9,6 @@ import {
   FiRefreshCw, FiAlertCircle, FiClock
 } from 'react-icons/fi';
 import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 
 const API_BASE = 'https://backend-pharmacy-5541.onrender.com/api';
 
@@ -278,63 +277,41 @@ const InvoiceList = () => {
   const vendors = [...new Set(invoices.map(inv => inv.vendorName || inv.vendorId?.name).filter(Boolean))];
 
   if (loading) return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-50">
-      {/* Enhanced shimmer styles */}
-      <style>{`
-        @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        .shimmer {
-          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-          background-size: 200% 100%;
-          animation: shimmer 2s infinite linear;
-        }
-        .pulse-slow {
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-      `}</style>
-      
+    <div className="min-h-screen w-full flex items-center justify-center bg-white">
       <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Enhanced skeleton header */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8">
-          <div className="h-24 bg-gradient-to-r from-blue-600 to-blue-800 shimmer" />
+          <div className="h-24 bg-gradient-to-r from-blue-600 to-blue-800 animate-pulse" />
           <div className="p-8">
             <div className="flex justify-between items-center mb-8">
-              <div className="shimmer h-12 w-80 rounded-xl" />
+              <div className="h-12 w-80 rounded-xl bg-white border border-gray-200 animate-pulse" />
               <div className="flex gap-4">
-                <div className="shimmer h-12 w-32 rounded-lg" />
-                <div className="shimmer h-12 w-24 rounded-lg" />
+                <div className="h-12 w-32 rounded-lg bg-white border border-gray-200 animate-pulse" />
+                <div className="h-12 w-24 rounded-lg bg-white border border-gray-200 animate-pulse" />
               </div>
             </div>
             
             {/* Enhanced skeleton table */}
             <div className="overflow-hidden rounded-xl border border-gray-200">
               <table className="min-w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-white border-b border-gray-200">
                   <tr>
                     {[...Array(6)].map((_, i) => (
                       <th key={i} className="px-6 py-4">
-                        <div className="shimmer h-4 w-20 rounded-full mx-auto" />
+                        <div className="h-4 w-20 rounded-full mx-auto bg-white border border-gray-200 animate-pulse" />
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-100">
+                <tbody className="bg-white divide-y divide-white">
                   {[...Array(8)].map((_, i) => (
-                    <tr key={i} className="hover:bg-gray-50">
+                    <tr key={i} className="hover:bg-white">
                       {[...Array(6)].map((_, j) => (
                         <td key={j} className="px-6 py-4">
                           <div 
-                            className="shimmer h-4 rounded-full mx-auto" 
-                            style={{ 
-                              width: j === 0 ? '80px' : j === 1 ? '120px' : j === 4 ? '100px' : '60px',
-                              animationDelay: `${(i * 6 + j) * 0.1}s`
-                            }} 
+                            className={`h-4 rounded-full mx-auto bg-white border border-gray-200 animate-pulse ${
+                              j === 0 ? 'w-20' : j === 1 ? 'w-32' : j === 4 ? 'w-24' : 'w-16'
+                            }`}
                           />
                         </td>
                       ))}
@@ -368,52 +345,17 @@ const InvoiceList = () => {
   );
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-blue-50">
-      {/* Global styles for smooth scrolling and animations */}
-      <style>{`
-        @media (prefers-reduced-motion: no-preference) {
-          * {
-            scroll-behavior: smooth;
-          }
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-        .glass-effect {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-      `}</style>
-
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-white rounded-3xl shadow-2xl overflow-hidden w-full border border-white/20"
-        >
+    <div className="w-full bg-white">
+      <div className="w-full">
           {/* Enhanced header with gradient and better typography */}
-          <div className="relative p-8 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-blue-600/20" />
+          <div className="relative p-3 bg-blue-600 mt-4 text-white rounded-3xl overflow-hidden">
+            <div className="absolute inset-0 " />
             <div className="relative z-10">
               <motion.h1 
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="text-3xl lg:text-4xl font-bold mb-2"
+                className="text-lg lg:text-xl font-bold mb-2"
               >
                 Invoice Management
               </motion.h1>
@@ -468,7 +410,7 @@ const InvoiceList = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 relative"
+                  className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 relative"
                 >
                   <FiFilter className="h-5 w-5" />
                   <span className="font-medium">Filters</span>
@@ -497,7 +439,7 @@ const InvoiceList = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={resetFilters}
-                    className="flex items-center gap-2 px-6 py-3 bg-red-50 border border-red-200 rounded-xl shadow-sm hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-red-700"
+                    className="flex items-center gap-2 px-6 py-3 bg-white border border-red-200 rounded-xl shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-red-700"
                   >
                     <FiX className="h-5 w-5" />
                     <span className="font-medium">Clear</span>
@@ -513,7 +455,7 @@ const InvoiceList = () => {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50"
+                className="mb-6 p-4 border border-gray-200 rounded-lg bg-white"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
@@ -580,8 +522,8 @@ const InvoiceList = () => {
           </AnimatePresence>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-white">
+              <thead className="bg-white border-b border-gray-200">
                 <tr>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Invoice ID
@@ -603,7 +545,7 @@ const InvoiceList = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-white">
                 {filteredInvoices.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
@@ -617,7 +559,7 @@ const InvoiceList = () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.3 }}
-                      className="hover:bg-blue-50 cursor-pointer"
+                      className="hover:bg-white cursor-pointer"
                       onClick={() => setSelectedInvoice(invoice)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
@@ -664,7 +606,6 @@ const InvoiceList = () => {
             </table>
           </div>
         </div>
-      </motion.div>
       </div>
 
       {/* Scroll to top button */}
@@ -691,8 +632,8 @@ const InvoiceList = () => {
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             className={`fixed bottom-8 left-8 z-50 p-4 rounded-lg shadow-lg ${
               toast.type === 'success' 
-                ? 'bg-green-50 border border-green-200 text-green-800' 
-                : 'bg-red-50 border border-red-200 text-red-800'
+                ? 'bg-white border border-green-200 text-green-800' 
+                : 'bg-white border border-red-200 text-red-800'
             }`}
           >
             <div className="flex items-center gap-3">
@@ -751,7 +692,7 @@ const InvoiceList = () => {
                         setSelectedInvoice(null);
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
                     >
                       <FiEye className="h-4 w-4" />
                       View All
@@ -775,14 +716,14 @@ const InvoiceList = () => {
                 </div>
                 
                 {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <div className="flex-1 overflow-y-auto">
                   <div className="p-6">
                     {/* Invoice Header */}
                     <motion.div 
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 }}
-                      className="bg-gradient-to-r from-blue-50 to-blue-50 rounded-xl p-6 mb-8"
+                      className="bg-white border border-gray-200 rounded-xl p-6 mb-8"
                     >
                       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
                         <div className="flex-1">
@@ -831,8 +772,8 @@ const InvoiceList = () => {
                       </h3>
                       <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
                         <div className="overflow-x-auto">
-                          <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                          <table className="min-w-full divide-y divide-white">
+                            <thead className="bg-white border-b border-gray-200">
                               <tr>
                                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                   Product
@@ -852,14 +793,14 @@ const InvoiceList = () => {
                                 </th>
                               </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-100">
+                            <tbody className="bg-white divide-y divide-white">
                               {selectedInvoice.lineItems.map((item, index) => (
                                 <motion.tr 
                                   key={index}
                                   initial={{ opacity: 0, x: -20 }}
                                   animate={{ opacity: 1, x: 0 }}
                                   transition={{ delay: 0.3 + index * 0.05 }}
-                                  className="hover:bg-gray-50 transition-colors"
+                                  className="hover:bg-white transition-colors"
                                 >
                                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                     {item.name}
@@ -892,7 +833,7 @@ const InvoiceList = () => {
                       transition={{ delay: 0.4 }}
                       className="flex justify-end"
                     >
-                      <div className="bg-gradient-to-r from-blue-50 to-blue-50 p-6 rounded-xl w-full lg:w-1/2 border border-blue-100">
+                      <div className="bg-white border border-gray-200 p-6 rounded-xl w-full lg:w-1/2">
                         <div className="space-y-3">
                           <div className="flex justify-between items-center text-gray-700">
                             <span className="text-lg font-semibold">Subtotal:</span>
@@ -900,7 +841,7 @@ const InvoiceList = () => {
                               ₹{selectedInvoice.lineItems.reduce((sum, li) => sum + (Number(li.totalPrice) || 0), 0).toFixed(2)}
                             </span>
                           </div>
-                          <div className="border-t border-blue-200 pt-3">
+                          <div className="border-t border-gray-200 pt-3">
                             <div className="flex justify-between items-center">
                               <span className="text-xl font-bold text-gray-900">Total Amount:</span>
                               <span className="text-2xl font-bold text-blue-600">

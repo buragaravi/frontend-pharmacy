@@ -261,7 +261,7 @@ const ExperimentsPage = () => {
   }
 
   return (
-    <div className="w-full mt-4">
+    <div className="w-full">
       <GlobalStyles />
       
       {/* Background floating bubbles */}
@@ -276,48 +276,26 @@ const ExperimentsPage = () => {
         <div className="absolute top-1/3 right-5 w-8 h-8 bg-sky-300/8 rounded-full blur-sm bubble-float-4"></div>
       </div>
       
-      <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
-        {/* Enhanced Background Effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-sky-200/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-sky-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-
-        {/* Breadcrumb Navigation */}
-        <div className="relative z-10 w-full bg-white/70 backdrop-blur-sm border-b border-gray-200/30">
-          <div className="w-full px-4 py-2">
-            <nav className="flex items-center space-x-1.5 text-xs">
-              <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z" />
-              </svg>
-              <span className="text-gray-500">Admin Dashboard</span>
-              <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-              <span className="text-blue-600 font-medium">Experiments Management</span>
-            </nav>
-          </div>
-        </div>
-
+      <div className="w-full max-w-none mx-auto relative">
         {/* Enhanced Header Section with Soft Design */}
-        <div className="relative bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 p-6 border-b border-sky-100 overflow-hidden">
+        <div className="relative p-4 text-white rounded-b-3xl bg-blue-600 overflow-hidden">
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               {/* Title Section */}
               <div className="flex items-center gap-4 flex-1">
                 <div className="p-3 bg-sky-100 rounded-xl flex-shrink-0">
-                  <svg className="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-xl font-medium text-slate-800 mb-1 flex items-center gap-2">
+                  <h1 className="text-xl text-white font-medium text-slate-800 mb-1 flex items-center gap-2">
                     Experiments Management
                     {isLoading && (
                       <div className="w-4 h-4 border-2 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
                     )}
                   </h1>
-                  <p className="text-slate-500 text-sm">
+                  <p className="text-white text-sm">
                     Create and manage laboratory experiments with their chemical requirements
                   </p>
                 </div>

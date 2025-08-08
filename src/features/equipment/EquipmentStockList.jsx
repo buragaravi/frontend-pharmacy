@@ -272,70 +272,77 @@ const EquipmentStockList = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [stickerPrintItem, setStickerPrintItem] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [pagination, setPagination] = useState(null);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
 
-  // Fetch equipment data from central/available endpoint
+  // Debounce search term
   useEffect(() => {
-    const fetchEquipmentData = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const response = await axios.get('https://backend-pharmacy-5541.onrender.com/api/equipment/central/available', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        
-        if (response.data.success) {
-          setEquipmentData(response.data);
-          setFilteredEquipment(response.data.data);
-        } else {
-          setError('Failed to fetch equipment data');
-        }
-      } catch (err) {
-        console.error('Error fetching equipment:', err);
-        setError('Failed to fetch equipment data. Please try again.');
-      } finally {
-        setLoading(false);
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch equipment data from central/available endpoint with pagination
+  const fetchEquipmentData = async (page = 1) => {
+    setLoading(true);
+    setError('');
+    try {
+      const params = {
+        page,
+        limit: 100, // Start with smaller chunks
+        search: debouncedSearchTerm,
+        status: statusFilter !== 'all' ? statusFilter : '',
+        labId: selectedLab !== 'all' ? selectedLab : ''
+      };
+
+      const response = await axios.get('https://backend-pharmacy-5541.onrender.com/api/equipment/central/available', {
+        headers: { Authorization: `Bearer ${token}` },
+        params
+      });
+      
+      if (response.data.success) {
+        setEquipmentData(response.data);
+        setFilteredEquipment(response.data.data);
+        setPagination(response.data.pagination);
+        setCurrentPage(response.data.pagination.currentPage);
+        setTotalPages(response.data.pagination.totalPages);
+        setTotalItems(response.data.pagination.totalItems);
+      } else {
+        setError('Failed to fetch equipment data');
       }
-    };
-
-    if (token) {
-      fetchEquipmentData();
+    } catch (err) {
+      console.error('Error fetching equipment:', err);
+      setError('Failed to fetch equipment data. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  }, [token]);
+  };
 
-  // Filter equipment based on selected lab, search term, and status
   useEffect(() => {
-    if (!equipmentData?.data) return;
-
-    let filtered = equipmentData.data;
-
-    // Filter by lab
-    if (selectedLab !== 'all') {
-      filtered = filtered.filter(item => item.labId === selectedLab);
+    if (token) {
+      setCurrentPage(1); // Reset to first page when filters change
+      fetchEquipmentData(1);
     }
+  }, [token, debouncedSearchTerm, statusFilter, selectedLab]);
 
-    // Filter by search term
-    if (searchTerm.trim()) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(item => 
-        item.name?.toLowerCase().includes(search) ||
-        item.itemId?.toLowerCase().includes(search) ||
-        item.variant?.toLowerCase().includes(search) ||
-        item.vendor?.toLowerCase().includes(search)
-      );
-    }
+  // Handle page changes
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    fetchEquipmentData(page);
+  };
 
-    // Filter by status
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(item => item.status === statusFilter);
-    }
-
-    setFilteredEquipment(filtered);
-  }, [equipmentData, selectedLab, searchTerm, statusFilter]);
+  // Server-side filtering is now handled in the API call above
+  // Remove client-side filtering to improve performance
 
   // Get unique labs from data
   const getLabOptions = () => {
@@ -384,9 +391,7 @@ const EquipmentStockList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50/90 via-blue-50/80 to-indigo-100/90 relative">
-      <GlobalPrintStyles />
-      
+    <div className="w-full relative">
       {/* Floating bubbles background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute -top-4 -left-4 w-72 h-72 bg-blue-300/20 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
@@ -394,7 +399,7 @@ const EquipmentStockList = () => {
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300/20 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes blob {
           0% { transform: translate(0px, 0px) scale(1); }
           33% { transform: translate(30px, -50px) scale(1.1); }
@@ -412,24 +417,9 @@ const EquipmentStockList = () => {
         }
       `}</style>
 
-      {/* Breadcrumb Navigation */}
-      <div className="relative z-10 bg-white/20 backdrop-blur-xl border-b border-white/30 px-6 py-3">
-        <div className="flex items-center text-sm text-slate-600">
-          <span className="hover:text-blue-600 cursor-pointer">Admin Dashboard</span>
-          <svg className="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          <span className="hover:text-blue-600 cursor-pointer">Equipment</span>
-          <svg className="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          <span className="text-slate-800 font-medium">Equipment Stock</span>
-        </div>
-      </div>
-      
-      <div className="relative z-10 w-full max-w-none mx-auto bg-white/20 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden mx-6 mt-6">
+      <div className="relative z-10 w-full max-w-none mx-auto bg-white/20 overflow-hidden">
         {/* Enhanced Header Section */}
-        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-6 text-white overflow-hidden">
+        <div className="relative rounded-b-3xl bg-blue-600 p-4 mb-6 text-white overflow-hidden">
           <div className="absolute inset-0 bg-blue-800/20"></div>
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -440,7 +430,7 @@ const EquipmentStockList = () => {
                   </svg>
                 </div>
                 <div>
-                  <h1 className="text-2xl lg:text-3xl font-bold mb-1">Equipment Stock Management</h1>
+                  <h1 className="text-lg lg:text-xl font-bold mb-1">Equipment Stock Management</h1>
                   <p className="text-blue-100 text-base">Monitor and manage equipment inventory across all laboratories</p>
                 </div>
               </div>
@@ -468,7 +458,7 @@ const EquipmentStockList = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-slate-600">Total Equipment</p>
-                    <p className="text-2xl font-bold text-blue-600">{equipmentData.summary.total}</p>
+                    <p className="text-2xl font-bold text-blue-600">{equipmentData.summary.total?.items || 0}</p>
                   </div>
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -482,7 +472,7 @@ const EquipmentStockList = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-slate-600">Available</p>
-                    <p className="text-2xl font-bold text-green-600">{equipmentData.summary.byStatus?.available || 0}</p>
+                    <p className="text-2xl font-bold text-green-600">{equipmentData.summary.total?.byStatus?.available || 0}</p>
                   </div>
                   <div className="p-2 bg-green-100 rounded-lg">
                     <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -496,7 +486,7 @@ const EquipmentStockList = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-slate-600">Issued</p>
-                    <p className="text-2xl font-bold text-blue-600">{equipmentData.summary.byStatus?.issued || 0}</p>
+                    <p className="text-2xl font-bold text-blue-600">{equipmentData.summary.total?.byStatus?.issued || 0}</p>
                   </div>
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -510,7 +500,7 @@ const EquipmentStockList = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-slate-600">Maintenance</p>
-                    <p className="text-2xl font-bold text-yellow-600">{equipmentData.summary.byStatus?.maintenance || 0}</p>
+                    <p className="text-2xl font-bold text-yellow-600">{equipmentData.summary.total?.byStatus?.maintenance || 0}</p>
                   </div>
                   <div className="p-2 bg-yellow-100 rounded-lg">
                     <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -544,7 +534,7 @@ const EquipmentStockList = () => {
                   onChange={(e) => setSelectedLab(e.target.value)}
                   className="px-4 py-2 bg-white/50 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
                 >
-                  <option value="all">All Labs ({equipmentData?.summary?.total || 0})</option>
+                  <option value="all">All Labs ({totalItems || 0})</option>
                   {getLabOptions().map(lab => (
                     <option key={lab.id} value={lab.id}>
                       {lab.name} ({lab.count})
@@ -724,6 +714,59 @@ const EquipmentStockList = () => {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+          
+          {/* Pagination Controls */}
+          {pagination && totalPages > 1 && (
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-white/30 mt-6">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Showing {((currentPage - 1) * 100) + 1} to {Math.min(currentPage * 100, totalItems)} of {totalItems} items
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Previous
+                  </button>
+                  
+                  {/* Page numbers */}
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const pageNum = Math.max(1, currentPage - 2) + i;
+                    if (pageNum > totalPages) return null;
+                    
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`px-3 py-2 text-sm border rounded-md transition-colors ${
+                          currentPage === pageNum 
+                            ? 'bg-blue-600 text-white border-blue-600' 
+                            : 'border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                  
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+              
+              <div className="mt-4 text-center text-sm text-gray-500">
+                Page {currentPage} of {totalPages}
               </div>
             </div>
           )}

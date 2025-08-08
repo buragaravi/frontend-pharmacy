@@ -484,9 +484,9 @@ const AllLabRequestsPage = () => {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-blue-50/50">
+    <div className="w-full bg-white">
       {/* Full Width Header with Rounded Top Borders and Water Bubbles */}
-      <div className="w-full bg-gradient-to-r from-blue-800/95 via-blue-900/95 to-blue-800/95 backdrop-blur-xl border-b border-white/30 relative overflow-hidden rounded-t-3xl">
+      <div className="w-full rounded-b-3xl bg-blue-600 backdrop-blur-xl  relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-white/10 backdrop-blur-sm"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"></div>
         
@@ -502,14 +502,14 @@ const AllLabRequestsPage = () => {
           <div className="bubble bubble-8"></div>
         </div>
         
-        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
+              <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
                 <RequestIcon />
               </div>
               <div className="text-white">
-                <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">All Lab Requests</h1>
+                <h1 className="text-lg lg:text-xl font-bold tracking-tight">All Lab Requests</h1>
                 <p className="text-blue-100/80 text-sm font-medium">Comprehensive view of all laboratory requests</p>
               </div>
             </div>

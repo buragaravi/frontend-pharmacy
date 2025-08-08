@@ -147,92 +147,92 @@ const RequirementsList = ({ userRole, userId, labId, refreshTrigger, onViewRequi
     <div className="w-full">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 animate-fadeIn transform transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
-          <div className="p-6">
+        <div className="bg-white overflow-hidden shadow-md rounded-lg border border-gray-100 animate-fadeIn transform transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
+          <div className="p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-2 bg-blue-100 rounded-md">
+                  <svg className="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
               </div>
-              <div className="ml-5 w-0 flex-1">
+              <div className="ml-4 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total</dt>
-                  <dd className="text-2xl font-bold text-gray-900">{stats.total}</dd>
+                  <dt className="text-xs font-medium text-gray-500 truncate">Total</dt>
+                  <dd className="text-lg font-bold text-gray-900">{stats.total}</dd>
                 </dl>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 animate-fadeIn transform transition-all duration-200 hover:shadow-xl hover:-translate-y-1" style={{ animationDelay: '0.1s' }}>
-          <div className="p-6">
+        <div className="bg-white overflow-hidden shadow-md rounded-lg border border-gray-100 animate-fadeIn transform transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5" style={{ animationDelay: '0.1s' }}>
+          <div className="p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="p-3 bg-yellow-100 rounded-lg">
+                <div className="p-2 bg-yellow-100 rounded-md">
                   <StatusIcons.pending />
                 </div>
               </div>
-              <div className="ml-5 w-0 flex-1">
+              <div className="ml-4 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Pending</dt>
-                  <dd className="text-2xl font-bold text-yellow-600">{stats.pending}</dd>
+                  <dt className="text-xs font-medium text-gray-500 truncate">Pending</dt>
+                  <dd className="text-lg font-bold text-yellow-600">{stats.pending}</dd>
                 </dl>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 animate-fadeIn transform transition-all duration-200 hover:shadow-xl hover:-translate-y-1" style={{ animationDelay: '0.2s' }}>
-          <div className="p-6">
+        <div className="bg-white overflow-hidden shadow-md rounded-lg border border-gray-100 animate-fadeIn transform transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5" style={{ animationDelay: '0.2s' }}>
+          <div className="p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="p-3 bg-green-100 rounded-lg">
+                <div className="p-2 bg-green-100 rounded-md">
                   <StatusIcons.approved />
                 </div>
               </div>
-              <div className="ml-5 w-0 flex-1">
+              <div className="ml-4 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Approved</dt>
-                  <dd className="text-2xl font-bold text-green-600">{stats.approved}</dd>
+                  <dt className="text-xs font-medium text-gray-500 truncate">Approved</dt>
+                  <dd className="text-lg font-bold text-green-600">{stats.approved}</dd>
                 </dl>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 animate-fadeIn transform transition-all duration-200 hover:shadow-xl hover:-translate-y-1" style={{ animationDelay: '0.3s' }}>
-          <div className="p-6">
+        <div className="bg-white overflow-hidden shadow-md rounded-lg border border-gray-100 animate-fadeIn transform transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5" style={{ animationDelay: '0.3s' }}>
+          <div className="p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="p-3 bg-red-100 rounded-lg">
+                <div className="p-2 bg-red-100 rounded-md">
                   <StatusIcons.rejected />
                 </div>
               </div>
-              <div className="ml-5 w-0 flex-1">
+              <div className="ml-4 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Rejected</dt>
-                  <dd className="text-2xl font-bold text-red-600">{stats.rejected}</dd>
+                  <dt className="text-xs font-medium text-gray-500 truncate">Rejected</dt>
+                  <dd className="text-lg font-bold text-red-600">{stats.rejected}</dd>
                 </dl>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 animate-fadeIn transform transition-all duration-200 hover:shadow-xl hover:-translate-y-1" style={{ animationDelay: '0.4s' }}>
-          <div className="p-6">
+        <div className="bg-white overflow-hidden shadow-md rounded-lg border border-gray-100 animate-fadeIn transform transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5" style={{ animationDelay: '0.4s' }}>
+          <div className="p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="p-3 bg-blue-100 rounded-lg">
+                <div className="p-2 bg-blue-100 rounded-md">
                   <StatusIcons.converted_to_quotation />
                 </div>
               </div>
-              <div className="ml-5 w-0 flex-1">
+              <div className="ml-4 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Converted</dt>
-                  <dd className="text-2xl font-bold text-blue-600">{stats.converted}</dd>
+                  <dt className="text-xs font-medium text-gray-500 truncate">Converted</dt>
+                  <dd className="text-lg font-bold text-blue-600">{stats.converted}</dd>
                 </dl>
               </div>
             </div>
@@ -241,33 +241,33 @@ const RequirementsList = ({ userRole, userId, labId, refreshTrigger, onViewRequi
       </div>
 
       {/* Filters */}
-      <div className="bg-white shadow-lg rounded-xl border border-gray-100 mb-6">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-t-xl">
-          <h3 className="text-lg font-semibold flex items-center">
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="bg-white shadow-md rounded-lg border border-gray-100 mb-4">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-3 rounded-t-lg">
+          <h3 className="text-sm font-semibold flex items-center">
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
             </svg>
             Filters & Search
           </h3>
         </div>
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Search</label>
               <input
                 type="text"
                 value={filters.search}
                 onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="Search requirements..."
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={filters.status}
                 onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
                 <option value="">All Statuses</option>
                 <option value="pending">Pending</option>
@@ -277,11 +277,11 @@ const RequirementsList = ({ userRole, userId, labId, refreshTrigger, onViewRequi
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Priority</label>
               <select
                 value={filters.priority}
                 onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value }))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
                 <option value="">All Priorities</option>
                 <option value="low">Low</option>
@@ -295,22 +295,22 @@ const RequirementsList = ({ userRole, userId, labId, refreshTrigger, onViewRequi
       </div>
 
       {/* Requirements Table */}
-      <div className="bg-white shadow-lg rounded-xl border border-gray-100">
+      <div className="bg-white shadow-md rounded-lg border border-gray-100">
         {requirements.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="p-4 bg-blue-50 rounded-full w-16 h-16 mx-auto mb-4">
-              <svg className="w-8 h-8 text-blue-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-center py-12">
+            <div className="p-3 bg-blue-50 rounded-full w-12 h-12 mx-auto mb-3">
+              <svg className="w-6 h-6 text-blue-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No requirements found</h3>
-            <p className="text-gray-500 mb-6">
+            <p className="text-sm text-gray-500 mb-4">
               {stats.total === 0 ? 'Start by creating your first requirement.' : 'Try adjusting your search filters.'}
             </p>
             {stats.total === 0 && (
               <button
                 onClick={() => window.location.reload()}
-                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium"
+                className="inline-flex items-center px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium text-sm"
               >
                 Get Started
               </button>
@@ -321,25 +321,25 @@ const RequirementsList = ({ userRole, userId, labId, refreshTrigger, onViewRequi
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gradient-to-r from-blue-600 to-blue-700">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Requirement
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Raised By
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Items
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Priority
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -353,54 +353,54 @@ const RequirementsList = ({ userRole, userId, labId, refreshTrigger, onViewRequi
                     }`} 
                     style={{ animationDelay: `${index * 0.05}s` }}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 mr-3">
+                        <div className="flex-shrink-0 mr-2">
                           {StatusIcons[requirement.status]?.() || <StatusIcons.pending />}
                         </div>
                         <div>
                           <div className="text-sm font-medium text-gray-900">
                             {requirement.requirementId}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-xs text-gray-500">
                             {requirement.items?.length || 0} item{requirement.items?.length !== 1 ? 's' : ''}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {requirement.raisedBy?.name || 'Unknown'}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-xs text-gray-500">
                         {requirement.raisedBy?.department || 'N/A'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <div className="text-sm text-gray-900 font-medium">
                         {requirement.items?.length || 0} items
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-xs text-gray-500">
                         {requirement.items?.slice(0, 2).map(item => item.itemName).join(', ')}
                         {requirement.items?.length > 2 && '...'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       {getPriorityBadge(requirement.priority)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       {getStatusBadge(requirement.status)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-500">
                       {new Date(requirement.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center space-x-2 justify-end">
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-xs font-medium">
+                      <div className="flex items-center space-x-1 justify-end">
                         <button
                           onClick={() => onViewRequirement(requirement)}
-                          className="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+                          className="inline-flex items-center px-2 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md text-xs"
                         >
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                           </svg>
@@ -412,20 +412,20 @@ const RequirementsList = ({ userRole, userId, labId, refreshTrigger, onViewRequi
                           <>
                             <button
                               onClick={() => handleStatusUpdate(requirement._id, 'approved')}
-                              className="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+                              className="inline-flex items-center px-2 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md text-xs"
                               title="Approve Requirement"
                             >
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                               </svg>
                               Approve
                             </button>
                             <button
                               onClick={() => handleStatusUpdate(requirement._id, 'rejected')}
-                              className="inline-flex items-center px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+                              className="inline-flex items-center px-2 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md text-xs"
                               title="Reject Requirement"
                             >
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                               </svg>
                               Reject

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllGlasswareStock } from './glasswareApi';
 import { generateLabColors } from '../../components/analytics/utils/colorPalette';
+import useLabs from '../../hooks/useLabs';
 
 const GlobalPrintStyles = () => (
   <style>
@@ -98,7 +99,7 @@ const GlobalPrintStyles = () => (
   </style>
 );
 
-const PrintableQRView = ({ groupedStock }) => {
+const PrintableQRView = ({ groupedStock, labs = [] }) => {
   const allItems = Object.values(groupedStock).flat();
   
   return (
@@ -157,7 +158,7 @@ const PrintableQRView = ({ groupedStock }) => {
         <div key={item._id} className="qr-item">
           <img src={item.qrCodeImage} alt={`QR Code for ${item.name}`} className="qr-image" />
           <div className="qr-name">{item.name}</div>
-          <div className="qr-details">Lab: {getLabDisplayName(item.labId)}</div>
+          <div className="qr-details">Lab: {getLabDisplayName(item.labId, labs)}</div>
           <div className="qr-details">Qty: {item.quantity} {item.unit}</div>
           {item.variant && <div className="qr-details">Variant: {item.variant}</div>}
           {item.batchId && <div className="qr-details">Batch: {item.batchId}</div>}
@@ -167,19 +168,11 @@ const PrintableQRView = ({ groupedStock }) => {
   );
 };
 
-const getLabDisplayName = (labId) => {
-  const labNames = {
-    'central-store': 'Central Store',
-    'LAB01': 'Lab 01',
-    'LAB02': 'Lab 02',
-    'LAB03': 'Lab 03',
-    'LAB04': 'Lab 04',
-    'LAB05': 'Lab 05',
-    'LAB06': 'Lab 06',
-    'LAB07': 'Lab 07',
-    'LAB08': 'Lab 08'
-  };
-  return labNames[labId] || labId;
+const getLabDisplayName = (labId, labs = []) => {
+  if (labId === 'central-store') return 'Central Store';
+  
+  const lab = labs.find(l => l.labId === labId);
+  return lab ? lab.labName : labId;
 };
 
 const StockCard = ({ item, labColor }) => {
@@ -279,8 +272,8 @@ const StockCard = ({ item, labColor }) => {
   );
 };
 
-const LabSection = ({ labId, items, labColor }) => {
-  const labName = getLabDisplayName(labId);
+const LabSection = ({ labId, items, labColor, labs = [] }) => {
+  const labName = getLabDisplayName(labId, labs);
   const totalItems = items.length;
   const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
   const outOfStockCount = items.filter(item => item.quantity === 0).length;
@@ -343,7 +336,7 @@ const LabSection = ({ labId, items, labColor }) => {
 };
 
 // Table View Component
-const TableView = ({ groupedStock, labColorMap, searchTerm }) => {
+const TableView = ({ groupedStock, labColorMap, searchTerm, labs = [] }) => {
   const allItems = Object.entries(groupedStock).reduce((acc, [labId, items]) => {
     return acc.concat(items.map(item => ({ ...item, labId })));
   }, []);
@@ -353,7 +346,7 @@ const TableView = ({ groupedStock, labColorMap, searchTerm }) => {
     if (a.labId === b.labId) {
       return (a.name || '').localeCompare(b.name || '');
     }
-    return getLabDisplayName(a.labId).localeCompare(getLabDisplayName(b.labId));
+    return getLabDisplayName(a.labId, labs).localeCompare(getLabDisplayName(b.labId, labs));
   });
 
   const getStatusBadge = (item) => {
@@ -415,7 +408,7 @@ const TableView = ({ groupedStock, labColorMap, searchTerm }) => {
                     />
                     <div className="min-w-0">
                       <div className="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">{item.name}</div>
-                      <div className="text-xs text-blue-600 truncate">{getLabDisplayName(item.labId)}</div>
+                      <div className="text-xs text-blue-600 truncate">{getLabDisplayName(item.labId, labs)}</div>
                     </div>
                   </div>
                 </td>
@@ -479,6 +472,9 @@ const TableView = ({ groupedStock, labColorMap, searchTerm }) => {
 };
 
 const GlasswareStockPage = ({ labId: propLabId }) => {
+  // Fetch labs dynamically
+  const { labs, loading: labsLoading } = useLabs();
+  
   const [allStock, setAllStock] = useState([]);
   const [groupedStock, setGroupedStock] = useState({});
   const [loading, setLoading] = useState(false);
@@ -488,17 +484,11 @@ const GlasswareStockPage = ({ labId: propLabId }) => {
   const [viewMode, setViewMode] = useState('table'); // 'cards' or 'table'
   const navigate = useNavigate();
 
+  // Create dynamic lab list with fetched labs
   const labList = [
     { id: 'all', name: 'All Labs' },
     { id: 'central-store', name: 'Central Store' },
-    { id: 'LAB01', name: 'Lab 01' },
-    { id: 'LAB02', name: 'Lab 02' },
-    { id: 'LAB03', name: 'Lab 03' },
-    { id: 'LAB04', name: 'Lab 04' },
-    { id: 'LAB05', name: 'Lab 05' },
-    { id: 'LAB06', name: 'Lab 06' },
-    { id: 'LAB07', name: 'Lab 07' },
-    { id: 'LAB08', name: 'Lab 08' }
+    ...labs.map(lab => ({ id: lab.labId, name: lab.labName }))
   ];
 
   useEffect(() => {
@@ -584,9 +574,7 @@ const GlasswareStockPage = ({ labId: propLabId }) => {
   const totalLabs = Object.keys(groupedStock).length;
 
   return (
-    <div className="w-full bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen">
-      <GlobalPrintStyles />
-      
+    <div className="w-full max-w-none">
       {/* Background floating bubbles */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-20 left-10 w-16 h-16 bg-blue-200/20 rounded-full blur-lg bubble-float-1"></div>
@@ -599,32 +587,16 @@ const GlasswareStockPage = ({ labId: propLabId }) => {
         <div className="absolute top-1/3 right-5 w-8 h-8 bg-blue-300/10 rounded-full blur-sm bubble-float-4"></div>
       </div>
       
-      <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
+      <div className="w-full max-w-none mx-auto overflow-hidden relative">
         {/* Enhanced Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
-      
-      {/* Breadcrumb Navigation */}
-      <div className="relative z-10 w-full bg-white/70 backdrop-blur-sm border-b border-gray-200/30">
-        <div className="w-full px-4 py-2">
-          <nav className="flex items-center space-x-1.5 text-xs">
-            <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z" />
-            </svg>
-            <span className="text-gray-500">Admin Dashboard</span>
-            <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-            <span className="text-blue-600 font-medium">Glassware Stock Management</span>
-          </nav>
-        </div>
-      </div>
 
       {/* Enhanced Header Section - Mobile Responsive */}
-      <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-2 sm:p-4 lg:p-6 text-white overflow-hidden rounded-t-3xl shadow-lg">
-        <div className="absolute inset-0 bg-blue-800/20"></div>
+      <div className="relative bg-blue-600 p-2 sm:p-4 lg:p-6 text-white overflow-hidden rounded-b-3xl mb-4 shadow-lg">
+        <div className="absolute inset-0 bg-blue-600/20"></div>
         <div className="relative z-10">
           {/* Title and Controls Section */}
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 sm:gap-4 xl:gap-6">
@@ -749,7 +721,7 @@ const GlasswareStockPage = ({ labId: propLabId }) => {
       {/* Main Content Section - Mobile Responsive */}
       <div className="relative z-10 p-3 sm:p-4 lg:p-8">
 
-      <PrintableQRView groupedStock={filteredGroupedStock} />
+      <PrintableQRView groupedStock={filteredGroupedStock} labs={labs} />
 
       {/* Loading state */}
       {loading && (
@@ -798,6 +770,7 @@ const GlasswareStockPage = ({ labId: propLabId }) => {
               groupedStock={filteredGroupedStock}
               labColorMap={labColorMap}
               searchTerm={searchTerm}
+              labs={labs}
             />
           ) : (
             Object.entries(filteredGroupedStock)
@@ -813,6 +786,7 @@ const GlasswareStockPage = ({ labId: propLabId }) => {
                   labId={labId}
                   items={items}
                   labColor={labColorMap[labId]}
+                  labs={labs}
                 />
               ))
           )}
