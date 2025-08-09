@@ -43,8 +43,8 @@ const LabManagement = () => {
         title: 'Loading Failed',
         text: 'Failed to load laboratory data. Please check your connection and try again.',
         confirmButtonText: 'Retry',
-        confirmButtonColor: '#ef4444',
-        background: '#ffffff',
+        confirmButtonColor: 'rgb(239, 68, 68)',
+        background: 'rgb(255, 255, 255)',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -92,7 +92,7 @@ const LabManagement = () => {
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
-      background: '#ffffff',
+      background: 'rgb(255, 255, 255)',
       backdrop: 'rgba(0,0,0,0.4)',
       customClass: {
         popup: 'rounded-2xl shadow-2xl',
@@ -127,8 +127,8 @@ const LabManagement = () => {
             title: 'Validation Error',
             text: 'Please check the form for errors and try again',
             confirmButtonText: 'Fix Errors',
-            confirmButtonColor: '#ef4444',
-            background: '#ffffff',
+            confirmButtonColor: 'rgb(239, 68, 68)',
+            background: 'rgb(255, 255, 255)',
             backdrop: 'rgba(0,0,0,0.4)',
             customClass: {
               popup: 'rounded-2xl shadow-2xl',
@@ -147,8 +147,8 @@ const LabManagement = () => {
         title: selectedLab ? 'Laboratory Updated!' : 'Laboratory Created!',
         text: data.message || `Lab ${selectedLab ? 'updated' : 'created'} successfully`,
         confirmButtonText: 'Great!',
-        confirmButtonColor: '#10b981',
-        background: '#ffffff',
+        confirmButtonColor: 'rgb(16, 185, 129)',
+        background: 'rgb(255, 255, 255)',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -173,8 +173,8 @@ const LabManagement = () => {
         title: 'Operation Failed',
         text: error.message || 'An unexpected error occurred',
         confirmButtonText: 'Try Again',
-        confirmButtonColor: '#ef4444',
-        background: '#ffffff',
+        confirmButtonColor: 'rgb(239, 68, 68)',
+        background: 'rgb(255, 255, 255)',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -194,7 +194,7 @@ const LabManagement = () => {
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
-      background: '#ffffff',
+      background: 'rgb(255, 255, 255)',
       backdrop: 'rgba(0,0,0,0.4)',
       customClass: {
         popup: 'rounded-2xl shadow-2xl',
@@ -226,8 +226,8 @@ const LabManagement = () => {
         title: 'Laboratory Deleted!',
         text: 'The laboratory has been successfully removed from the system',
         confirmButtonText: 'Done',
-        confirmButtonColor: '#10b981',
-        background: '#ffffff',
+        confirmButtonColor: 'rgb(16, 185, 129)',
+        background: 'rgb(255, 255, 255)',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -249,8 +249,8 @@ const LabManagement = () => {
         title: 'Deletion Failed',
         text: error.message || 'Failed to delete laboratory',
         confirmButtonText: 'Try Again',
-        confirmButtonColor: '#ef4444',
-        background: '#ffffff',
+        confirmButtonColor: 'rgb(239, 68, 68)',
+        background: 'rgb(255, 255, 255)',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -272,11 +272,11 @@ const LabManagement = () => {
       text: `Are you sure you want to ${action} "${lab.labName}"?`,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: lab.isActive ? '#f59e0b' : '#10b981',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: lab.isActive ? 'rgb(245, 158, 11)' : 'rgb(16, 185, 129)',
+      cancelButtonColor: 'rgb(107, 114, 128)',
       confirmButtonText: `Yes, ${action}`,
       cancelButtonText: 'Cancel',
-      background: '#ffffff',
+      background: 'rgb(255, 255, 255)',
       backdrop: 'rgba(0,0,0,0.4)',
       customClass: {
         popup: 'rounded-2xl shadow-2xl',
@@ -297,7 +297,7 @@ const LabManagement = () => {
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
-      background: '#ffffff',
+      background: 'rgb(255, 255, 255)',
       backdrop: 'rgba(0,0,0,0.4)',
       customClass: {
         popup: 'rounded-2xl shadow-2xl',
@@ -333,8 +333,8 @@ const LabManagement = () => {
         title: `Laboratory ${lab.isActive ? 'Deactivated' : 'Activated'}!`,
         text: `"${lab.labName}" has been successfully ${lab.isActive ? 'deactivated' : 'activated'}`,
         confirmButtonText: 'Great!',
-        confirmButtonColor: '#10b981',
-        background: '#ffffff',
+        confirmButtonColor: 'rgb(16, 185, 129)',
+        background: 'rgb(255, 255, 255)',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -356,8 +356,8 @@ const LabManagement = () => {
         title: 'Update Failed',
         text: error.message || 'Failed to update laboratory status',
         confirmButtonText: 'Try Again',
-        confirmButtonColor: '#ef4444',
-        background: '#ffffff',
+        confirmButtonColor: 'rgb(239, 68, 68)',
+        background: 'rgb(255, 255, 255)',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -376,11 +376,11 @@ const LabManagement = () => {
       text: 'This will sync all laboratories with the latest data. This operation may take a few moments.',
       icon: 'info',
       showCancelButton: true,
-      confirmButtonColor: '#3b82f6',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: 'rgb(59, 130, 246)',
+      cancelButtonColor: 'rgb(107, 114, 128)',
       confirmButtonText: 'Yes, Sync All',
       cancelButtonText: 'Cancel',
-      background: '#ffffff',
+      background: 'rgb(255, 255, 255)',
       backdrop: 'rgba(0,0,0,0.4)',
       customClass: {
         popup: 'rounded-2xl shadow-2xl',
@@ -401,7 +401,7 @@ const LabManagement = () => {
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
-      background: '#ffffff',
+      background: 'rgb(255, 255, 255)',
       backdrop: 'rgba(0,0,0,0.4)',
       customClass: {
         popup: 'rounded-2xl shadow-2xl',
@@ -434,8 +434,8 @@ const LabManagement = () => {
         title: 'Synchronization Complete!',
         text: `Sync completed: ${data.data.totalSynced} documents updated`,
         confirmButtonText: 'Perfect!',
-        confirmButtonColor: '#10b981',
-        background: '#ffffff',
+        confirmButtonColor: 'rgb(16, 185, 129)',
+        background: 'rgb(255, 255, 255)',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -456,8 +456,8 @@ const LabManagement = () => {
         title: 'Synchronization Failed',
         text: error.message || 'Failed to synchronize laboratory data',
         confirmButtonText: 'Try Again',
-        confirmButtonColor: '#ef4444',
-        background: '#ffffff',
+        confirmButtonColor: 'rgb(239, 68, 68)',
+        background: 'rgb(255, 255, 255)',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -495,8 +495,8 @@ const LabManagement = () => {
       text: `Are you sure you want to delete "${lab.labName}"? This action cannot be undone.`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: 'rgb(239, 68, 68)',
+      cancelButtonColor: 'rgb(107, 114, 128)',
       confirmButtonText: 'Delete',
       cancelButtonText: 'Cancel'
     }).then((result) => {
@@ -508,7 +508,7 @@ const LabManagement = () => {
 
   if (loading) {
     return (
-      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex justify-center items-center">
+      <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex justify-center items-center">
         <div className="bg-white p-8 rounded-3xl shadow-2xl text-center border border-gray-200 backdrop-blur-lg">
           <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-6"></div>
           <div className="text-gray-700 text-lg font-semibold mb-2">Loading Laboratory Data</div>
@@ -519,14 +519,14 @@ const LabManagement = () => {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
       {/* Enhanced Header Section */}
       <div className="w-full bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40 shadow-sm">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             {/* Enhanced Title Section */}
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg">
+              <div className="p-3 bg-blue-600 rounded-2xl shadow-lg">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
                 </svg>
@@ -585,7 +585,7 @@ const LabManagement = () => {
                 }}
                 variant="primary"
                 size="sm"
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"/>
@@ -613,7 +613,7 @@ const LabManagement = () => {
                     <div className="text-3xl font-bold text-gray-900 mb-1">{stats.totalLabs}</div>
                     <div className="text-sm text-green-600 font-medium">All Laboratories</div>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
                       <polyline points="9,22 9,12 15,12 15,22"/>
@@ -681,7 +681,7 @@ const LabManagement = () => {
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl border border-gray-200">
           <div className="px-6 py-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
             <h3 className="text-xl font-bold text-gray-900 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
                   <polyline points="9,22 9,12 15,12 15,22"/>
@@ -714,7 +714,7 @@ const LabManagement = () => {
                       className="hover:bg-blue-50/50 transition-all duration-300 group"
                     >
                       <td className="px-6 py-5 text-sm font-mono font-bold text-gray-900">
-                        <div className="bg-gradient-to-r from-blue-100 to-indigo-100 px-3 py-2 rounded-lg border border-blue-200">
+                        <div className="bg-blue-100 px-3 py-2 rounded-lg border border-blue-200">
                           {lab.labId}
                         </div>
                       </td>
@@ -848,7 +848,7 @@ const LabManagement = () => {
                 <td colSpan="7" className="p-16 text-center">
                   <div className="flex flex-col items-center justify-center">
                     <div className="w-20 h-20 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgb(156, 163, 175)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
                         <polyline points="9,22 9,12 15,12 15,22"/>
                       </svg>
@@ -863,7 +863,7 @@ const LabManagement = () => {
                         setShowCreateModal(true);
                       }}
                       variant="primary"
-                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+                      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
                     >
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -883,7 +883,7 @@ const LabManagement = () => {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl transform animate-slideUp border border-gray-200">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
                   <polyline points="9,22 9,12 15,12 15,22"/>
@@ -979,7 +979,7 @@ const LabManagement = () => {
                 <SafeButton
                   type="submit"
                   variant="primary"
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

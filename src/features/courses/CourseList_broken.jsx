@@ -7,130 +7,6 @@ import CourseStats from './CourseStats';
 import CourseDetailModal from './CourseDetailModal';
 import SubjectCreationModal from './SubjectCreationModal';
 
-// Enhanced animations and styles
-const customStyles = `
-  @keyframes slideInFromTop {
-    from {
-      opacity: 0;
-      transform: translateY(-30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes slideInFromBottom {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes slideInFromLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes fadeInScale {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -1000px 0; }
-    100% { background-position: 1000px 0; }
-  }
-
-  .animate-slideInTop {
-    animation: slideInFromTop 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
-
-  .animate-slideInBottom {
-    animation: slideInFromBottom 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
-
-  .animate-slideInLeft {
-    animation: slideInFromLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
-
-  .animate-fadeInScale {
-    animation: fadeInScale 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
-
-  .shimmer {
-    background: linear-gradient(90deg, rgb(240, 240, 240) 25%, rgb(224, 224, 224) 50%, rgb(240, 240, 240) 75%);
-    background-size: 1000px 100%;
-    animation: shimmer 2s infinite linear;
-  }
-
-  .glass-effect {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
-  .hover-lift {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-  }
-
-  .view-toggle {
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .view-toggle::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    transition: left 0.6s;
-  }
-
-  .view-toggle:hover::before {
-    left: 100%;
-  }
-
-  @media (max-width: 768px) {
-    .mobile-hide {
-      display: none;
-    }
-    
-    .mobile-stack {
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
-    .mobile-full {
-      width: 100%;
-    }
-  }
-`;
-
 const BASE_URL = 'https://backend-pharmacy-5541.onrender.com/api/courses';
 
 const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
@@ -270,8 +146,8 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
         title: 'Subjects Created!',
         text: `${successCount} subject${successCount > 1 ? 's' : ''} created successfully`,
         icon: 'success',
-        confirmButtonColor: 'rgb(37, 99, 235)',
-        background: 'rgb(255, 255, 255)',
+        confirmButtonColor: '#2563eb',
+        background: '#ffffff',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -297,7 +173,7 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
-      background: 'rgb(255, 255, 255)',
+      background: '#ffffff',
       backdrop: 'rgba(0,0,0,0.4)',
       customClass: {
         popup: 'rounded-2xl shadow-2xl',
@@ -326,8 +202,8 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
         title: 'Course Created!',
         text: res.data.message || 'Course has been successfully created',
         confirmButtonText: 'Excellent!',
-        confirmButtonColor: 'rgb(37, 99, 235)',
-        background: 'rgb(255, 255, 255)',
+        confirmButtonColor: '#2563eb',
+        background: '#ffffff',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -346,8 +222,8 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
         title: 'Creation Failed',
         text: err.response?.data?.message || 'Failed to create course. Please try again.',
         confirmButtonText: 'Try Again',
-        confirmButtonColor: 'rgb(239, 68, 68)',
-        background: 'rgb(255, 255, 255)',
+        confirmButtonColor: '#ef4444',
+        background: '#ffffff',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -369,7 +245,7 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
-      background: 'rgb(255, 255, 255)',
+      background: '#ffffff',
       backdrop: 'rgba(0,0,0,0.4)',
       customClass: {
         popup: 'rounded-2xl shadow-2xl',
@@ -405,8 +281,8 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
           title: 'Course Updated!',
           text: res.data.message || 'Course has been successfully updated',
           confirmButtonText: 'Excellent!',
-          confirmButtonColor: 'rgb(37, 99, 235)',
-          background: 'rgb(255, 255, 255)',
+          confirmButtonColor: '#2563eb',
+          background: '#ffffff',
           backdrop: 'rgba(0,0,0,0.4)',
           customClass: {
             popup: 'rounded-2xl shadow-2xl',
@@ -432,8 +308,8 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
         title: 'Update Failed',
         text: errorMessage,
         confirmButtonText: 'Try Again',
-        confirmButtonColor: 'rgb(239, 68, 68)',
-        background: 'rgb(255, 255, 255)',
+        confirmButtonColor: '#ef4444',
+        background: '#ffffff',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -453,11 +329,11 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
       text: 'Are you sure you want to delete this course? This action cannot be undone.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: 'rgb(239, 68, 68)',
-      cancelButtonColor: 'rgb(107, 114, 128)',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
       confirmButtonText: 'Yes, Delete',
       cancelButtonText: 'Cancel',
-      background: 'rgb(255, 255, 255)',
+      background: '#ffffff',
       backdrop: 'rgba(0,0,0,0.4)',
       customClass: {
         popup: 'rounded-2xl shadow-2xl',
@@ -478,7 +354,7 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
-      background: 'rgb(255, 255, 255)',
+      background: '#ffffff',
       backdrop: 'rgba(0,0,0,0.4)',
       customClass: {
         popup: 'rounded-2xl shadow-2xl',
@@ -506,8 +382,8 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
         title: 'Course Deleted!',
         text: 'Course has been successfully deleted',
         confirmButtonText: 'Great!',
-        confirmButtonColor: 'rgb(37, 99, 235)',
-        background: 'rgb(255, 255, 255)',
+        confirmButtonColor: '#2563eb',
+        background: '#ffffff',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -527,8 +403,8 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
         title: 'Deletion Failed',
         text: err.response?.data?.message || 'Failed to delete course. Please try again.',
         confirmButtonText: 'Try Again',
-        confirmButtonColor: 'rgb(239, 68, 68)',
-        background: 'rgb(255, 255, 255)',
+        confirmButtonColor: '#ef4444',
+        background: '#ffffff',
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
@@ -648,106 +524,355 @@ const CourseList = ({ userRole = 'admin', showAdminActions = true }) => {
   }, [courses]);
 
   return (
-    <>
-      <style>{customStyles}</style>
-      <div className="w-full p-4 sm:p-6">
-        {/* Floating background elements */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-200/30 to-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Background decorative elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      </div>
 
-        <div className="relative w-full ">
-          {/* Statistics Section */}
-          {stats && (
-            <div className="mb-8 animate-slideInTop">
-              <CourseStats stats={stats} />
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {/* Statistics Section */}
+        {stats && (
+          <div className="mb-6 lg:mb-8 transform transition-all duration-700 hover:scale-[1.02]">
+            <CourseStats stats={stats} />
+          </div>
+        )}
+
+        {/* Main Content Container */}
+        <div className="bg-white/70 backdrop-blur-xl rounded-2xl lg:rounded-3xl shadow-xl border border-white/20 overflow-hidden transition-all duration-500 hover:shadow-2xl">
+          
+          {/* Header Section */}
+          <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white overflow-hidden">
+            {/* Decorative background patterns */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/50 to-transparent"></div>
+            <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+              <div className="w-32 h-32 lg:w-40 lg:h-40 bg-white/10 rounded-full"></div>
             </div>
-          )}
-
-          {/* Main Content Card */}
-          <div className="glass-effect bg-white/90 rounded-2xl shadow-xl border border-white/20 overflow-hidden animate-slideInBottom">
-            {/* Enhanced Header */}
-            <div className="relative p-3 sm:p-4 lg:p-6 bg-blue-600 text-white overflow-hidden">
-              <div className="absolute inset-0 bg-blue-600"></div>
-              <div className="relative z-10">
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 lg:gap-4">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="p-2 sm:p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                      <svg className="w-5 h-5 sm:w-6 sm:w-6 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold mb-1">Course Management</h1>
-                      <p className="text-blue-100 text-sm sm:text-base">Manage courses and academic batches</p>
-                    </div>
-                  </div>  
-                  
-                  {canManageCourses && (
+            <div className="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2">
+              <div className="w-24 h-24 lg:w-32 lg:h-32 bg-white/10 rounded-full"></div>
+            </div>
+            
+            <div className="relative z-10 p-4 sm:p-6 lg:p-8">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6">
+                {/* Title Section */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                  <div className="flex-shrink-0 p-3 lg:p-4 bg-white/20 backdrop-blur-sm rounded-xl lg:rounded-2xl">
+                    <svg className="w-6 h-6 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold tracking-tight">
+                      Course Management
+                    </h1>
+                    <p className="text-blue-100 text-sm sm:text-base lg:text-lg mt-1">
+                      Manage courses, batches, and academic programs
+                    </p>
+                  </div>
+                </div>  
+                
+                {/* Add Course Button */}
+                {canManageCourses && (
+                  <div className="flex-shrink-0 w-full lg:w-auto">
                     <button
                       onClick={() => {
                         setEditingCourse(null);
                         setShowForm(true);
                       }}
-                      className="px-4 sm:px-5 lg:px-6 py-2.5  sm:py-3 bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl text-blue-600 font-semibold hover:bg-white/30 transition-all duration-300 flex items-center gap-2 hover-lift text-sm sm:text-base"
+                      className="w-full lg:w-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-4 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl lg:rounded-2xl text-white font-semibold transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 transform hover:scale-105 hover:shadow-xl group"
                     >
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 lg:w-6 lg:h-6 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
-                      <span className="hidden sm:inline">Add Course</span>
-                      <span className="sm:hidden">Add</span>
+                      <span className="text-sm sm:text-base lg:text-lg">Add New Course</span>
                     </button>
-                  )}
-                </div>
-              </div>
-              
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
-                <div className="w-32 h-32 sm:w-40 sm:h-40 bg-white/5 rounded-full"></div>
-              </div>
-              <div className="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white/5 rounded-full"></div>
+                  </div>
+                )}
               </div>
             </div>
+          </div>
 
-            {/* Controls Section */}
-            <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-200/50 bg-white/80 backdrop-blur-sm">
-              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 lg:gap-4">
-                {/* Search and Filters */}
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-1 w-full lg:w-auto">
-                  {/* Search Bar */}
-                  <div className="relative flex-1 max-w-full sm:max-w-md">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search courses..."
-                      className="block w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md text-sm"
-                      value={filters.search}
-                      onChange={(e) => setFilters({...filters, search: e.target.value})}
-                    />
+          {/* Filters and Controls Section */}
+          <div className="p-4 sm:p-6 lg:p-8 border-b border-gray-200/50 bg-white/80 backdrop-blur-sm">
+            <div className="flex flex-col space-y-4 lg:space-y-6">
+              
+              {/* Search Bar - Full Width on Mobile */}
+              <div className="w-full">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 lg:h-6 lg:w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                   </div>
+                  <input
+                    type="text"
+                    placeholder="Search courses by name, code, or department..."
+                    className="block w-full pl-12 pr-4 py-3 lg:py-4 border border-gray-200 rounded-xl lg:rounded-2xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 shadow-sm hover:shadow-md text-sm lg:text-base"
+                    value={filters.search}
+                    onChange={(e) => setFilters({...filters, search: e.target.value})}
+                  />
+                </div>
+              </div>
 
-                  {/* Filter Dropdowns */}
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                    <select
-                      className="px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md text-sm w-full sm:w-auto"
-                      value={filters.department}
-                      onChange={(e) => setFilters({...filters, department: e.target.value})}
+              {/* Filters and View Toggle Row */}
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6">
+                
+                {/* Filter Dropdowns - Responsive Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4 flex-1">
+                  <select
+                    className="px-4 py-3 lg:py-4 border border-gray-200 rounded-xl lg:rounded-2xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 shadow-sm hover:shadow-md text-sm lg:text-base"
+                    value={filters.department}
+                    onChange={(e) => setFilters({...filters, department: e.target.value})}
+                  >
+                    <option value="all">All Departments</option>
+                    {departments.map(dept => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    className="px-4 py-3 lg:py-4 border border-gray-200 rounded-xl lg:rounded-2xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 shadow-sm hover:shadow-md text-sm lg:text-base"
+                    value={filters.academicYear}
+                    onChange={(e) => setFilters({...filters, academicYear: e.target.value})}
+                  >
+                    <option value="all">All Academic Years</option>
+                    {academicYears.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    className="px-4 py-3 lg:py-4 border border-gray-200 rounded-xl lg:rounded-2xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 shadow-sm hover:shadow-md text-sm lg:text-base"
+                    value={filters.status}
+                    onChange={(e) => setFilters({...filters, status: e.target.value})}
+                  >
+                    <option value="all">All Status</option>
+                    <option value="active">Active Only</option>
+                    <option value="inactive">Inactive Only</option>
+                  </select>
+                </div>
+
+                {/* View Toggle */}
+                <div className="flex items-center justify-center lg:justify-end">
+                  <div className="flex items-center bg-gray-100 rounded-xl lg:rounded-2xl p-1 lg:p-2">
+                    <button
+                      onClick={() => setViewMode('cards')}
+                      className={`flex items-center justify-center gap-2 px-4 py-2 lg:px-6 lg:py-3 rounded-lg lg:rounded-xl text-sm lg:text-base font-medium transition-all duration-300 ${
+                        viewMode === 'cards' 
+                          ? 'bg-white text-blue-600 shadow-md transform scale-105' 
+                          : 'text-gray-600 hover:text-blue-600 hover:bg-white/50'
+                      }`}
                     >
-                      <option value="all">All Departments</option>
-                      {departments.map(dept => (
-                        <option key={dept} value={dept}>{dept}</option>
-                      ))}
-                    </select>
+                      <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                      <span className="hidden sm:inline">Cards</span>
+                    </button>
+                    <button
+                      onClick={() => setViewMode('table')}
+                      className={`flex items-center justify-center gap-2 px-4 py-2 lg:px-6 lg:py-3 rounded-lg lg:rounded-xl text-sm lg:text-base font-medium transition-all duration-300 ${
+                        viewMode === 'table' 
+                          ? 'bg-white text-blue-600 shadow-md transform scale-105' 
+                          : 'text-gray-600 hover:text-blue-600 hover:bg-white/50'
+                      }`}
+                    >
+                      <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H3a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      <span className="hidden sm:inline">Table</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                    <select
-                      className="px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md text-sm w-full sm:w-auto"
-                      value={filters.academicYear}
+          {/* Main Content Area */}
+          <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-white/60 to-blue-50/30 backdrop-blur-sm min-h-[500px]">
+            {loading ? (
+              <div className="animate-pulse">
+                {viewMode === 'cards' ? <CourseCardSkeleton /> : <CourseTableSkeleton />}
+              </div>
+            ) : filteredCourses.length === 0 ? (
+              <div className="text-center py-16 lg:py-24">
+                <div className="mx-auto w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl lg:rounded-3xl flex items-center justify-center mb-6 lg:mb-8 transform transition-all duration-300 hover:scale-110">
+                  <svg className="w-12 h-12 lg:w-16 lg:h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <h3 className="text-xl lg:text-2xl font-bold text-gray-700 mb-3 lg:mb-4">No courses found</h3>
+                <p className="text-base lg:text-lg text-gray-500 mb-6 lg:mb-8 max-w-md mx-auto px-4">
+                  {filters.search || filters.department !== 'all' || filters.academicYear !== 'all' 
+                    ? "Try adjusting your filters or search terms to find courses."
+                    : "Get started by creating your first course with academic batches."
+                  }
+                </p>
+                {canManageCourses && (
+                  <button
+                    onClick={() => {
+                      setEditingCourse(null);
+                      setShowForm(true);
+                    }}
+                    className="px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl lg:rounded-2xl text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-base lg:text-lg"
+                  >
+                    Create Your First Course
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="transition-all duration-500">
+                {viewMode === 'cards' ? (
+                  /* Cards View - Responsive Grid with Flex Wrap */
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    {filteredCourses.map((course, index) => (
+                      <div 
+                        key={course._id} 
+                        className="transform transition-all duration-300 hover:scale-105"
+                        style={{ 
+                          animationDelay: `${index * 0.1}s`,
+                          animation: 'fadeInUp 0.6s ease-out forwards'
+                        }}
+                      >
+                        <CourseCard 
+                          course={course}
+                          onEdit={() => {
+                            setEditingCourse(course);
+                            setShowForm(true);
+                          }}
+                          onDelete={() => handleDeleteCourse(course._id)}
+                          onViewDetails={handleViewCourse}
+                          onAddSubject={handleAddSubject}
+                          canManage={canManageCourses}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  /* Table View - Fully Responsive */
+                  <div className="overflow-hidden rounded-xl lg:rounded-2xl border border-gray-200 shadow-lg bg-white">
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                          <tr>
+                            <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">
+                              Course
+                            </th>
+                            <th className="hidden md:table-cell px-4 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">
+                              Department
+                            </th>
+                            <th className="hidden lg:table-cell px-4 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">
+                              Batches
+                            </th>
+                            <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">
+                              Status
+                            </th>
+                            {canManageCourses && (
+                              <th className="px-4 lg:px-6 py-3 lg:py-4 text-right text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">
+                                Actions
+                              </th>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-100">
+                          {filteredCourses.map((course, index) => (
+                            <tr 
+                              key={course._id} 
+                              className="hover:bg-blue-50/50 transition-all duration-200 cursor-pointer transform hover:scale-[1.01]"
+                              style={{ 
+                                animationDelay: `${index * 0.05}s`,
+                                animation: 'fadeInLeft 0.4s ease-out forwards'
+                              }}
+                              onClick={() => handleViewCourse(course)}
+                            >
+                              <td className="px-4 lg:px-6 py-4 lg:py-6">
+                                <div className="flex items-center space-x-3 lg:space-x-4">
+                                  <div className="flex-shrink-0 h-12 w-12 lg:h-14 lg:w-14 rounded-xl lg:rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg lg:text-xl shadow-lg">
+                                    {course.courseCode.charAt(0)}
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="text-sm lg:text-base font-bold text-gray-900 truncate">
+                                      {course.courseName}
+                                    </div>
+                                    <div className="text-xs lg:text-sm text-gray-500 font-medium">
+                                      Code: {course.courseCode}
+                                    </div>
+                                    {/* Mobile-only department info */}
+                                    <div className="md:hidden text-xs text-gray-500 mt-1">
+                                      {course.department || 'N/A'}
+                                    </div>
+                                    {/* Mobile-only batch info */}
+                                    <div className="lg:hidden text-xs text-gray-500 mt-1">
+                                      {course.batches.length} batch{course.batches.length !== 1 ? 'es' : ''} • {course.batches.filter(b => b.isActive).length} active
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="hidden md:table-cell px-4 lg:px-6 py-4 lg:py-6">
+                                <div className="text-sm lg:text-base text-gray-900 font-medium">
+                                  {course.department || 'N/A'}
+                                </div>
+                              </td>
+                              <td className="hidden lg:table-cell px-4 lg:px-6 py-4 lg:py-6">
+                                <div className="flex flex-col space-y-1">
+                                  <div className="text-sm text-gray-900 font-medium">
+                                    {course.batches.length} Total
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {course.batches.filter(b => b.isActive).length} Active
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 lg:px-6 py-4 lg:py-6">
+                                <span className={`inline-flex px-3 py-1 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-semibold ${
+                                  course.isActive 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {course.isActive ? 'Active' : 'Inactive'}
+                                </span>
+                              </td>
+                              {canManageCourses && (
+                                <td className="px-4 lg:px-6 py-4 lg:py-6 text-right">
+                                  <div className="flex items-center justify-end space-x-2 lg:space-x-3">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditingCourse(course);
+                                        setShowForm(true);
+                                      }}
+                                      className="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                                    >
+                                      <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                      </svg>
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteCourse(course._id);
+                                      }}
+                                      className="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded-lg transition-all duration-200"
+                                    >
+                                      <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
                       onChange={(e) => setFilters({...filters, academicYear: e.target.value})}
                     >
                       <option value="all">All Academic Years</option>

@@ -212,29 +212,29 @@ const ExperimentsPage = () => {
   // Skeleton loading component
   const ExperimentSkeleton = () => (
     <tr className="animate-pulse">
-      <td className="px-5 py-4">
+      <td className="px-3 sm:px-5 py-3 sm:py-4">
         <div className="space-y-2">
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-2 sm:h-3 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-2 sm:h-3 bg-gray-200 rounded w-1/3 sm:hidden"></div>
         </div>
       </td>
-      <td className="px-5 py-4">
+      <td className="px-3 sm:px-5 py-3 sm:py-4 hidden sm:table-cell">
         <div className="space-y-2">
-          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-          <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+          <div className="h-3 sm:h-4 bg-gray-200 rounded w-2/3"></div>
+          <div className="h-2 sm:h-3 bg-gray-200 rounded w-1/3"></div>
         </div>
       </td>
-      <td className="px-5 py-4">
+      <td className="px-3 sm:px-5 py-3 sm:py-4 hidden md:table-cell">
         <div className="flex flex-wrap gap-1">
-          <div className="h-6 bg-gray-200 rounded-md w-16"></div>
-          <div className="h-6 bg-gray-200 rounded-md w-20"></div>
-          <div className="h-6 bg-gray-200 rounded-md w-14"></div>
+          <div className="h-5 sm:h-6 bg-gray-200 rounded-md w-12 sm:w-16"></div>
+          <div className="h-5 sm:h-6 bg-gray-200 rounded-md w-16 sm:w-20"></div>
         </div>
       </td>
-      <td className="px-5 py-4">
-        <div className="flex items-center justify-end space-x-2">
-          <div className="h-8 w-8 bg-gray-200 rounded-md"></div>
-          <div className="h-8 w-8 bg-gray-200 rounded-md"></div>
+      <td className="px-3 sm:px-5 py-3 sm:py-4">
+        <div className="flex items-center justify-end space-x-1 sm:space-x-2">
+          <div className="h-6 w-6 sm:h-8 sm:w-8 bg-gray-200 rounded-md"></div>
+          <div className="h-6 w-6 sm:h-8 sm:w-8 bg-gray-200 rounded-md"></div>
         </div>
       </td>
     </tr>
@@ -278,42 +278,42 @@ const ExperimentsPage = () => {
       
       <div className="w-full max-w-none mx-auto relative">
         {/* Enhanced Header Section with Soft Design */}
-        <div className="relative p-4 text-white rounded-b-3xl bg-blue-600 overflow-hidden">
+        <div className="relative p-3 sm:p-4 text-white rounded-b-2xl sm:rounded-b-3xl bg-blue-600 overflow-hidden">
           <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6">
               {/* Title Section */}
-              <div className="flex items-center gap-4 flex-1">
-                <div className="p-3 bg-sky-100 rounded-xl flex-shrink-0">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-3 sm:gap-4 flex-1">
+                <div className="p-2 sm:p-3 bg-white/20 rounded-lg sm:rounded-xl flex-shrink-0">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-xl text-white font-medium text-slate-800 mb-1 flex items-center gap-2">
+                  <h1 className="text-lg sm:text-xl text-white font-medium mb-1 flex items-center gap-2">
                     Experiments Management
                     {isLoading && (
-                      <div className="w-4 h-4 border-2 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     )}
                   </h1>
-                  <p className="text-white text-sm">
+                  <p className="text-white/90 text-xs sm:text-sm">
                     Create and manage laboratory experiments with their chemical requirements
                   </p>
                 </div>
               </div>
               
               {/* Add Experiment Button */}
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3 w-full lg:w-auto">
                 <button
                   onClick={clearFilters}
-                  className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-lg transition-all duration-200 text-sm font-medium"
+                  className="px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-all duration-200 text-xs sm:text-sm font-medium flex-1 lg:flex-none"
                 >
                   Clear Filters
                 </button>
                 <button
                   onClick={() => setOpenForm(true)}
-                  className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-sm flex items-center space-x-2"
+                  className="px-3 sm:px-4 py-2 bg-white hover:bg-blue-50 text-blue-600 rounded-lg transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm flex items-center space-x-1 sm:space-x-2 flex-1 lg:flex-none justify-center"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                   <span>Add Experiment</span>
@@ -332,16 +332,16 @@ const ExperimentsPage = () => {
         </div>
 
         {/* Filters Section */}
-        <div className="relative z-10 p-6 bg-white/80 backdrop-blur-sm border-b border-sky-100">
-          <div className="mb-4">
-            <h3 className="text-sm font-medium text-slate-700 mb-3">Filter Experiments</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="relative z-10 p-3 sm:p-4 lg:p-6 bg-white/80 backdrop-blur-sm border-b border-blue-100">
+          <div className="mb-3 sm:mb-4">
+            <h3 className="text-xs sm:text-sm font-medium text-slate-700 mb-2 sm:mb-3">Filter Experiments</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {/* Course Filter */}
               <EnhancedCourseSelector
                 selectedCourse={selectedCourse}
                 onCourseSelect={handleCourseSelect}
                 placeholder="Filter by Course"
-                className="text-sm"
+                className="text-xs sm:text-sm"
               />
 
               {/* Subject Filter */}
@@ -350,21 +350,21 @@ const ExperimentsPage = () => {
                 selectedSubject={selectedSubject}
                 onSubjectSelect={handleSubjectSelect}
                 placeholder="Filter by Subject"
-                className="text-sm"
+                className="text-xs sm:text-sm"
               />
             </div>
 
             {/* Filter Summary */}
             {(selectedCourse || selectedSubject) && (
-              <div className="mt-4 flex items-center space-x-2 text-sm text-slate-600">
+              <div className="mt-3 sm:mt-4 flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-600">
                 <span>Active filters:</span>
                 {selectedCourse && (
-                  <span className="px-2 py-1 bg-sky-100 text-sky-700 rounded-md">
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-xs">
                     Course: {selectedCourse.courseCode}
                   </span>
                 )}
                 {selectedSubject && (
-                  <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-md">
+                  <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-md text-xs">
                     Subject: {selectedSubject.code}
                   </span>
                 )}
@@ -374,28 +374,28 @@ const ExperimentsPage = () => {
         </div>
 
         {/* Main Content Section */}
-        <div className="relative z-10 p-4 sm:p-6 lg:p-8">
+        <div className="relative z-10 p-3 sm:p-4 lg:p-6">
           {/* Modern Table Container */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-sky-100 overflow-hidden">
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-sm border border-blue-100 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-sky-100">
-                <thead className="bg-gradient-to-r from-sky-50 to-blue-50">
+              <table className="min-w-full divide-y divide-blue-100">
+                <thead className="bg-blue-50">
                   <tr>
-                    <th className="px-5 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                    <th className="px-3 sm:px-5 py-2 sm:py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
                       Experiment Details
                     </th>
-                    <th className="px-5 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                    <th className="px-3 sm:px-5 py-2 sm:py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider hidden sm:table-cell">
                       Course & Subject
                     </th>
-                    <th className="px-5 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                    <th className="px-3 sm:px-5 py-2 sm:py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider hidden md:table-cell">
                       Default Chemicals
                     </th>
-                    <th className="px-5 py-3 text-right text-xs font-medium text-slate-600 uppercase tracking-wider">
+                    <th className="px-3 sm:px-5 py-2 sm:py-3 text-right text-xs font-medium text-slate-600 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white/70 divide-y divide-sky-100">
+                <tbody className="bg-white/70 divide-y divide-blue-100">
                   {isLoading ? (
                     // Show skeleton loading rows
                     Array.from({ length: 5 }).map((_, index) => (
@@ -404,22 +404,30 @@ const ExperimentsPage = () => {
                   ) : experiments?.map((experiment, index) => (
                     <React.Fragment key={experiment._id}>
                       <tr 
-                        className="hover:bg-sky-25 transition-colors duration-200 group cursor-pointer"
+                        className="hover:bg-blue-25 transition-colors duration-200 group cursor-pointer"
                         onClick={() => handleChemicalsExpand(experiment._id)}
                       >
-                      <td className="px-5 py-4">
+                      <td className="px-3 sm:px-5 py-3 sm:py-4">
                         <div>
-                          <div className="text-sm font-medium text-slate-900 group-hover:text-sky-700 transition-colors">
+                          <div className="text-sm font-medium text-slate-900 group-hover:text-blue-700 transition-colors">
                             {experiment.name}
                           </div>
                           {experiment.description && (
-                            <div className="text-xs text-slate-500 mt-1">
+                            <div className="text-xs text-slate-500 mt-1 line-clamp-2">
                               {experiment.description}
                             </div>
                           )}
+                          {/* Mobile: Show course/subject info */}
+                          <div className="sm:hidden mt-2 text-xs text-slate-500">
+                            {experiment.subjectId ? (
+                              <span>{experiment.subjectId.courseId?.courseName} - {experiment.subjectId.name}</span>
+                            ) : (
+                              <span>{experiment.subject || 'No subject'}</span>
+                            )}
+                          </div>
                         </div>
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-3 sm:px-5 py-3 sm:py-4 hidden sm:table-cell">
                         <div>
                           {experiment.subjectId ? (
                             <>
@@ -437,7 +445,7 @@ const ExperimentsPage = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-3 sm:px-5 py-3 sm:py-4 hidden md:table-cell">
                         <div className="flex flex-wrap gap-1">
                           {experiment.defaultChemicals?.length > 0 ? (
                             <>
@@ -457,17 +465,17 @@ const ExperimentsPage = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <td className="px-3 sm:px-5 py-3 sm:py-4">
+                        <div className="flex items-center justify-end space-x-1 sm:space-x-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleEdit(experiment);
                             }}
-                            className="text-sky-600 hover:text-sky-800 hover:bg-sky-50 p-1.5 rounded-md transition-all duration-200"
+                            className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-1 sm:p-1.5 rounded-md transition-all duration-200"
                             title="Edit experiment"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                           </button>
@@ -476,10 +484,10 @@ const ExperimentsPage = () => {
                               e.stopPropagation();
                               handleDelete(experiment._id);
                             }}
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-md transition-all duration-200"
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 sm:p-1.5 rounded-md transition-all duration-200"
                             title="Delete experiment"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                           </button>
@@ -490,29 +498,29 @@ const ExperimentsPage = () => {
                     {/* Expanded Chemicals Row */}
                     {expandedChemicals === experiment._id && experiment.defaultChemicals?.length > 1 && (
                       <tr>
-                        <td colSpan="4" className="px-5 py-4 bg-gray-50 border-b border-gray-200">
-                          <div className="bg-white rounded-lg p-4 border shadow-sm">
-                            <h4 className="text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
-                              <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <td colSpan="4" className="px-3 sm:px-5 py-3 sm:py-4 bg-gray-50 border-b border-gray-200">
+                          <div className="bg-white rounded-lg p-3 sm:p-4 border shadow-sm">
+                            <h4 className="text-xs sm:text-sm font-medium text-slate-700 mb-2 sm:mb-3 flex items-center gap-2">
+                              <svg className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                               </svg>
-                              All Default Chemicals for "{experiment.name}"
+                              <span className="hidden sm:inline">All Default Chemicals for "</span>{experiment.name}<span className="hidden sm:inline">"</span>
                             </h4>
                             <div className="overflow-x-auto">
-                              <table className="min-w-full text-sm">
+                              <table className="min-w-full text-xs sm:text-sm">
                                 <thead>
                                   <tr className="border-b border-gray-200 bg-gray-50">
-                                    <th className="text-left py-2 px-3 font-medium text-slate-600">Chemical Name</th>
-                                    <th className="text-left py-2 px-3 font-medium text-slate-600">Quantity</th>
-                                    <th className="text-left py-2 px-3 font-medium text-slate-600">Unit</th>
+                                    <th className="text-left py-1.5 sm:py-2 px-2 sm:px-3 font-medium text-slate-600">Chemical Name</th>
+                                    <th className="text-left py-1.5 sm:py-2 px-2 sm:px-3 font-medium text-slate-600">Quantity</th>
+                                    <th className="text-left py-1.5 sm:py-2 px-2 sm:px-3 font-medium text-slate-600">Unit</th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                   {experiment.defaultChemicals.map((chem, chemIndex) => (
                                     <tr key={chemIndex} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
-                                      <td className="py-2 px-3 text-slate-700 font-medium">{chem.chemicalName}</td>
-                                      <td className="py-2 px-3 text-slate-600">{chem.quantity}</td>
-                                      <td className="py-2 px-3 text-slate-600">{chem.unit}</td>
+                                      <td className="py-1.5 sm:py-2 px-2 sm:px-3 text-slate-700 font-medium">{chem.chemicalName}</td>
+                                      <td className="py-1.5 sm:py-2 px-2 sm:px-3 text-slate-600">{chem.quantity}</td>
+                                      <td className="py-1.5 sm:py-2 px-2 sm:px-3 text-slate-600">{chem.unit}</td>
                                     </tr>
                                   ))}
                                 </tbody>
@@ -530,22 +538,22 @@ const ExperimentsPage = () => {
 
             {/* Empty state */}
             {!isLoading && experiments?.length === 0 && (
-              <div className="text-center py-12">
-                <svg className="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="text-center py-8 sm:py-12 px-4">
+                <svg className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h3 className="mt-4 text-lg font-medium text-slate-600">No experiments found</h3>
-                <p className="mt-2 text-sm text-slate-500">
+                <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-medium text-slate-600">No experiments found</h3>
+                <p className="mt-2 text-xs sm:text-sm text-slate-500 max-w-sm mx-auto">
                   {selectedCourse || selectedSubject
                     ? 'Try adjusting your filters or create a new experiment' 
                     : 'Create your first experiment to get started'}
                 </p>
-                <div className="mt-6">
+                <div className="mt-4 sm:mt-6">
                   <button
                     onClick={() => setOpenForm(true)}
-                    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 shadow-md hover:shadow-lg transition-all duration-200"
+                    className="inline-flex items-center px-4 sm:px-6 py-2.5 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transition-all duration-200"
                   >
-                    <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="-ml-1 mr-2 h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     Add Experiment
@@ -567,19 +575,19 @@ const ExperimentsPage = () => {
           ></div>
           
           {/* Modal Content */}
-          <div className="flex min-h-full items-center justify-center p-4">
-            <div className="relative bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl w-full max-w-4xl border border-white/20 overflow-hidden">
+          <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
+            <div className="relative bg-white/95 backdrop-blur-lg rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-xs sm:max-w-2xl lg:max-w-4xl border border-white/20 overflow-hidden max-h-[95vh] overflow-y-auto">
               {/* Modal Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4">
+              <div className="bg-blue-600 px-4 sm:px-6 py-3 sm:py-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-white">
+                  <h3 className="text-base sm:text-lg font-medium text-white">
                     {selectedExperiment ? 'Edit Experiment' : 'Add New Experiment'}
                   </h3>
                   <button
                     onClick={handleCloseForm}
                     className="text-white/80 hover:text-white transition-colors duration-200 p-1 hover:bg-white/20 rounded-lg"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
@@ -587,7 +595,7 @@ const ExperimentsPage = () => {
               </div>
               
               {/* Modal Body */}
-              <div className="p-6">
+              <div className="p-3 sm:p-4 lg:p-6">
                 <ExperimentForm
                   experiment={selectedExperiment}
                   onClose={handleCloseForm}

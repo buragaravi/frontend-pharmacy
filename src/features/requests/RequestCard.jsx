@@ -4,15 +4,15 @@ import CourseInfoBadge from './CourseInfoBadge';
 
 // Constants for theming
 const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
+  background: 'bg-gradient-to-br from-blue-100 to-blue-200',
   card: 'bg-white',
-  border: 'border-[#BCE0FD]',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  border: 'border-blue-300',
+  primaryText: 'text-blue-900',
+  secondaryText: 'text-blue-600',
+  primaryBg: 'bg-blue-900',
+  secondaryBg: 'bg-blue-600',
+  hoverBg: 'hover:bg-blue-700',
+  inputFocus: 'focus:ring-blue-900 focus:border-blue-900'
 };
 
 const STATUS_COLORS = {
@@ -82,7 +82,7 @@ const RequestCard = ({ request, onClick, actionButton, className = '', showStatu
             <div className="space-y-1">
               {exp.chemicals && exp.chemicals.length > 0 && (
                 <div>
-                  <div className="font-semibold text-xs text-[#0B3861] mb-1">Chemicals</div>
+                  <div className="font-semibold text-xs text-blue-900 mb-1">Chemicals</div>
                   {exp.chemicals.map((chem, idx) => (
                     <div key={idx} className="flex justify-between items-center text-xs">
                       <span className="text-gray-700">{chem.chemicalName}</span>
@@ -98,33 +98,62 @@ const RequestCard = ({ request, onClick, actionButton, className = '', showStatu
               )}
               {exp.glassware && exp.glassware.length > 0 && (
                 <div className="mt-2">
-                  <div className="font-semibold text-xs text-[#0B3861] mb-1">Glassware</div>                  {exp.glassware.map((glass, idx) => (
-                    <div key={idx} className="flex justify-between items-center text-xs">
-                      <span className="text-gray-700">{glass.name || glass.glasswareName || 'N/A'}</span>
-                      <span className="text-gray-600">
-                        {glass.quantity} {glass.unit || glass.variant || ''}
-                        {glass.isAllocated && (
-                          <span className="ml-1 text-green-600">(Allocated)</span>
-                        )}
-                      </span>
-                    </div>
-                  ))}
+                  <div className="font-semibold text-xs text-blue-900 mb-1">Glassware</div>
+                  {exp.glassware.map((glass, idx) => {
+                    // Calculate total allocated quantity from ALL allocation history
+                    let allocatedQuantity = glass.allocatedQuantity || 0;
+                    if (glass.allocationHistory && glass.allocationHistory.length > 0) {
+                      allocatedQuantity = glass.allocationHistory.reduce((total, allocation) => {
+                        return total + (allocation.quantity || 0);
+                      }, 0);
+                    }
+                    
+                    const remainingQuantity = glass.quantity - allocatedQuantity;
+                    const isAllocated = glass.isAllocated || allocatedQuantity > 0;
+                    
+                    return (
+                      <div key={idx} className="flex justify-between items-center text-xs">
+                        <span className="text-gray-700">{glass.name || glass.glasswareName || 'N/A'}</span>
+                        <span className="text-gray-600">
+                          {glass.quantity} {glass.unit || glass.variant || ''}
+                          {isAllocated && (
+                            <span className="ml-1 text-green-600">({allocatedQuantity} allocated{remainingQuantity > 0 ? `, ${remainingQuantity} remaining` : ''})</span>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
               {exp.equipment && exp.equipment.length > 0 && (
                 <div className="mt-2">
-                  <div className="font-semibold text-xs text-[#0B3861] mb-1">Equipment</div>
-                  {exp.equipment.map((eq, idx) => (
-                    <div key={idx} className="flex justify-between items-center text-xs">
-                      <span className="text-gray-700">{eq.name} ({eq.variant})</span>
-                      <span className="text-gray-600">
-                        {eq.quantity}
-                        {eq.isAllocated && (
-                          <span className="ml-1 text-green-600">(Allocated)</span>
-                        )}
-                      </span>
-                    </div>
-                  ))}
+                  <div className="font-semibold text-xs text-blue-900 mb-1">Equipment</div>
+                  {exp.equipment.map((eq, idx) => {
+                    // Check if equipment is allocated by checking isAllocated flag or allocation history
+                    const isAllocated = eq.isAllocated || (eq.allocationHistory && eq.allocationHistory.length > 0);
+                    let allocatedQuantity = eq.allocatedQuantity || 0;
+                    
+                    // Calculate total allocated quantity from ALL allocation history
+                    if (eq.allocationHistory && eq.allocationHistory.length > 0) {
+                      allocatedQuantity = eq.allocationHistory.reduce((total, allocation) => {
+                        return total + (allocation.quantity || 0);
+                      }, 0);
+                    }
+                    
+                    const remainingQuantity = eq.quantity - allocatedQuantity;
+                    
+                    return (
+                      <div key={idx} className="flex justify-between items-center text-xs">
+                        <span className="text-gray-700">{eq.name} ({eq.variant})</span>
+                        <span className="text-gray-600">
+                          {eq.quantity}
+                          {isAllocated && (
+                            <span className="ml-1 text-green-600">({allocatedQuantity} allocated{remainingQuantity > 0 ? `, ${remainingQuantity} remaining` : ''})</span>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

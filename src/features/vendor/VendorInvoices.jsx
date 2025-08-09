@@ -110,8 +110,8 @@ const VendorInvoices = () => {
     const rightMargin = 15;
     const availableWidth = pageWidth - leftMargin - rightMargin;
     // Colors
-    const deepSeaBlue = [11, 56, 97]; // #0B3861
-    const skyBlue = [33, 150, 243];   // #2196F3
+    const deepSeaBlue = [11, 56, 97]; // rgb(11, 56, 97)
+    const skyBlue = [33, 150, 243];   // rgb(33, 150, 243)
     const white = [255, 255, 255];
     // Header Gradient
     const headerHeight = 22;

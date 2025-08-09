@@ -136,7 +136,7 @@ const PasswordResetFlow = () => {
         </div>
 
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <h2 className="text-center text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-8">
+          <h2 className="text-center text-3xl font-bold text-gray-800 mb-8">
             {step === 1 && 'Request Password Reset'}
             {step === 2 && 'Verify OTP'}
             {step === 3 && 'Set New Password'}

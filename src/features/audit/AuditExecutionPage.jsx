@@ -3,7 +3,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import QRScanner from './QRScanner';
 import PDFReportGenerator from './PDFReportGenerator';
-import EquipmentQRScanner from '../../components/EquipmentQRScanner';
+import EquipmentQRScanner from '../equipment/EquipmentQRScanner';
 
 const AuditExecutionPage = ({ assignment, onBack, onUpdate }) => {
   const [execution, setExecution] = useState(null);

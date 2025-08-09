@@ -89,7 +89,7 @@ const SubjectCreationModal = ({
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
-          title: 'text-lg font-bold text-amber-700',
+          title: 'text-lg font-bold text-yellow-700',
           content: 'text-gray-600'
         },
         showClass: {
@@ -227,7 +227,7 @@ const SubjectCreationModal = ({
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
-          title: 'text-lg font-bold text-amber-700',
+          title: 'text-lg font-bold text-yellow-700',
           content: 'text-gray-600'
         }
       });
@@ -274,7 +274,7 @@ const SubjectCreationModal = ({
         backdrop: 'rgba(0,0,0,0.4)',
         customClass: {
           popup: 'rounded-2xl shadow-2xl',
-          title: 'text-lg font-bold text-amber-700',
+          title: 'text-lg font-bold text-yellow-700',
           content: 'text-gray-600'
         }
       });
@@ -479,7 +479,7 @@ const SubjectCreationModal = ({
                     {results.filter(r => r.success).length === results.length ? (
                       <CheckCircle className="w-8 h-8 text-green-600" />
                     ) : (
-                      <AlertCircle className="w-8 h-8 text-amber-600" />
+                      <AlertCircle className="w-8 h-8 text-yellow-600" />
                     )}
                   </div>
                   <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Subject Creation Results</h3>

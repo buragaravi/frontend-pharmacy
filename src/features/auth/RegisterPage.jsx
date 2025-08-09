@@ -96,7 +96,7 @@ const RegisterPage = () => {
             
             <div className="relative z-10">
                 <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                    <h2 className="text-center text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-8">
+                    <h2 className="text-center text-3xl font-bold text-gray-800 mb-8">
                         Create Your Account                    </h2>
                 </div>
                 

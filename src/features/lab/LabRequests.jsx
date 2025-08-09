@@ -6,15 +6,15 @@ import RequestDetails from '../requests/RequestDetails';
 
 // Constants for theming
 const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
+  background: 'bg-gradient-to-br from-blue-50 to-blue-100',
   card: 'bg-white',
-  border: 'border-[#BCE0FD]',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  border: 'border-blue-200',
+  primaryText: 'text-blue-900',
+  secondaryText: 'text-blue-500',
+  primaryBg: 'bg-blue-900',
+  secondaryBg: 'bg-blue-500',
+  hoverBg: 'hover:bg-blue-600',
+  inputFocus: 'focus:ring-blue-900 focus:border-blue-900'
 };
 
 const LabRequests = () => {
@@ -97,7 +97,7 @@ const LabRequests = () => {
 
           <div className="overflow-x-auto">
             <table className={`min-w-full divide-y ${THEME.border}`}>
-              <thead className="bg-[#E1F1FF]">
+              <thead className="bg-blue-100">
                 <tr>
                   <th className={`px-6 py-3 text-left text-xs font-medium ${THEME.primaryText} uppercase tracking-wider`}>
                     Request ID

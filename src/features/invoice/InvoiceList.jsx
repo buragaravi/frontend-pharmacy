@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -649,28 +650,28 @@ const InvoiceList = () => {
       </AnimatePresence>
 
       {/* Enhanced Invoice Detail Modal */}
-      <AnimatePresence>
-        {selectedInvoice && (
-          <>
-            {/* Backdrop with blur effect */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-              onClick={() => setSelectedInvoice(null)}
-            />
-            
-            {/* Modal content */}
-            <motion.div
-              ref={modalRef}
-              initial={{ opacity: 0, y: 50, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 50, scale: 0.95 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
-              tabIndex={-1}
-            >
+      {selectedInvoice && createPortal(
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            style={{ zIndex: 10000000 }}
+            onClick={() => setSelectedInvoice(null)}
+          />
+          
+          {/* Modal content */}
+          <motion.div
+            ref={modalRef}
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.95 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto"
+            style={{ zIndex: 10000001 }}
+            tabIndex={-1}
+          >
               <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
                 {/* Sticky Header */}
                 <div className="sticky top-0 bg-white p-6 border-b border-gray-200 flex justify-between items-center shadow-sm z-10">
@@ -858,9 +859,9 @@ const InvoiceList = () => {
                 </div>
               </div>
             </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 };

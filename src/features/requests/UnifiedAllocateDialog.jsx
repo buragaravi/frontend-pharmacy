@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 import EquipmentQRScanner from '../equipment/EquipmentQRScanner';
 
 const THEME = {
@@ -45,16 +46,61 @@ const UnifiedAllocateDialog = ({ request, onClose, onSuccess }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
+      
+      // Prepare glassware data - include all unallocated glassware with their full quantities
+      const glasswareToAllocate = [];
+      request.experiments.forEach(exp => {
+        exp.glassware?.forEach(glass => {
+          if (!glass.isAllocated && !glass.isDisabled) {
+            glasswareToAllocate.push({
+              experimentId: exp._id,
+              glasswareId: glass.glasswareId,
+              quantity: glass.quantity // Send full quantity since no input fields
+            });
+          }
+        });
+      });
+
+      // Prepare chemicals data - include all unallocated chemicals with their full quantities
+      const chemicalsToAllocate = [];
+      request.experiments.forEach(exp => {
+        exp.chemicals?.forEach(chem => {
+          if (!chem.isAllocated && !chem.isDisabled) {
+            chemicalsToAllocate.push({
+              experimentId: exp._id,
+              chemicalMasterId: chem.chemicalMasterId,
+              quantity: chem.quantity // Send full quantity since no input fields
+            });
+          }
+        });
+      });
+
       await axios.put(
         `https://backend-pharmacy-5541.onrender.com/api/requests/${request._id}/allocate-unified`,
-        { chemicals, glassware, equipment },
+        { 
+          chemicals: chemicalsToAllocate, 
+          glassware: glasswareToAllocate, 
+          equipment 
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success('Allocation successful!');
+      
+      Swal.fire({
+        title: 'Success!',
+        text: 'Allocation successful!',
+        icon: 'success',
+        confirmButtonColor: '#3085d6'
+      });
+      
       onSuccess?.();
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.msg || 'Allocation failed');
+      Swal.fire({
+        title: 'Error!',
+        text: err.response?.data?.msg || err.response?.data?.message || 'Allocation failed',
+        icon: 'error',
+        confirmButtonColor: '#d33'
+      });
     } finally {
       setLoading(false);
     }
@@ -86,27 +132,12 @@ const UnifiedAllocateDialog = ({ request, onClose, onSuccess }) => {
                 <div className="flex items-center gap-2">
                   {chem.isAllocated ? (
                     <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded-full">
-                      Allocated
+                      Allocated ({chem.allocatedQuantity || chem.quantity})
                     </span>
                   ) : (
-                    <>
-                      <input
-                        type="number"
-                        min={0}
-                        max={chem.quantity}
-                        placeholder="Qty"
-                        className={`w-20 ${THEME.inputBg} ${THEME.inputBorder} border rounded-md px-2 py-1 text-xs ${THEME.inputFocus} transition-all`}
-                        value={chemicals.find(c => c.chemicalMasterId === chem.chemicalMasterId && c.experimentId === exp._id)?.quantity || ''}
-                        onChange={e => {
-                          const val = parseFloat(e.target.value) || 0;
-                          setChemicals(prev => {
-                            const filtered = prev.filter(c => !(c.chemicalMasterId === chem.chemicalMasterId && c.experimentId === exp._id));
-                            return val > 0 ? [...filtered, { experimentId: exp._id, chemicalMasterId: chem.chemicalMasterId, quantity: val }] : filtered;
-                          });
-                        }}
-                      />
-                      <span className={`text-xs ${THEME.mutedText}`}>{chem.unit}</span>
-                    </>
+                    <span className="bg-amber-100 text-amber-700 text-xs font-medium px-2 py-1 rounded-full">
+                      Pending ({chem.quantity} {chem.unit})
+                    </span>
                   )}
                 </div>
               </div>
@@ -126,42 +157,42 @@ const UnifiedAllocateDialog = ({ request, onClose, onSuccess }) => {
             {exp.experimentName}
           </div>
           <div className="space-y-2">
-            {exp.glassware?.map(glass => (
-              <div key={glass._id} className={`flex items-center gap-2 ${THEME.inputBg} ${THEME.inputBorder} border rounded-lg p-3 ${THEME.cardHover}`}>
-                <div className="flex-1">
-                  <div className={`text-sm font-medium ${THEME.primaryText}`}>{glass.name || glass.glasswareName || 'N/A'}</div>
-                  <div className={`text-xs ${THEME.mutedText}`}>
-                    Required: {glass.quantity}
+            {exp.glassware?.map(glass => {
+              // Calculate total allocated quantity from all allocation history
+              let allocatedQuantity = 0;
+              if (glass.allocationHistory && glass.allocationHistory.length > 0) {
+                // Sum up quantities from ALL allocations in history
+                allocatedQuantity = glass.allocationHistory.reduce((total, allocation) => {
+                  return total + (allocation.quantity || 0);
+                }, 0);
+              } else if (glass.allocatedQuantity) {
+                allocatedQuantity = glass.allocatedQuantity;
+              }
+              
+              const remainingQuantity = glass.quantity - allocatedQuantity;
+              
+              return (
+                <div key={glass._id} className={`flex items-center gap-2 ${THEME.inputBg} ${THEME.inputBorder} border rounded-lg p-3 ${THEME.cardHover}`}>
+                  <div className="flex-1">
+                    <div className={`text-sm font-medium ${THEME.primaryText}`}>{glass.name || glass.glasswareName || 'N/A'}</div>
+                    <div className={`text-xs ${THEME.mutedText}`}>
+                      Total: {glass.quantity} | Allocated: {allocatedQuantity} | Remaining: {remainingQuantity}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {allocatedQuantity > 0 ? (
+                      <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded-full">
+                        {allocatedQuantity === glass.quantity ? 'Fully Allocated' : `Partially Allocated (${allocatedQuantity}/${glass.quantity})`}
+                      </span>
+                    ) : (
+                      <span className="bg-amber-100 text-amber-700 text-xs font-medium px-2 py-1 rounded-full">
+                        Pending ({glass.quantity} pcs)
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {glass.isAllocated ? (
-                    <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded-full">
-                      Allocated
-                    </span>
-                  ) : (
-                    <>
-                      <input
-                        type="number"
-                        min={0}
-                        max={glass.quantity}
-                        placeholder="Qty"
-                        className={`w-20 ${THEME.inputBg} ${THEME.inputBorder} border rounded-md px-2 py-1 text-xs ${THEME.inputFocus} transition-all`}
-                        value={glassware.find(g => g.glasswareId === glass.glasswareId && g.experimentId === exp._id)?.quantity || ''}
-                        onChange={e => {
-                          const val = parseInt(e.target.value) || 0;
-                          setGlassware(prev => {
-                            const filtered = prev.filter(g => !(g.glasswareId === glass.glasswareId && g.experimentId === exp._id));
-                            return val > 0 ? [...filtered, { experimentId: exp._id, glasswareId: glass.glasswareId, quantity: val }] : filtered;
-                          });
-                        }}
-                      />
-                      <span className={`text-xs ${THEME.mutedText}`}>pcs</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       ))}
@@ -180,29 +211,48 @@ const UnifiedAllocateDialog = ({ request, onClose, onSuccess }) => {
             {exp.equipment?.map(eq => {
               const eqKey = `${exp._id}_${eq.name}_${eq.variant}`;
               const eqState = equipment.find(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant) || { itemIds: [] };
-              const unfulfilled = eq.quantity - (eqState.itemIds?.length || 0);
-              // Ensure we always have an array of length eq.quantity for itemIds
-              const itemIdsArr = Array.from({ length: eq.quantity }, (_, i) => eqState.itemIds?.[i] || '');
+              
+              // Calculate total allocated quantity from all allocation history
+              let allocatedQuantity = 0;
+              if (eq.allocationHistory && eq.allocationHistory.length > 0) {
+                // Sum up quantities from ALL allocations in history
+                allocatedQuantity = eq.allocationHistory.reduce((total, allocation) => {
+                  return total + (allocation.quantity || 0);
+                }, 0);
+              } else if (eq.allocatedQuantity) {
+                allocatedQuantity = eq.allocatedQuantity;
+              }
+              
+              const remainingQuantity = eq.quantity - allocatedQuantity;
+              const unfulfilled = remainingQuantity - (eqState.itemIds?.length || 0);
+              
+              // Ensure we always have an array of length remainingQuantity for itemIds (not total quantity)
+              const itemIdsArr = Array.from({ length: remainingQuantity }, (_, i) => eqState.itemIds?.[i] || '');
               return (
                 <div key={eq._id} className={`${THEME.inputBg} ${THEME.inputBorder} border rounded-lg p-3 space-y-3`}>
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className={`text-sm font-medium ${THEME.primaryText}`}>{eq.name}</div>
-                      <div className={`text-xs ${THEME.mutedText}`}>{eq.variant} × {eq.quantity}</div>
+                      <div className={`text-xs ${THEME.mutedText}`}>
+                        {eq.variant} × {eq.quantity}
+                        {allocatedQuantity > 0 && (
+                          <span className="ml-2 text-green-600">({allocatedQuantity} allocated)</span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {eq.isAllocated ? (
+                      {remainingQuantity === 0 ? (
                         <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded-full">
-                          Allocated
+                          Fully Allocated
                         </span>
                       ) : (
                         <div className={`text-xs ${THEME.mutedText} bg-white/50 px-2 py-1 rounded`}>
-                          {unfulfilled} unfulfilled
+                          {remainingQuantity} remaining
                         </div>
                       )}
                     </div>
                   </div>
-                  {!eq.isAllocated && (
+                  {remainingQuantity > 0 && (
                     <div className="space-y-2">
                       {itemIdsArr.map((itemId, idx) => (
                         <div key={idx} className="flex items-center gap-2">
@@ -233,7 +283,7 @@ const UnifiedAllocateDialog = ({ request, onClose, onSuccess }) => {
                               className={`px-3 py-2 rounded-md text-xs font-medium transition-colors ${
                                 scanning[`${eqKey}_${idx}`] 
                                   ? 'bg-red-100 text-red-700 hover:bg-red-200' 
-                                  : `${THEME.secondaryBg} text-white hover:bg-[#42A5F5]`
+                                  : `${THEME.secondaryBg} text-white hover:bg-blue-600`
                               }`}
                               onClick={() => setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: !s[`${eqKey}_${idx}`] }))}
                             >
@@ -258,41 +308,6 @@ const UnifiedAllocateDialog = ({ request, onClose, onSuccess }) => {
                               </button>
                             )}
                           </div>
-                          {scanning[`${eqKey}_${idx}`] && (
-                            <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[999999] p-2 sm:p-4">
-                              <div className="bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl rounded-lg p-3 sm:p-4 max-w-sm sm:max-w-md w-full mx-2 sm:mx-4 max-h-[90vh] overflow-auto">
-                                <EquipmentQRScanner
-                                  onScan={itemId => {
-                                    // The EquipmentQRScanner already extracts the itemId string
-                                    if (!itemId || typeof itemId !== 'string') {
-                                      toast.error('Invalid QR code data');
-                                      return;
-                                    }
-                                    
-                                    // Update the specific input field that triggered the scan
-                                    setEquipment(prev => {
-                                      const eqIdx = prev.findIndex(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant);
-                                      let newArr = prev.slice();
-                                      if (eqIdx === -1) {
-                                        const itemIds = Array.from({ length: eq.quantity }, (_, i) => i === idx ? itemId : '');
-                                        newArr.push({ experimentId: exp._id, name: eq.name, variant: eq.variant, itemIds });
-                                      } else {
-                                        const itemIds = (newArr[eqIdx].itemIds || Array(eq.quantity).fill('')).slice();
-                                        itemIds[idx] = itemId;
-                                        newArr[eqIdx] = { ...newArr[eqIdx], itemIds };
-                                      }
-                                      return newArr;
-                                    });
-                                    
-                                    // Close the scanner for this specific input
-                                    setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: false }));
-                                    toast.success(`Equipment ID ${itemId} added successfully!`);
-                                  }}
-                                  onClose={() => setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: false }))}
-                                />
-                              </div>
-                            </div>
-                          )}
                         </div>
                       ))}
                     </div>
@@ -307,11 +322,89 @@ const UnifiedAllocateDialog = ({ request, onClose, onSuccess }) => {
   );
 
   return (
-    <div 
-      className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 z-[99999]"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999 }}
-    >
+    <>
+      {/* QR Scanner Portal - Renders outside dialog DOM hierarchy */}
+      {Object.keys(scanning).some(key => scanning[key]) && createPortal(
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4" style={{ zIndex: 10000000 }}>
+          <div className="max-w-3xl w-full mx-2 sm:mx-4">
+            {Object.entries(scanning).map(([scanKey, isScanning]) => {
+              if (!isScanning) return null;
+              
+              const [expId, name, variant, idx] = scanKey.split('_');
+              const exp = request.experiments.find(e => e._id === expId);
+              const eq = exp?.equipment?.find(e => e.name === name && e.variant === variant);
+              
+              if (!eq) return null;
+              
+              return (
+                <EquipmentQRScanner
+                  key={scanKey}
+                  isPortal={true}
+                  onScan={itemId => {
+                    // The EquipmentQRScanner already extracts the itemId string
+                    if (!itemId || typeof itemId !== 'string') {
+                      Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid QR Code',
+                        text: 'The scanned QR code data is invalid',
+                        timer: 2000,
+                        showConfirmButton: false
+                      });
+                      return;
+                    }
+                    
+                    // Update the specific input field that triggered the scan
+                    setEquipment(prev => {
+                      const eqIdx = prev.findIndex(e => e.experimentId === expId && e.name === name && e.variant === variant);
+                      let newArr = prev.slice();
+                      if (eqIdx === -1) {
+                        const itemIds = Array.from({ length: eq.quantity }, (_, i) => i === parseInt(idx) ? itemId : '');
+                        newArr.push({ experimentId: expId, name, variant, itemIds });
+                      } else {
+                        const itemIds = (newArr[eqIdx].itemIds || Array(eq.quantity).fill('')).slice();
+                        itemIds[parseInt(idx)] = itemId;
+                        newArr[eqIdx] = { ...newArr[eqIdx], itemIds };
+                      }
+                      return newArr;
+                    });
+                    
+                    // Close the scanner for this specific input
+                    setScanning(s => ({ ...s, [scanKey]: false }));
+                    
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Item Scanned!',
+                      text: `Item ${itemId} added successfully`,
+                      timer: 1500,
+                      showConfirmButton: false
+                    });
+                  }}
+                  onError={error => {
+                    console.error('QR Scan error:', error);
+                    setScanning(s => ({ ...s, [scanKey]: false }));
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Scanner Error', 
+                      text: 'Failed to access camera or scan QR code',
+                      timer: 2000,
+                      showConfirmButton: false
+                    });
+                  }}
+                  onClose={() => setScanning(s => ({ ...s, [scanKey]: false }))}
+                />
+              );
+            })}
+          </div>
+        </div>,
+        document.body
+      )}
+      
+      {/* Main Dialog */}
+      <div 
+        className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-2 sm:p-4"
+        onClick={(e) => e.target === e.currentTarget && onClose()}
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999 }}
+      >
       <div className={`${THEME.card} rounded-xl max-w-7xl w-full p-4 sm:p-6 max-h-[95vh] overflow-hidden relative z-[99999]`}>
         {/* Header */}
         <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200/50">
@@ -375,7 +468,7 @@ const UnifiedAllocateDialog = ({ request, onClose, onSuccess }) => {
           <button 
             onClick={handleAllocate} 
             disabled={loading} 
-            className={`px-6 py-2 rounded-lg ${THEME.primaryBg} text-white font-medium text-sm hover:bg-[#1A365D] transition-colors ${
+            className={`px-6 py-2 rounded-lg ${THEME.primaryBg} text-white font-medium text-sm hover:bg-blue-800 transition-colors ${
               loading ? 'opacity-60 cursor-not-allowed' : ''
             }`}
           >
@@ -384,7 +477,6 @@ const UnifiedAllocateDialog = ({ request, onClose, onSuccess }) => {
         </div>
       </div>
     </div>
+    </>
   );
-};
-
-export default UnifiedAllocateDialog;
+};export default UnifiedAllocateDialog;

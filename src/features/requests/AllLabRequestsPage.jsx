@@ -4,6 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import { format } from 'date-fns';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import Swal from 'sweetalert2';
 import RequestCard from './RequestCard';
 import RequestDetailsModal from './RequestDetailsModal';
 import FulfillRequestDialog from './FulfillRequestDialog';
@@ -49,11 +50,11 @@ const THEME = {
 };
 
 const statusCategories = [
-  { status: 'all', label: 'All Requests', color: 'bg-gray-100 text-gray-800' },
-  { status: 'pending', label: 'Pending', color: 'bg-amber-100 text-amber-800' },
-  { status: 'rejected', label: 'Rejected', color: 'bg-red-100 text-red-800' },
-  { status: 'fulfilled', label: 'Fulfilled', color: 'bg-blue-100 text-blue-800' },
-  { status: 'partially_fulfilled', label: 'Partially Fulfilled', color: 'bg-blue-100 text-blue-800' }
+  { status: 'all', label: 'All Requests', color: 'bg-gray-200 text-gray-800' },
+  { status: 'pending', label: 'Pending', color: 'bg-yellow-200 text-yellow-800' },
+  { status: 'rejected', label: 'Rejected', color: 'bg-red-200 text-red-800' },
+  { status: 'fulfilled', label: 'Fulfilled', color: 'bg-green-200 text-green-800' },
+  { status: 'partially_fulfilled', label: 'Partially Fulfilled', color: 'bg-blue-200 text-blue-800' }
 ];
 
 const AllLabRequestsPage = () => {
@@ -257,6 +258,53 @@ const AllLabRequestsPage = () => {
     fetchAllLabRequests();
     handleCloseFulfill();
     handleCloseUnifiedDialog();
+  };
+
+  // Handler for granting remaining allocation permission
+  const handleGrantPermission = async (requestId) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Grant Permission',
+        text: 'Are you sure you want to grant permission for remaining allocation?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Grant Permission',
+        cancelButtonText: 'Cancel'
+      });
+
+      if (result.isConfirmed) {
+        const token = localStorage.getItem('token');
+        await axios.put(
+          `https://backend-pharmacy-5541.onrender.com/api/requests/${requestId}/grant-remaining-allocation-permission`,
+          { reason: 'Admin granted permission for remaining allocation' },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Permission granted successfully!',
+          icon: 'success',
+          confirmButtonColor: '#3085d6'
+        });
+        
+        fetchAllLabRequests(); // Refresh the list
+      }
+    } catch (err) {
+      Swal.fire({
+        title: 'Error!',
+        text: err.response?.data?.message || 'Failed to grant permission',
+        icon: 'error',
+        confirmButtonColor: '#d33'
+      });
+    }
+  };
+
+  // Handler for allocating remaining resources using UnifiedAllocateDialog
+  const handleAllocateRemaining = (request) => {
+    setSelectedRequest(request);
+    setShowUnifiedDialog(true);
   };
 
   const generatePDF = () => {
@@ -487,21 +535,6 @@ const AllLabRequestsPage = () => {
     <div className="w-full bg-white">
       {/* Full Width Header with Rounded Top Borders and Water Bubbles */}
       <div className="w-full rounded-b-3xl bg-blue-600 backdrop-blur-xl  relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-white/10 backdrop-blur-sm"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"></div>
-        
-        {/* Water Bubble Background Effects */}
-        <div className="water-bubbles">
-          <div className="bubble bubble-1"></div>
-          <div className="bubble bubble-2"></div>
-          <div className="bubble bubble-3"></div>
-          <div className="bubble bubble-4"></div>
-          <div className="bubble bubble-5"></div>
-          <div className="bubble bubble-6"></div>
-          <div className="bubble bubble-7"></div>
-          <div className="bubble bubble-8"></div>
-        </div>
-        
         <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4">
@@ -601,7 +634,7 @@ const AllLabRequestsPage = () => {
         ) : (
           <div className="w-full">
             {/* Instructions for Status Filtering */}
-            <div className="mb-4 bg-gradient-to-r from-blue-50/80 to-blue-50/80 backdrop-blur-sm rounded-xl p-3 border border-blue-100/50">
+            <div className="mb-4 bg-blue-50/80 backdrop-blur-sm rounded-xl p-3 border border-blue-100/50">
               <div className="flex items-center gap-2 text-sm text-blue-700">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -644,7 +677,7 @@ const AllLabRequestsPage = () => {
                     className="bg-white/90 backdrop-blur-sm border border-blue-100/50 hover:shadow-xl transition-all duration-300 rounded-xl p-4 cursor-pointer transform group-hover:scale-105"
                     actionButton={
                       <>
-                        {/* Only show allocate button for approved requests */}
+                        {/* Allocate button for approved requests */}
                         {req.status === 'approved' && (isCentralAdmin || isLabAdmin) && (
                           <button
                             onClick={e => {
@@ -656,8 +689,53 @@ const AllLabRequestsPage = () => {
                             Allocate Resources
                           </button>
                         )}
+                        
+                        {/* For partially_fulfilled requests - different buttons based on permission */}
+                        {req.status === 'partially_fulfilled' && userRole === 'admin' && (
+                          <>
+                            {/* Grant Permission button if permission not granted */}
+                            {!req.remainingAllocationPermission?.granted && (
+                              <button
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  handleGrantPermission(req._id);
+                                }}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all duration-300 text-sm shadow-lg hover:shadow-xl transform hover:scale-105"
+                              >
+                                Grant Permission
+                              </button>
+                            )}
+                            
+                            {/* Allocate Remaining button if permission granted */}
+                            {req.remainingAllocationPermission?.granted && (isCentralAdmin || isLabAdmin) && (
+                              <button
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  handleAllocateRemaining(req);
+                                }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-300 text-sm shadow-lg hover:shadow-xl transform hover:scale-105"
+                              >
+                                Allocate Remaining
+                              </button>
+                            )}
+                          </>
+                        )}
+                        
+                        {/* Show permission status for partially_fulfilled if permission granted but not admin */}
+                        {req.status === 'partially_fulfilled' && req.remainingAllocationPermission?.granted && userRole !== 'admin' && (isCentralAdmin || isLabAdmin) && (
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleAllocateRemaining(req);
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-300 text-sm shadow-lg hover:shadow-xl transform hover:scale-105"
+                          >
+                            Allocate Remaining
+                          </button>
+                        )}
+                        
                         {/* Disabled button for non-approved requests */}
-                        {req.status !== 'approved' && (req.status === 'pending' || req.status === 'partially_fulfilled') && (isCentralAdmin || isLabAdmin) && (
+                        {req.status !== 'approved' && !(req.status === 'partially_fulfilled' && (userRole === 'admin' || req.remainingAllocationPermission?.granted)) && (req.status === 'pending' || req.status === 'partially_fulfilled') && (isCentralAdmin || isLabAdmin) && (
                           <button
                             disabled
                             className="px-4 py-2 bg-gray-400 text-white rounded-lg font-medium cursor-not-allowed transition-all duration-300 text-sm opacity-50"

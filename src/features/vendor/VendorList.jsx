@@ -624,7 +624,7 @@ const VendorList = () => {
             
             <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-blue-50 to-blue-100">
+                <thead className="bg-blue-50">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider">Vendor Details</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider">Contact</th>
@@ -638,14 +638,14 @@ const VendorList = () => {
                   ) : filteredVendors.length > 0 ? (
                     filteredVendors.map((vendor, index) => (
                       <tr 
-                        key={vendor._id} 
-                        className={`hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 cursor-pointer transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
+                        key={vendor._id}
+                        className={`hover:bg-blue-50 cursor-pointer transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
                         onClick={e => { if (e.target.nodeName !== 'BUTTON' && e.target.nodeName !== 'svg' && e.target.nodeName !== 'path') { setModalVendor(vendor); setModalOpen(true); } }}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
-                              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+                              <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
                                 <span className="text-sm font-medium text-white">
                                   {vendor.name ? vendor.name.charAt(0).toUpperCase() : 'V'}
                                 </span>
@@ -760,7 +760,7 @@ const VendorList = () => {
             }}
           >
             <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden border border-gray-200">
-              <div className="bg-gradient-to-r from-blue-600 to-blue-600 text-white p-6">
+              <div className="bg-blue-600 text-white p-6">
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-xl font-bold">{modalVendor.name} - Invoice History</h3>
@@ -780,7 +780,7 @@ const VendorList = () => {
               <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(95vh - 120px)' }}>
                 <div className="overflow-x-auto rounded-lg border border-gray-200">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gradient-to-r from-blue-50 to-blue-50 sticky top-0">
+                    <thead className="bg-blue-50 sticky top-0">
                       <tr>
                         <th className="px-4 py-3 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider">Invoice No</th>
                         <th className="px-4 py-3 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider">Date</th>
@@ -795,7 +795,7 @@ const VendorList = () => {
                         return (
                           <tr 
                             key={inv._id} 
-                            className={`hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-50 cursor-pointer transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
+                            className={`hover:bg-blue-50 cursor-pointer transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
                             onClick={e => { if (e.target.nodeName !== 'BUTTON' && e.target.nodeName !== 'svg' && e.target.nodeName !== 'path') { setSelectedInvoice(inv); setModalInvoiceOpen(true); } }}
                           >
                             <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{inv.invoiceNumber}</td>
@@ -836,7 +836,7 @@ const VendorList = () => {
             }}
           >
             <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden border border-gray-200">
-              <div className="bg-gradient-to-r from-blue-600 to-blue-600 text-white p-6">
+              <div className="bg-blue-600 text-white p-6">
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-xl font-bold">Invoice Details</h3>
@@ -866,7 +866,7 @@ const VendorList = () => {
               
               <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(95vh - 120px)' }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-50 rounded-xl p-4 border border-blue-200">
+                  <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
                     <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -892,7 +892,7 @@ const VendorList = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                  <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
                     <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -969,7 +969,7 @@ const VendorList = () => {
         .react-datepicker {
           z-index: 99999 !important;
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-          border: 1px solid #e5e7eb !important;
+          border: 1px solid rgb(229, 231, 235) !important;
           border-radius: 12px !important;
           position: relative !important;
         }
@@ -981,29 +981,29 @@ const VendorList = () => {
         }
         
         .react-datepicker__header {
-          background-color: #f8fafc !important;
-          border-bottom: 1px solid #e5e7eb !important;
+          background-color: rgb(248, 250, 252) !important;
+          border-bottom: 1px solid rgb(229, 231, 235) !important;
           border-top-left-radius: 12px !important;
           border-top-right-radius: 12px !important;
         }
         
         .react-datepicker__current-month {
           font-weight: 600 !important;
-          color: #374151 !important;
+          color: rgb(55, 65, 81) !important;
         }
         
         .react-datepicker__day--selected {
-          background-color: #3b82f6 !important;
+          background-color: rgb(59, 130, 246) !important;
           color: white !important;
         }
         
         .react-datepicker__day--selected:hover {
-          background-color: #2563eb !important;
+          background-color: rgb(37, 99, 235) !important;
         }
         
         .react-datepicker__day:hover {
-          background-color: #dbeafe !important;
-          color: #1d4ed8 !important;
+          background-color: rgb(219, 234, 254) !important;
+          color: rgb(29, 78, 216) !important;
         }
         
         /* Custom scrollbar for better UX */
@@ -1012,17 +1012,17 @@ const VendorList = () => {
         }
         
         ::-webkit-scrollbar-track {
-          background: #f1f5f9;
+          background: rgb(241, 245, 249);
           border-radius: 3px;
         }
         
         ::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
+          background: rgb(203, 213, 225);
           border-radius: 3px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
+          background: rgb(148, 163, 184);
         }
 
         /* Animation for fade in */

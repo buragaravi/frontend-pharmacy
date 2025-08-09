@@ -642,7 +642,7 @@ const AdminDashboard = () => {
     >
       {/* Navigation Bar */}
       <header 
-        className="w-full sticky top-0 z-50 border-b border-white/30 shadow-xl shadow-blue-500/10"
+        className="w-full sticky top-0 z-50 border-b border-white/30 shadow-xl shadow-blue-500/10 overflow-visible"
         style={getSafeBackdrop('12px', 'rgba(248, 250, 252, 0.9)')}
       >
         {/* Enhanced Header Section */}
@@ -651,25 +651,25 @@ const AdminDashboard = () => {
           style={getSafeBackground('header', '#1e3a8a')}
         >
           <div className="absolute inset-0 bg-blue-900/20"></div>
-          <div className="relative z-10 w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
-            <div className="flex items-center gap-4">
+          <div className="relative z-10 w-full flex items-center justify-between px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div 
-                className="p-2.5 rounded-xl border border-white/30"
+                className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl border border-white/30"
                 style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.2)')}
               >
-                <img src="/pydah.svg" alt="Logo" className="h-6 w-auto sm:h-7" />
+                <img src="/pydah.svg" alt="Logo" className="h-4 w-auto sm:h-5 lg:h-6" />
               </div>
               <div>
-                <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                <h1 className="text-sm sm:text-base lg:text-lg font-bold text-white tracking-tight">
                   Admin Dashboard
                 </h1>
-                <p className="text-blue-100 text-xs">Management hub</p>
+                <p className="text-blue-100 text-xs hidden sm:block">Management hub</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
               <NotificationCenter notifications={notifications} onMarkAsRead={markNotificationAsRead} />
               {user && (
-                <span className="hidden sm:inline text-sm font-medium text-blue-100">
+                <span className="hidden lg:inline text-xs font-medium text-blue-100">
                   Welcome, {user.name}
                 </span>
               )}
@@ -677,9 +677,10 @@ const AdminDashboard = () => {
                 onClick={handleLogout}
                 variant="secondary"
                 size="sm"
-                className="text-white border border-white/30"
+                className="text-white border border-white/30 text-xs px-2 py-1"
               >
-                Logout
+                <span className="hidden sm:inline">Logout</span>
+                <span className="sm:hidden">Exit</span>
               </SafeButton>
             </div>
           </div>
@@ -695,20 +696,20 @@ const AdminDashboard = () => {
 
         {/* Modern Navigation Bar */}
         <nav 
-          className="w-full border-b border-white/20"
+          className="w-full border-b border-white/20 overflow-visible"
           style={getSafeBackdrop('10px', 'rgba(255, 255, 255, 0.4)')}
         >
-          <div className="w-full flex items-center px-4 sm:px-6 lg:px-8 py-3 relative">
+          <div className="w-full flex items-center px-3 sm:px-4 lg:px-6 py-2 relative overflow-visible">
             {/* Mobile Menu Button */}
             <div className="md:hidden">
               <SafeButton
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 variant="secondary"
                 size="sm"
-                className="border border-white/60"
+                className="border border-white/60 p-1.5"
                 aria-label="Toggle menu"
               >
-                <svg className="w-5 h-5 text-blue-700 transition-transform duration-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-blue-700 transition-transform duration-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   {mobileMenuOpen ? (
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   ) : (
@@ -719,11 +720,11 @@ const AdminDashboard = () => {
             </div>
             
             {/* Dashboard Button - Desktop */}
-            <div className="hidden md:flex items-center mr-6">
+            <div className="hidden md:flex items-center mr-2 xl:mr-4">
               <SafeButton
                 variant={showDashboard && !selectedChild ? 'primary' : 'secondary'}
                 size="sm"
-                className={`border ${showDashboard && !selectedChild 
+                className={`border text-xs px-1.5 xl:px-2.5 py-1.5 ${showDashboard && !selectedChild 
                   ? 'border-blue-300/40' 
                   : 'border-blue-200/30 hover:border-blue-300/50'
                 }`}
@@ -733,18 +734,18 @@ const AdminDashboard = () => {
                   setExpandedCategory(null);
                 }}
               >
-                🏠 Dashboard
+                🏠 <span className="hidden xl:inline">Dashboard</span>
               </SafeButton>
             </div>
             
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center justify-center w-full">
+            <div className="hidden md:flex items-center justify-center w-full overflow-visible">
               {/* Parent Categories as horizontal nav - Centered */}
-              <div className="flex items-center justify-center space-x-4 lg:space-x-6">
+              <div className="flex items-center justify-center space-x-1 xl:space-x-3 overflow-visible">
                 {Object.entries(NAV_CATEGORIES).map(([category, categoryData]) => (
-                  <div key={category} className="relative dropdown-container">
+                  <div key={category} className="relative dropdown-container flex-shrink-0">
                     <button
-                      className={`px-4 lg:px-5 py-3 lg:py-3.5 rounded-2xl font-medium transition-all duration-400 text-sm whitespace-nowrap flex items-center gap-2 transform hover:scale-102 border ${
+                      className={`px-1.5 xl:px-3 py-1.5 xl:py-2 rounded-lg font-medium transition-all duration-400 text-xs whitespace-nowrap flex items-center gap-1 xl:gap-1.5 transform hover:scale-102 border ${
                         expandedCategory === category 
                           ? 'bg-blue-500/20 text-blue-700 border-blue-300/40 backdrop-blur-sm' 
                           : 'bg-transparent hover:bg-blue-50/30 text-blue-700 border-blue-200/30 hover:border-blue-300/50'
@@ -752,28 +753,39 @@ const AdminDashboard = () => {
                       onClick={() => handleParentClick(category)}
                     >
                       <categoryData.icon />
-                      {category}
+                      <span className="hidden xl:inline">{category}</span>
+                      <span className="xl:hidden text-[10px]">{
+                        category === 'Lab Operations' ? 'Lab Ops' :
+                        category === 'Inventory Management' ? 'Inventory' :
+                        category === 'Allocation' ? 'Allocate' :
+                        category === 'Reports & Analytics' ? 'Reports' :
+                        category === 'Administration' ? 'Admin' :
+                        category === 'Quality Audit' ? 'Audit' :
+                        category.split(' ')[0]
+                      }</span>
                       <div className={`transition-all duration-400 ${expandedCategory === category ? 'rotate-180' : 'rotate-0'}`}>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-2.5 h-2.5 xl:w-3 xl:h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
                     </button>
                     {/* Dropdown for child items */}
                     {expandedCategory === category && (
-                      <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 min-w-[200px] bg-white/95 backdrop-blur-lg border border-blue-100/60 rounded-2xl z-50 overflow-hidden animate-fadeIn">
-                        {categoryData.items.map((item) => (
-                          <button
-                            key={item.key}
-                            className={`w-full flex items-center gap-3 px-4 py-3.5 text-sm font-medium transition-all duration-300 text-left hover:transform hover:scale-[1.01] ${
-                              selectedChild === item.key ? 'bg-blue-500/90 text-white' : 'hover:bg-blue-50/80 text-blue-700'
-                            }`}
-                            onClick={() => handleChildClick(item)}
-                          >
-                            <item.icon />
-                            {item.label}
-                          </button>
-                        ))}
+                      <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 min-w-[200px] xl:min-w-[220px] bg-white/98 backdrop-blur-lg border border-blue-100/60 rounded-xl shadow-xl z-[9999] overflow-visible">
+                        <div className="py-2">
+                          {categoryData.items.map((item) => (
+                            <button
+                              key={item.key}
+                              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-300 text-left hover:transform hover:scale-[1.01] ${
+                                selectedChild === item.key ? 'bg-blue-500/90 text-white' : 'hover:bg-blue-50/80 text-blue-700'
+                              }`}
+                              onClick={() => handleChildClick(item)}
+                            >
+                              <item.icon />
+                              <span>{item.label}</span>
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -786,10 +798,10 @@ const AdminDashboard = () => {
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden w-full bg-white/95 backdrop-blur-lg border-b border-blue-100/50 mobile-menu-container">
-            <div className="flex flex-col gap-2 py-4 px-4 max-h-[70vh] overflow-y-auto">
+            <div className="flex flex-col gap-1.5 py-3 px-3 max-h-[70vh] overflow-y-auto">
               {/* Dashboard Button for Mobile */}
               <button
-                className={`w-full text-left px-5 py-4 rounded-2xl font-medium transition-all duration-400 flex items-center gap-3 text-sm ${
+                className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all duration-400 flex items-center gap-2 text-xs ${
                   showDashboard && !selectedChild 
                     ? 'bg-blue-500/20 text-blue-700 backdrop-blur-sm border border-blue-300/40' 
                     : 'bg-transparent text-blue-600 hover:bg-blue-50/30 border border-blue-200/30 hover:border-blue-300/50'
@@ -807,21 +819,21 @@ const AdminDashboard = () => {
               
               {/* Categories with collapsible sections */}
               {Object.entries(NAV_CATEGORIES).map(([category, categoryData]) => (
-                <div key={category} className="mb-2">
+                <div key={category} className="mb-1">
                   <button
-                    className={`w-full text-left px-5 py-4 rounded-2xl font-medium transition-all duration-400 flex items-center justify-between text-sm transform hover:scale-[1.01] ${
+                    className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all duration-400 flex items-center justify-between text-xs transform hover:scale-[1.01] ${
                       mobileExpandedCategory === category 
                         ? 'bg-blue-500/20 text-blue-700 backdrop-blur-sm border border-blue-300/40' 
                         : 'bg-transparent text-blue-700 hover:bg-blue-50/30 border border-blue-200/30 hover:border-blue-300/50'
                     }`}
                     onClick={() => setMobileExpandedCategory(mobileExpandedCategory === category ? null : category)}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <categoryData.icon />
                       <span>{category}</span>
                     </div>
                     <div className={`transition-all duration-400 ${mobileExpandedCategory === category ? 'rotate-180' : 'rotate-0'}`}>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
@@ -829,11 +841,11 @@ const AdminDashboard = () => {
                   
                   {/* Category Items */}
                   {mobileExpandedCategory === category && (
-                    <div className="mt-1 ml-4 space-y-1">
+                    <div className="mt-1 ml-3 space-y-1">
                       {categoryData.items.map((item) => (
                         <button
                           key={item.key}
-                          className={`w-full text-left px-4 py-2 sm:py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-3 text-sm sm:text-base ${
+                          className={`w-full text-left px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-xs ${
                             selectedChild === item.key 
                               ? 'bg-blue-600 text-white shadow-sm' 
                               : 'bg-white text-blue-600 shadow-sm hover:bg-blue-50 border border-gray-100'

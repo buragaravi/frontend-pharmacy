@@ -107,7 +107,7 @@ const NotFound = () => {
           }}
           className="mb-8"
         >
-          <h1 className="text-9xl md:text-[12rem] font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 leading-none">
+          <h1 className="text-9xl md:text-[12rem] font-bold text-blue-600 leading-none">
             404
           </h1>
         </motion.div>

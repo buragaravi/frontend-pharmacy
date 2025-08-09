@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { BrowserQRCodeReader } from '@zxing/library';
 
-const EquipmentQRScanner = ({ onScan, onClose }) => {
+const EquipmentQRScanner = ({ onScan, onClose, isPortal = false, isOpen = true }) => {
   const videoRef = useRef(null);
   const codeReaderRef = useRef(null);
   const [error, setError] = useState('');
@@ -245,96 +245,105 @@ const EquipmentQRScanner = ({ onScan, onClose }) => {
       }
     };
   }, [handleScanSuccess]);
-  return (
-    <div className="fixed inset-0 z-[99999999] flex items-center justify-center bg-black/80 backdrop-blur-lg">
-      <div className="bg-white/95 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">Scan QR Code</h3>
-            <p className="text-sm text-gray-600">Align equipment QR code within frame</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200"
-            aria-label="Close scanner"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  // Component content
+  const scannerContent = (
+    <div className="bg-white/95 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl p-6 max-w-2xl w-full mx-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-800">Scan QR Code</h3>
+          <p className="text-sm text-gray-600">Align equipment QR code within frame</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200"
+          aria-label="Close scanner"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+        {/* Error Display */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+          <div className="flex items-start">
+            <svg className="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
-          </button>
-        </div>
-          {/* Error Display */}
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-            <div className="flex items-start">
-              <svg className="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <div className="flex-1">
-                <span className="text-red-700 text-sm font-medium block">{error}</span>
-                {error.includes('permission') && (
-                  <div className="mt-2 text-xs text-red-600">
-                    <p>• Click the camera icon in your browser's address bar</p>
-                    <p>• Select "Allow" for camera access</p>
-                    <p>• Refresh the page and try again</p>
-                  </div>
-                )}
-              </div>
+            <div className="flex-1">
+              <span className="text-red-700 text-sm font-medium block">{error}</span>
+              {error.includes('permission') && (
+                <div className="mt-2 text-xs text-red-600">
+                  <p>• Click the camera icon in your browser's address bar</p>
+                  <p>• Select "Allow" for camera access</p>
+                  <p>• Refresh the page and try again</p>
+                </div>
+              )}
             </div>
           </div>
-        )}
-        
-        {/* Camera Feed */}
-        <div className="relative bg-gray-900 rounded-2xl overflow-hidden border-4 border-blue-200 mb-4">
-          <video
-            ref={videoRef}
-            className="w-full aspect-square object-cover"
-            autoPlay
-            playsInline
-            muted
-          />
-          
-          {/* Scanning Overlay */}
-          {scanning && !error && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-48 h-48 border-4 border-blue-500 rounded-2xl relative">
-                {/* Animated corners */}
-                <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-lg animate-pulse"></div>
-                <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-lg animate-pulse"></div>
-                <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-lg animate-pulse"></div>
-                <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-lg animate-pulse"></div>
-                
-                {/* Scanning line */}
-                <div className="absolute inset-x-0 top-1/2 h-0.5 bg-blue-400 animate-pulse shadow-lg shadow-blue-400/50"></div>
-              </div>
-            </div>
-          )}
         </div>
+      )}
+      
+      {/* Camera Feed */}
+      <div className="relative bg-gray-900 rounded-2xl overflow-hidden border-4 border-blue-200 mb-4">
+        <video
+          ref={videoRef}
+          className="w-full h-96 object-cover"
+          autoPlay
+          playsInline
+          muted
+        />
         
-        {/* Status Text */}
-        {!error && scanning && (
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
-              <span className="text-gray-700 font-medium">Scanning for QR code...</span>
+        {/* Scanning Overlay */}
+        {scanning && !error && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-48 h-48 border-4 border-blue-500 rounded-2xl relative">
+              {/* Animated corners */}
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-lg animate-pulse"></div>
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-lg animate-pulse"></div>
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-lg animate-pulse"></div>
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-lg animate-pulse"></div>
+              
+              {/* Scanning line */}
+              <div className="absolute inset-x-0 top-1/2 h-0.5 bg-blue-400 animate-pulse shadow-lg shadow-blue-400/50"></div>
             </div>
-            <p className="text-xs text-gray-500">Position the QR code within the blue frame</p>
-          </div>
-        )}
-
-        {!scanning && !error && (
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="text-green-700 font-medium">QR Code Detected!</span>
-            </div>
-            <p className="text-xs text-gray-500">Processing equipment information...</p>
           </div>
         )}
       </div>
+      
+      {/* Status Text */}
+      {!error && scanning && (
+        <div className="text-center">
+          <div className="flex items-center justify-center mb-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+            <span className="text-gray-700 font-medium">Scanning for QR code...</span>
+          </div>
+          <p className="text-xs text-gray-500">Position the QR code within the blue frame</p>
+        </div>
+      )}
+
+      {!scanning && !error && (
+        <div className="text-center">
+          <div className="flex items-center justify-center mb-2">
+            <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span className="text-green-700 font-medium">QR Code Detected!</span>
+          </div>
+          <p className="text-xs text-gray-500">Processing equipment information...</p>
+        </div>
+      )}
+    </div>
+  );
+
+  // If not open, return null
+  if (!isOpen) return null;
+
+  // If used as portal, return only content; otherwise render with overlay
+  return isPortal ? scannerContent : (
+    <div className="fixed inset-0 z-[99999999] flex items-center justify-center bg-black/80 backdrop-blur-lg">
+      {scannerContent}
     </div>
   );
 };

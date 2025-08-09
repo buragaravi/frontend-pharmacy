@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import EquipmentQRScanner from './EquipmentQRScanner';
 import useLabs from '../../hooks/useLabs';
@@ -88,7 +89,22 @@ const AllocateEquipmentForm = () => {
   };
 
   return (
-    <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <>
+      {/* QR Scanner Portal */}
+      {showScanner && createPortal(
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4" style={{ zIndex: 10000000 }}>
+          <div className="max-w-3xl w-full mx-2 sm:mx-4">
+            <EquipmentQRScanner 
+              isPortal={true}
+              onScan={handleQRScan} 
+              onClose={() => setShowScanner(false)} 
+            />
+          </div>
+        </div>,
+        document.body
+      )}
+
+      <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
       <div className="w-full max-w-none mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden relative">
         {/* Enhanced Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -206,10 +222,6 @@ const AllocateEquipmentForm = () => {
                 </button>
               </div>
             </div>
-
-            {showScanner && (
-              <EquipmentQRScanner onScan={handleQRScan} onClose={() => setShowScanner(false)} />
-            )}
 
             {equipmentDetails && (
               <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">
@@ -335,6 +347,7 @@ const AllocateEquipmentForm = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import EquipmentQRScanner from './EquipmentQRScanner';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 

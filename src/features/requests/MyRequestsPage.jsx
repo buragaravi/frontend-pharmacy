@@ -182,7 +182,7 @@ const MyRequestsPage = () => {
                       <MyRequestsIcon />
                     </div>
                     <div>
-                      <h1 className={`text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-700 bg-clip-text text-transparent leading-tight`}>
+                      <h1 className={`text-xl sm:text-2xl font-bold text-blue-700 leading-tight`}>
                         My Requests
                       </h1>
                       <p className="text-xs sm:text-sm text-gray-700 font-medium mt-1">Manage and track your submitted requests</p>

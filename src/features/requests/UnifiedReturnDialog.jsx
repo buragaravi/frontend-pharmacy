@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import EquipmentQRScanner from '../equipment/EquipmentQRScanner';
@@ -245,11 +246,12 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
                     <div className={`text-sm font-medium ${THEME.primaryText}`}>{glass.glasswareName || glass.name}</div>
                     <div className={`text-xs ${THEME.mutedText}`}>
                       Allocated: {(() => {
-                        // Show allocated quantity from various sources
+                        // Calculate total allocated quantity from ALL allocation history
                         if (glass.allocatedQuantity > 0) return glass.allocatedQuantity;
                         if (Array.isArray(glass.allocationHistory) && glass.allocationHistory.length > 0) {
-                          const lastAllocation = glass.allocationHistory[glass.allocationHistory.length - 1];
-                          return lastAllocation.quantity || 0;
+                          return glass.allocationHistory.reduce((total, allocation) => {
+                            return total + (allocation.quantity || 0);
+                          }, 0);
                         }
                         return glass.quantity || 0;
                       })()}
@@ -264,11 +266,12 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
                       type="number"
                       min={0}
                       max={(() => {
-                        // Calculate max quantity from various sources
+                        // Calculate max quantity from ALL allocation history
                         if (glass.allocatedQuantity > 0) return glass.allocatedQuantity;
                         if (Array.isArray(glass.allocationHistory) && glass.allocationHistory.length > 0) {
-                          const lastAllocation = glass.allocationHistory[glass.allocationHistory.length - 1];
-                          return lastAllocation.quantity || 0;
+                          return glass.allocationHistory.reduce((total, allocation) => {
+                            return total + (allocation.quantity || 0);
+                          }, 0);
                         }
                         return glass.quantity || 0;
                       })()}
@@ -353,19 +356,19 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
                      (Array.isArray(eq.itemIds) && eq.itemIds.length > 0);
             }).map(eq => {
               const eqKey = `${exp._id}_${eq.name}_${eq.variant}`;
-              // Use last allocationHistory for itemIds
-              let itemIdsArr = [];
+              
+              // Calculate total allocated quantity from ALL allocation history
+              let totalAllocatedQuantity = 0;
               if (Array.isArray(eq.allocationHistory) && eq.allocationHistory.length > 0) {
-                const lastAlloc = eq.allocationHistory[eq.allocationHistory.length - 1];
-                itemIdsArr = lastAlloc.itemIds || [];
-              } else {
-                itemIdsArr = eq.itemIds || [];
+                totalAllocatedQuantity = eq.allocationHistory.reduce((total, allocation) => {
+                  return total + (allocation.quantity || 0);
+                }, 0);
+              } else if (eq.allocatedQuantity) {
+                totalAllocatedQuantity = eq.allocatedQuantity;
               }
               
-              // If no itemIds found, create placeholder based on allocated quantity
-              if (itemIdsArr.length === 0 && eq.allocatedQuantity > 0) {
-                itemIdsArr = Array(eq.allocatedQuantity).fill('');
-              }
+              // Don't prefill itemIds - users should manually enter/scan them for return
+              const itemIdsArr = Array(totalAllocatedQuantity).fill('');
               
               const eqState = equipment.find(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant) || { itemIds: [] };
               
@@ -374,28 +377,28 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className={`text-sm font-medium ${THEME.primaryText}`}>{eq.name}</div>
-                      <div className={`text-xs ${THEME.mutedText}`}>{eq.variant}</div>
+                      <div className={`text-xs ${THEME.mutedText}`}>{eq.variant} - {totalAllocatedQuantity} allocated items</div>
                     </div>
                     <div className={`text-xs ${THEME.mutedText} bg-white/50 px-2 py-1 rounded`}>
-                      {itemIdsArr.length} items
+                      {totalAllocatedQuantity} items to return
                     </div>
                   </div>
                   <div className="space-y-2">
-                    {itemIdsArr.length > 0 ? itemIdsArr.map((itemId, idx) => (
+                    {itemIdsArr.length > 0 ? itemIdsArr.map((_, idx) => (
                       <div key={idx} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                           <input
                             type="text"
-                            placeholder={`Item ID #${idx + 1}`}
+                            placeholder={`Scan or enter Item ID #${idx + 1}`}
                             className={`flex-1 ${THEME.inputBg} ${THEME.inputBorder} border rounded-md px-3 py-2 text-xs ${THEME.inputFocus} transition-all min-h-[40px]`}
-                            value={eqState.itemIds[idx] || itemId || ''}
+                            value={eqState.itemIds[idx] || ''}
                             onChange={e => {
                               const val = e.target.value.trim();
                               setEquipment(prev => {
                                 const eqIdx = prev.findIndex(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant);
                                 let newArr = prev.slice();
                                 if (eqIdx === -1) {
-                                  const itemIds = Array.from({ length: itemIdsArr.length }, (_, i) => i === idx ? val : (itemIdsArr[i] || ''));
+                                  const itemIds = Array.from({ length: itemIdsArr.length }, (_, i) => i === idx ? val : '');
                                   newArr.push({ experimentId: exp._id, name: eq.name, variant: eq.variant, itemIds });
                                 } else {
                                   const itemIds = (newArr[eqIdx].itemIds || Array(itemIdsArr.length).fill('')).slice();
@@ -417,7 +420,7 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
                             >
                               {scanning[`${eqKey}_${idx}`] ? 'Stop' : 'QR'}
                             </button>
-                            {(eqState.itemIds[idx] || itemId) && (
+                            {eqState.itemIds[idx] && (
                               <button
                                 className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded p-2 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
                                 onClick={() => setEquipment(prev => {
@@ -437,53 +440,6 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
                             )}
                           </div>
                         </div>
-                        {scanning[`${eqKey}_${idx}`] && (
-                          <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[999999] p-2 sm:p-4">
-                            <div className="bg-white rounded-lg p-3 sm:p-4 max-w-sm sm:max-w-md w-full mx-2 sm:mx-4 max-h-[90vh] overflow-auto">
-                              <EquipmentQRScanner
-                                onScan={itemId => {
-                                  // The EquipmentQRScanner already extracts the itemId string
-                                  if (!itemId || typeof itemId !== 'string') {
-                                    Swal.fire({
-                                      icon: 'error',
-                                      title: 'Invalid QR code data',
-                                      text: 'Please scan a valid equipment QR code'
-                                    });
-                                    return;
-                                  }
-                                  
-                                  // Update the specific input field that triggered the scan
-                                  setEquipment(prev => {
-                                    const eqIdx = prev.findIndex(e => e.experimentId === exp._id && e.name === eq.name && e.variant === eq.variant);
-                                    let newArr = prev.slice();
-                                    if (eqIdx === -1) {
-                                      const itemIds = Array.from({ length: itemIdsArr.length }, (_, i) => i === idx ? itemId : (itemIdsArr[i] || ''));
-                                      newArr.push({ experimentId: exp._id, name: eq.name, variant: eq.variant, itemIds });
-                                    } else {
-                                      const itemIds = (newArr[eqIdx].itemIds || Array(itemIdsArr.length).fill('')).slice();
-                                      itemIds[idx] = itemId;
-                                      newArr[eqIdx] = { ...newArr[eqIdx], itemIds };
-                                    }
-                                    return newArr;
-                                  });
-                                  
-                                  // Close the scanner for this specific input
-                                  setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: false }));
-                                  
-                                  // Show success message
-                                  Swal.fire({
-                                    icon: 'success',
-                                    title: 'Equipment Scanned!',
-                                    text: `Item ID ${itemId} added for return`,
-                                    showConfirmButton: false,
-                                    timer: 2000
-                                  });
-                                }}
-                                onClose={() => setScanning(s => ({ ...s, [`${eqKey}_${idx}`]: false }))}
-                              />
-                            </div>
-                          </div>
-                        )}
                       </div>
                     )) : (
                       <div className={`text-xs ${THEME.mutedText} p-2 text-center`}>
@@ -527,11 +483,73 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
   );
 
   return (
-    <div 
-      className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 z-[999999]"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999 }}
-    >
+    <>
+      {/* QR Scanner Portal */}
+      {Object.keys(scanning).some(key => scanning[key]) && createPortal(
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4" style={{ zIndex: 10000000 }}>
+          <div className="max-w-3xl w-full mx-2 sm:mx-4">
+            {Object.entries(scanning).map(([scanKey, isScanning]) => {
+              if (!isScanning) return null;
+              
+              const [expId, name, variant, idx] = scanKey.split('_');
+              const exp = request.experiments.find(e => e._id === expId);
+              const eq = exp?.equipment?.find(e => e.name === name && e.variant === variant);
+              
+              if (!eq) return null;
+              
+              return (
+                <EquipmentQRScanner
+                  key={scanKey}
+                  isPortal={true}
+                  onScan={itemId => {
+                    if (!itemId || typeof itemId !== 'string') {
+                      Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid QR code data',
+                        text: 'Please scan a valid equipment QR code'
+                      });
+                      return;
+                    }
+                    
+                    // Update the specific input field that triggered the scan
+                    setEquipment(prev => {
+                      const eqIdx = prev.findIndex(e => e.experimentId === expId && e.name === name && e.variant === variant);
+                      let newArr = prev.slice();
+                      if (eqIdx === -1) {
+                        const itemIds = Array.from({ length: eq.quantity }, (_, i) => i === parseInt(idx) ? itemId : '');
+                        newArr.push({ experimentId: expId, name, variant, itemIds });
+                      } else {
+                        const itemIds = (newArr[eqIdx].itemIds || Array(eq.quantity).fill('')).slice();
+                        itemIds[parseInt(idx)] = itemId;
+                        newArr[eqIdx] = { ...newArr[eqIdx], itemIds };
+                      }
+                      return newArr;
+                    });
+                    
+                    setScanning(s => ({ ...s, [scanKey]: false }));
+                    
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Item Scanned!',
+                      text: `Item ${itemId} added successfully`,
+                      timer: 1500,
+                      showConfirmButton: false
+                    });
+                  }}
+                  onClose={() => setScanning(s => ({ ...s, [scanKey]: false }))}
+                />
+              );
+            })}
+          </div>
+        </div>,
+        document.body
+      )}
+
+      <div 
+        className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 z-[999999]"
+        onClick={(e) => e.target === e.currentTarget && onClose()}
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999 }}
+      >
       <div className={`${THEME.card} rounded-xl max-w-7xl w-full p-4 sm:p-6 max-h-[95vh] overflow-hidden relative z-[999999]`}>
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-200/50 gap-3 sm:gap-0">
@@ -604,6 +622,7 @@ const UnifiedReturnDialog = ({ request, onClose, onSuccess }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

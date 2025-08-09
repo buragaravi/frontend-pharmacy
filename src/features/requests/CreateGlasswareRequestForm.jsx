@@ -109,19 +109,19 @@ const CreateGlasswareRequestForm = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 min-h-screen bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]">
+    <div className="p-4 md:p-6 min-h-screen bg-gradient-to-br from-blue-100 to-blue-200">
       <div className="max-w-2xl mx-auto">
-        <div className="rounded-xl shadow-lg p-4 md:p-6 bg-white border border-[#0B3861]">
-          <h2 className="text-xl md:text-2xl font-bold text-[#0B3861] mb-6">Request Glassware</h2>
+        <div className="rounded-xl shadow-lg p-4 md:p-6 bg-white border border-blue-900">
+          <h2 className="text-xl md:text-2xl font-bold text-blue-900 mb-6">Request Glassware</h2>
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             <div>
-              <label className="block text-sm font-medium text-[#0B3861] mb-1">Lab ID</label>
+              <label className="block text-sm font-medium text-blue-900 mb-1">Lab ID</label>
               <select 
                 value={labId} 
                 onChange={(e) => setLabId(e.target.value)} 
                 required 
                 disabled={labsLoading}
-                className="w-full px-3 py-2 text-sm md:text-base border border-[#0B3861] rounded-lg focus:ring-[#0B3861] focus:border-[#0B3861] transition-colors disabled:opacity-50"
+                className="w-full px-3 py-2 text-sm md:text-base border border-blue-900 rounded-lg focus:ring-blue-900 focus:border-blue-900 transition-colors disabled:opacity-50"
               >
                 <option value="">{labsLoading ? 'Loading labs...' : 'Select Lab'}</option>
                 {labs.map((lab) => (
@@ -132,7 +132,7 @@ const CreateGlasswareRequestForm = () => {
             {glasswares.map((glassware, index) => (
               <div key={`glassware-${index}`} className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                 <div className="relative">
-                  <label className="block text-sm font-medium text-[#0B3861] mb-1">Glassware Name</label>
+                  <label className="block text-sm font-medium text-blue-900 mb-1">Glassware Name</label>
                   <input
                     type="text"
                     placeholder="Search glassware"
@@ -141,19 +141,19 @@ const CreateGlasswareRequestForm = () => {
                     onFocus={() => setGlasswares((prev) => { const updated = [...prev]; updated[index].showSuggestions = true; return updated; })}
                     onBlur={() => setTimeout(() => setGlasswares((prev) => { const updated = [...prev]; updated[index].showSuggestions = false; return updated; }), 200)}
                     required
-                    className="w-full px-3 py-2 text-sm md:text-base border border-[#0B3861] rounded-lg focus:ring-[#0B3861] focus:border-[#0B3861] transition-colors"
+                    className="w-full px-3 py-2 text-sm md:text-base border border-blue-900 rounded-lg focus:ring-blue-900 focus:border-blue-900 transition-colors"
                   />
                   {glassware.showSuggestions && glassware.suggestions.length > 0 && (
-                    <ul className="absolute z-10 mt-1 w-full border border-[#E8D8E1] rounded-lg bg-white shadow-lg max-h-60 overflow-auto">
+                    <ul className="absolute z-10 mt-1 w-full border border-gray-300 rounded-lg bg-white shadow-lg max-h-60 overflow-auto">
                       {glassware.suggestions.map((sug, idx) => (
                         <li
                           key={`suggestion-${index}-${idx}`}
-                          className="px-3 py-2 text-sm hover:bg-[#F9F3F7] cursor-pointer border-b border-[#E8D8E1] last:border-b-0"
+                          className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer border-b border-gray-300 last:border-b-0"
                           onClick={() => handleGlasswareSelect(index, sug)}
                         >
                           <div className="flex justify-between items-center">
                             <span className="font-medium">{sug.name}</span>
-                            <span className="text-xs bg-[#F0E6EC] text-[#6D123F] px-2 py-1 rounded">Available: {sug.availableQuantity} {sug.unit}</span>
+                            <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Available: {sug.availableQuantity} {sug.unit}</span>
                           </div>
                         </li>
                       ))}
@@ -161,14 +161,14 @@ const CreateGlasswareRequestForm = () => {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#0B3861] mb-1">Quantity</label>
+                  <label className="block text-sm font-medium text-blue-900 mb-1">Quantity</label>
                   <input
                     type="number"
                     placeholder="Enter quantity"
                     value={glassware.quantity}
                     onChange={(e) => handleQuantityChange(index, e.target.value)}
                     required
-                    className="w-full px-3 py-2 text-sm md:text-base border border-[#0B3861] rounded-lg focus:ring-[#0B3861] focus:border-[#0B3861] transition-colors"
+                    className="w-full px-3 py-2 text-sm md:text-base border border-blue-900 rounded-lg focus:ring-blue-900 focus:border-blue-900 transition-colors"
                     max={glassware.availableQuantity || undefined}
                   />
                   {glassware.availableQuantity !== null && (
@@ -181,20 +181,20 @@ const CreateGlasswareRequestForm = () => {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#0B3861] mb-1">Unit</label>
+                  <label className="block text-sm font-medium text-blue-900 mb-1">Unit</label>
                   <input
                     type="text"
                     placeholder="Unit"
                     value={glassware.unit}
                     readOnly
-                    className="w-full px-3 py-2 text-sm md:text-base border border-[#E8D8E1] rounded-lg bg-gray-100"
+                    className="w-full px-3 py-2 text-sm md:text-base border border-gray-300 rounded-lg bg-gray-100"
                   />
                 </div>
               </div>
             ))}
-            <button type="button" onClick={addGlassware} className="w-full py-2 text-[#0B3861] border-2 border-[#1E88E5] rounded-lg hover:bg-[#F5F9FD] transition-colors">+ Add Another Glassware</button>
+            <button type="button" onClick={addGlassware} className="w-full py-2 text-blue-900 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">+ Add Another Glassware</button>
             <div className="flex justify-end">
-              <button type="submit" disabled={createRequestMutation.isLoading} className="px-4 py-2 md:px-6 md:py-2 bg-[#0B3861] text-white rounded-lg text-sm md:text-base font-medium hover:bg-[#1E88E5] transition-colors disabled:opacity-50">
+              <button type="submit" disabled={createRequestMutation.isLoading} className="px-4 py-2 md:px-6 md:py-2 bg-blue-900 text-white rounded-lg text-sm md:text-base font-medium hover:bg-blue-700 transition-colors disabled:opacity-50">
                 {createRequestMutation.isLoading ? (
                   <span className="flex items-center">
                     <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

@@ -49,18 +49,18 @@ api.interceptors.request.use(
 
 // Constants for theming
 const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
-  card: 'bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl',
-  border: 'border-[#BCE0FD]/20',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
+  background: 'bg-gradient-to-br from-blue-100 to-blue-200',
+  card: 'bg-white/95 backdrop-blur-md border border-blue-300/30 shadow-xl',
+  border: 'border-blue-300/20',
+  primaryText: 'text-blue-900',
+  secondaryText: 'text-blue-600',
   mutedText: 'text-gray-600',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
+  primaryBg: 'bg-blue-900',
+  secondaryBg: 'bg-blue-600',
+  hoverBg: 'hover:bg-blue-700',
   inputBg: 'bg-gray-50/80',
-  inputBorder: 'border-[#BCE0FD]/30',
-  inputFocus: 'focus:ring-2 focus:ring-[#0B3861]/20 focus:border-[#0B3861]',
+  inputBorder: 'border-blue-300/30',
+  inputFocus: 'focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900',
   cardHover: 'hover:bg-gray-50/50 transition-colors duration-200'
 };
 
@@ -1084,16 +1084,16 @@ const CreateRequestForm = () => {
             className={`w-full px-3 py-2 text-sm md:text-base border ${THEME.border} rounded-lg ${THEME.inputFocus} transition-colors`}
           />
           {gw.showSuggestions && gw.suggestions.length > 0 && (
-            <ul className="absolute z-10 mt-1 w-full border border-[#E8D8E1] rounded-lg bg-white shadow-lg max-h-60 overflow-auto">
+            <ul className="absolute z-10 mt-1 w-full border border-gray-300 rounded-lg bg-white shadow-lg max-h-60 overflow-auto">
               {gw.suggestions.map((sug, idx) => (
                 <li
                   key={`glassware-suggestion-${expIndex}-${gwIndex}-${idx}`}
-                  className="px-3 py-2 text-sm hover:bg-[#F9F3F7] cursor-pointer border-b border-[#E8D8E1] last:border-b-0"
+                  className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer border-b border-gray-300 last:border-b-0"
                   onClick={() => handleGlasswareSelect(expIndex, gwIndex, sug)}
                 >
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{sug.name}</span>
-                    <span className="text-xs bg-[#F0E6EC] text-[#6D123F] px-2 py-1 rounded">
+                    <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
                       Available: {sug.availableQuantity} {sug.unit}
                     </span>
                     {sug.variant && (
@@ -1191,11 +1191,11 @@ const CreateRequestForm = () => {
             className={`w-full px-3 py-2 text-sm md:text-base border ${THEME.border} rounded-lg ${THEME.inputFocus} transition-colors`}
           />
           {eq.showSuggestions && eq.suggestions && eq.suggestions.length > 0 && (
-            <ul className="absolute z-10 mt-1 w-full border border-[#E8D8E1] rounded-lg bg-white shadow-lg max-h-60 overflow-auto">
+            <ul className="absolute z-10 mt-1 w-full border border-gray-300 rounded-lg bg-white shadow-lg max-h-60 overflow-auto">
               {eq.suggestions.map((sug, idx) => (
                 <li
                   key={`equipment-suggestion-${expIndex}-${eqIndex}-${idx}`}
-                  className="px-3 py-2 text-sm hover:bg-[#F9F3F7] cursor-pointer border-b border-[#E8D8E1] last:border-b-0"
+                  className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer border-b border-gray-300 last:border-b-0"
                   onClick={() => handleEquipmentSelect(expIndex, eqIndex, sug)}
                 >
                   <div className="flex flex-col gap-2">
@@ -1239,7 +1239,7 @@ const CreateRequestForm = () => {
             type="text"
             value={eq.variant}
             readOnly
-            className="w-full px-3 py-2 text-sm md:text-base border border-[#E8D8E1] rounded-lg bg-gray-100"
+            className="w-full px-3 py-2 text-sm md:text-base border border-gray-300 rounded-lg bg-gray-100"
           />
         </div>
         <div>

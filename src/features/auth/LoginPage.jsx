@@ -84,7 +84,7 @@ const LoginPage = () => {
                 }
                 
                 .neomorphic-button {
-                    background: linear-gradient(145deg, #ffffff, #dbeafe);
+                    background: linear-gradient(145deg, rgb(255, 255, 255), rgb(219, 234, 254));
                     border: 1px solid rgba(59, 130, 246, 0.3);
                     box-shadow: 
                         8px 8px 16px rgba(59, 130, 246, 0.2),
@@ -92,7 +92,7 @@ const LoginPage = () => {
                 }
                 
                 .neomorphic-button:hover {
-                    background: linear-gradient(145deg, #eff6ff, #ffffff);
+                    background: linear-gradient(145deg, rgb(239, 246, 255), rgb(255, 255, 255));
                     box-shadow: 
                         6px 6px 12px rgba(59, 130, 246, 0.25),
                         -6px -6px 12px rgba(255, 255, 255, 0.9);
@@ -127,7 +127,7 @@ const LoginPage = () => {
 
                 {/* Header */}
                 <div className="bg-white/80 backdrop-blur-sm border-b border-blue-100/50 p-4 text-center relative">
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold text-blue-700">
                         Laboratory Management System
                     </h1>
                 </div>
@@ -152,7 +152,7 @@ const LoginPage = () => {
                                 />
                             </svg>
                         </div>
-                        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent text-center lg:text-left mb-2">
+                        <h1 className="text-4xl font-bold text-blue-700 text-center lg:text-left mb-2">
                             LabConnect
                         </h1>
                         <p className="text-blue-600/70 text-center lg:text-left text-lg font-medium">

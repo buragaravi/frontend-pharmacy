@@ -5,15 +5,15 @@ import UnifiedReturnDialog from './UnifiedReturnDialog';
 
 // Constants for theming
 const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
+  background: 'bg-gradient-to-br from-blue-100 to-blue-200',
   card: 'bg-white',
-  border: 'border-[#BCE0FD]',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  border: 'border-blue-300',
+  primaryText: 'text-blue-900',
+  secondaryText: 'text-blue-600',
+  primaryBg: 'bg-blue-900',
+  secondaryBg: 'bg-blue-600',
+  hoverBg: 'hover:bg-blue-700',
+  inputFocus: 'focus:ring-blue-900 focus:border-blue-900'
 };
 
 const RequestDetails = ({ request, onClose, onStatusUpdate, userRole }) => {
@@ -48,7 +48,7 @@ const RequestDetails = ({ request, onClose, onStatusUpdate, userRole }) => {
       onClick={(e) => e.target === e.currentTarget && onClose()}
       style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999 }}
     >
-      <div className="bg-white/95 backdrop-blur-md border border-[#BCE0FD]/30 shadow-xl rounded-xl max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto relative z-[99999]">
+      <div className="bg-white/95 backdrop-blur-md border border-blue-300/30 shadow-xl rounded-xl max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto relative z-[99999]">
         <div className="flex justify-between items-start mb-6">
           <h3 className={`text-xl font-bold ${THEME.primaryText}`}>Request Details</h3>
           <button
@@ -104,7 +104,7 @@ const RequestDetails = ({ request, onClose, onStatusUpdate, userRole }) => {
             <h4 className={`text-lg font-medium ${THEME.primaryText} mb-4`}>Experiments</h4>
             <div className="space-y-4">
               {request.experiments.map((experiment, index) => (
-                <div key={index} className="border border-[#E8D8E1] rounded-lg p-4">
+                <div key={index} className="border border-gray-300 rounded-lg p-4">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h5 className={`font-medium ${THEME.primaryText}`}>{experiment.experimentName}</h5>
@@ -118,8 +118,8 @@ const RequestDetails = ({ request, onClose, onStatusUpdate, userRole }) => {
                   <div className="space-y-2">
                     <h6 className={`text-sm font-medium ${THEME.primaryText}`}>Chemicals</h6>
                     <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-[#E8D8E1]">
-                        <thead className="bg-[#F9F3F7]">
+                      <table className="min-w-full divide-y divide-gray-300">
+                        <thead className="bg-gray-100">
                           <tr>
                             <th className={`px-4 py-2 text-left text-xs font-medium ${THEME.primaryText} uppercase`}>Chemical</th>
                             <th className={`px-4 py-2 text-left text-xs font-medium ${THEME.primaryText} uppercase`}>Quantity</th>

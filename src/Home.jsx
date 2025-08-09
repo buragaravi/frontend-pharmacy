@@ -8,23 +8,19 @@ const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-700 text-white p-4 fixed w-full z-50 shadow-2xl backdrop-blur-lg border-b border-white/20">
+    <header className="bg-blue-600 text-white p-4 fixed w-full z-50 shadow-2xl border-b border-white/20">
       <nav className="container mx-auto flex justify-between items-center">
-        <motion.div 
-          initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          className="flex items-center"
-        >
+        {/* Logo and Brand */}
+        <div className="flex items-center">
           <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm mr-3">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">
             Pharmacy Lab
           </h1>
-        </motion.div>
-        
+        </div>
         {/* Mobile menu button */}
         <button 
           className="md:hidden text-white focus:outline-none p-2 hover:bg-white/20 rounded-lg transition-all duration-200"
@@ -57,7 +53,7 @@ const Header = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/login')}
-              className="px-6 py-2 rounded-xl bg-white/20 text-white hover:bg-white/30 transition-all duration-200 font-medium border border-white/30 backdrop-blur-sm"
+              className="px-4 sm:px-6 py-2 rounded-xl bg-white/20 text-white hover:bg-white/30 transition-all duration-200 font-medium border border-white/30 backdrop-blur-sm text-sm sm:text-base"
             >
               Login
             </motion.button>
@@ -65,7 +61,7 @@ const Header = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/register')}
-              className="px-6 py-2 rounded-xl bg-white text-blue-600 hover:bg-blue-50 transition-all duration-200 font-medium shadow-lg"
+              className="px-4 sm:px-6 py-2 rounded-xl bg-white text-blue-600 hover:bg-blue-50 transition-all duration-200 font-medium shadow-lg text-sm sm:text-base"
             >
               Sign Up
             </motion.button>
@@ -113,7 +109,7 @@ const Header = () => {
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-12">
+    <footer className="bg-blue-600 text-white py-12">
       <div className="container mx-auto grid md:grid-cols-4 gap-8 px-4">
         <div>
           <div className="flex items-center mb-4">
@@ -197,10 +193,10 @@ const FeatureCard = ({ title, description, icon }) => (
     whileHover={{ y: -8, scale: 1.02 }}
     className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-white/20 group"
   >
-    <div className="text-transparent bg-gradient-to-br from-blue-500 to-blue-700 bg-clip-text mb-4 group-hover:scale-110 transition-transform duration-300">
+    <div className="text-blue-600 mb-4 group-hover:scale-110 transition-transform duration-300">
       {icon}
     </div>
-    <h3 className="text-xl font-semibold mb-3 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">{title}</h3>
+    <h3 className="text-xl font-semibold mb-3 text-blue-700">{title}</h3>
     <p className="text-gray-600">{description}</p>
   </motion.div>
 );
@@ -210,10 +206,10 @@ const Testimonial = ({ quote, author, role, company }) => (
     whileHover={{ scale: 1.03, y: -5 }}
     className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-white/20"
   >
-    <div className="mb-4 text-transparent bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-3xl font-bold">"</div>
+    <div className="mb-4 text-blue-600 text-3xl font-bold">"</div>
     <p className="italic text-gray-700 mb-4">{quote}</p>
     <div className="flex items-center">
-      <div className="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold mr-4 shadow-lg">
+      <div className="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold mr-4 shadow-lg">
         {author.charAt(0)}
       </div>
       <div>
@@ -248,10 +244,10 @@ const StatCounter = ({ value, label, icon }) => (
     viewport={{ once: true }}
     className="text-center"
   >
-    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full text-white mb-4 shadow-lg">
+    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full text-white mb-4 shadow-lg">
       {icon}
     </div>
-    <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-2">{value}+</div>
+    <div className="text-4xl font-bold text-blue-700 mb-2">{value}+</div>
     <div className="text-gray-600 font-medium">{label}</div>
   </motion.div>
 );
@@ -263,7 +259,7 @@ const FAQItem = ({ question, answer }) => {
     <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex justify-between items-center w-full text-left font-semibold text-lg bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent hover:from-blue-700 hover:to-blue-900 transition-all duration-300"
+        className="flex justify-between items-center w-full text-left font-semibold text-lg text-blue-700 hover:text-blue-800 transition-all duration-300"
       >
         <span>{question}</span>
         <div className="text-blue-500">
@@ -314,7 +310,7 @@ const Home = () => {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-5xl md:text-6xl font-bold mb-6 leading-tight"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
                 >
                   Modern Pharmacy <br />
                   <span className="text-blue-200">Lab Management</span>
@@ -323,7 +319,7 @@ const Home = () => {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-xl mb-8 max-w-lg mx-auto lg:mx-0"
+                  className="text-base sm:text-lg md:text-xl mb-8 max-w-lg mx-auto lg:mx-0"
                 >
                   Streamline your laboratory operations with our comprehensive management system designed for modern pharmacies.
                 </motion.p>
@@ -337,14 +333,14 @@ const Home = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => navigate('/register')}
-                    className="bg-white text-blue-600 px-8 py-3 rounded-full font-semibold text-lg shadow-md hover:bg-blue-50 transition-colors"
+                    className="bg-white text-blue-600 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-semibold text-base sm:text-lg shadow-md hover:bg-blue-50 transition-colors"
                   >
                     Get Started
                   </motion.button>                  <motion.button 
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => navigate('/demo')}
-                    className="border-2 border-white px-8 py-3 rounded-full font-semibold text-lg hover:bg-white hover:text-blue-600 transition-colors"
+                    className="border-2 border-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-semibold text-base sm:text-lg hover:bg-white hover:text-blue-600 transition-colors"
                   >
                     Watch Demo
                   </motion.button>

@@ -122,7 +122,7 @@ const RequirementsPage = () => {
                 className={`relative z-10 flex items-center space-x-2 px-3 py-1.5 text-xs font-medium rounded-sm transition-all duration-300 ease-in-out transform ${
                   activeView === 'list'
                     ? 'text-blue-600 scale-105'
-                    : 'text-blue-100 hover:text-white hover:scale-105'
+                    : 'text-blue-700 hover:text-blue-800 hover:scale-105'
                 }`}
               >
                 <div className={`transition-transform duration-300 ${activeView === 'list' ? 'rotate-3' : 'hover:rotate-3'}`}>
@@ -136,7 +136,7 @@ const RequirementsPage = () => {
                 className={`relative z-10 flex items-center space-x-2 px-3 py-1.5 text-xs font-medium rounded-sm transition-all duration-300 ease-in-out transform ${
                   activeView === 'form'
                     ? 'text-blue-600 scale-105'
-                    : 'text-blue-100 hover:text-white hover:scale-105'
+                    : 'text-blue-700 hover:text-blue-800 hover:scale-105'
                 }`}
               >
                 <div className={`transition-transform duration-300 ${activeView === 'form' ? 'rotate-90' : 'hover:rotate-90'}`}>

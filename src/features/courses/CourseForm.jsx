@@ -274,7 +274,7 @@ const CourseForm = ({ course, onCreate, onUpdate, onClose }) => {
   return (
     <div className="max-h-[90vh] overflow-y-auto">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-blue-600 text-white p-6 border-b">
+      <div className="sticky top-0 z-10 bg-blue-600 text-white p-6 border-b">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">

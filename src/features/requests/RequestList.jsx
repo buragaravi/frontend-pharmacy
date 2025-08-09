@@ -29,15 +29,15 @@ api.interceptors.request.use(
 
 // Constants for theming
 const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
+  background: 'bg-gradient-to-br from-blue-100 to-blue-200',
   card: 'bg-white',
-  border: 'border-[#E8D8E1]',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#6D123F]',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#6D123F]',
-  hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  border: 'border-gray-300',
+  primaryText: 'text-blue-900',
+  secondaryText: 'text-purple-800',
+  primaryBg: 'bg-blue-900',
+  secondaryBg: 'bg-purple-800',
+  hoverBg: 'hover:bg-blue-700',
+  inputFocus: 'focus:ring-blue-900 focus:border-blue-900'
 };
 
 const RequestList = ({ userRole, labId }) => {
@@ -172,7 +172,7 @@ const RequestList = ({ userRole, labId }) => {
 
           <div className="overflow-x-auto">
             <table className={`min-w-full divide-y ${THEME.border}`}>
-              <thead className="bg-[#F9F3F7]">
+              <thead className="bg-gray-100">
                 <tr>
                   <th className={`px-6 py-3 text-left text-xs font-medium ${THEME.secondaryText} uppercase tracking-wider`}>
                     Request ID
@@ -199,7 +199,7 @@ const RequestList = ({ userRole, labId }) => {
               </thead>
               <tbody className={`${THEME.card} divide-y ${THEME.border}`}>
                 {filteredRequests?.map((request) => (
-                  <tr key={request._id} className={`hover:bg-[#F9F3F7]`}>
+                  <tr key={request._id} className={`hover:bg-gray-100`}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {request._id}
                     </td>

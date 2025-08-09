@@ -10,15 +10,15 @@ const RequestIcon = () => (
 
 // Theme configuration
 const THEME = {
-  background: 'bg-gradient-to-br from-[#F5F9FD] to-[#E1F1FF]',
+  background: 'bg-gradient-to-br from-blue-100 to-blue-200',
   card: 'bg-white',
-  border: 'border-[#BCE0FD]',
-  primaryText: 'text-[#0B3861]',
-  secondaryText: 'text-[#64B5F6]',
-  primaryBg: 'bg-[#0B3861]',
-  secondaryBg: 'bg-[#64B5F6]',
-  hoverBg: 'hover:bg-[#1E88E5]',
-  inputFocus: 'focus:ring-[#0B3861] focus:border-[#0B3861]'
+  border: 'border-blue-300',
+  primaryText: 'text-blue-900',
+  secondaryText: 'text-blue-600',
+  primaryBg: 'bg-blue-900',
+  secondaryBg: 'bg-blue-600',
+  hoverBg: 'hover:bg-blue-700',
+  inputFocus: 'focus:ring-blue-900 focus:border-blue-900'
 };
 
 const RequestPage = () => {

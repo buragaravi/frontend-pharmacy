@@ -181,7 +181,7 @@ const CourseDetailModal = ({
                 {activeTab === 'overview' && (
                   <div className="space-y-4 sm:space-y-6">
                     {/* Course Information */}
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 sm:p-6">
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 sm:p-6">
                       <h3 className="text-base sm:text-lg font-semibold text-blue-900 mb-3 sm:mb-4">Course Information</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>

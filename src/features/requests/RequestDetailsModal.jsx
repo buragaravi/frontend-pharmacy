@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 30,
     fontFamily: 'Helvetica',
-    backgroundColor: '#FAFBFF'
+    backgroundColor: '#F8FAFC'
   },
   header: {
     fontSize: 20,
@@ -210,7 +210,7 @@ const RequestPDF = ({ request }) => (
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Experiments</Text>
         {request.experiments?.map((exp, index) => (
-          <View key={exp._id} style={{ marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#E1F1FF', paddingBottom: 8 }}>
+          <View key={exp._id} style={{ marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#DBEAFE', paddingBottom: 8 }}>
             <Text style={styles.infoValue}>Experiment {index + 1}: {exp.experimentName}</Text>
             <Text style={styles.infoLabel}>
               {exp.date.split('T')[0]} | Course: {exp.courseId?.courseName} ({exp.courseId?.courseCode}) | Batch: {exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.batchName} ({exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.batchCode}) - {exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.academicYear}
@@ -218,14 +218,14 @@ const RequestPDF = ({ request }) => (
             {/* Chemicals Table */}
             {exp.chemicals && exp.chemicals.length > 0 && (
               <View style={styles.table}>
-                <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BCE0FD' }}>
+                <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BFDBFE' }}>
                   <Text style={[styles.tableHeader, { flex: 2 }]}>Chemical</Text>
                   <Text style={[styles.tableHeader, { flex: 1 }]}>Quantity</Text>
                   <Text style={[styles.tableHeader, { flex: 1 }]}>Unit</Text>
                   <Text style={[styles.tableHeader, { flex: 1 }]}>Status</Text>
                 </View>
                 {exp.chemicals?.map((chemical) => (
-                  <View key={chemical._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F5F9FD' }}>
+                  <View key={chemical._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F1F5F9' }}>
                     <Text style={[styles.tableRow, { flex: 2 }]}>{chemical.chemicalName}</Text>
                     <Text style={[styles.tableRow, { flex: 1 }]}>{chemical.quantity}</Text>
                     <Text style={[styles.tableRow, { flex: 1 }]}>{chemical.unit}</Text>
@@ -237,13 +237,13 @@ const RequestPDF = ({ request }) => (
             {/* Glassware Table */}
             {exp.glassware && exp.glassware.length > 0 && (
               <View style={[styles.table, { marginTop: 8 }]}> 
-                <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BCE0FD' }}>
+                <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BFDBFE' }}>
                   <Text style={[styles.tableHeader, { flex: 2 }]}>Glassware</Text>
                   <Text style={[styles.tableHeader, { flex: 1 }]}>Quantity</Text>
                   <Text style={[styles.tableHeader, { flex: 1 }]}>Unit</Text>
                   <Text style={[styles.tableHeader, { flex: 1 }]}>Status</Text>
                 </View>                {exp.glassware.map((glass) => (
-                  <View key={glass._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F5F9FD' }}>
+                  <View key={glass._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F1F5F9' }}>
                     <Text style={[styles.tableRow, { flex: 2 }]}>{glass.name || glass.glasswareName || 'N/A'}</Text>
                     <Text style={[styles.tableRow, { flex: 1 }]}>{glass.quantity}</Text>
                     <Text style={[styles.tableRow, { flex: 1 }]}>{glass.unit || glass.variant || ''}</Text>
@@ -255,7 +255,7 @@ const RequestPDF = ({ request }) => (
             {/* Equipment Table */}
             {exp.equipment && exp.equipment.length > 0 && (
               <View style={[styles.table, { marginTop: 8 }]}> 
-                <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BCE0FD' }}>
+                <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BFDBFE' }}>
                   <Text style={[styles.tableHeader, { flex: 2 }]}>Equipment</Text>
                   <Text style={[styles.tableHeader, { flex: 1 }]}>Quantity</Text>
                   <Text style={[styles.tableHeader, { flex: 1 }]}>Variant</Text>
@@ -267,13 +267,16 @@ const RequestPDF = ({ request }) => (
                   if (eq.isAllocated && Array.isArray(eq.allocationHistory) && eq.allocationHistory.length > 0) {
                     const lastAlloc = eq.allocationHistory[eq.allocationHistory.length - 1];
                     if (Array.isArray(lastAlloc.itemIds) && lastAlloc.itemIds.length > 0) {
-                      const shown = lastAlloc.itemIds.slice(0, 3);
+                      const shown = lastAlloc.itemIds.slice(0, 2);
                       allocatedItemIds = shown.join(', ');
-                      if (lastAlloc.itemIds.length > 3) allocatedItemIds += ', ...';
+                      if (lastAlloc.itemIds.length > 2) {
+                        const remaining = lastAlloc.itemIds.length - 2;
+                        allocatedItemIds += ` +${remaining} more`;
+                      }
                     }
                   }
                   return (
-                    <View key={eq._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F5F9FD' }}>
+                    <View key={eq._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F1F5F9' }}>
                       <Text style={[styles.tableRow, { flex: 2 }]}>{eq.name}</Text>
                       <Text style={[styles.tableRow, { flex: 1 }]}>{eq.quantity}</Text>
                       <Text style={[styles.tableRow, { flex: 1 }]}>{eq.variant}</Text>
@@ -549,11 +552,29 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
                               </td>
                               <td className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold ${glass.isDisabled ? 'text-rose-600' : THEME.primaryText}`}>
                                 {glass.quantity} {glass.unit || glass.variant || ''}
-                                {glass.allocatedQuantity && glass.allocatedQuantity > 0 && (
-                                  <div className="text-xs text-emerald-600 font-medium mt-0.5">
-                                    ({glass.allocatedQuantity} allocated)
-                                  </div>
-                                )}
+                                {(() => {
+                                  // Calculate allocated quantity from various sources
+                                  let allocatedQty = glass.allocatedQuantity || 0;
+                                  
+                                  // If no allocatedQuantity but has allocationHistory, calculate from history
+                                  if (!allocatedQty && glass.allocationHistory && Array.isArray(glass.allocationHistory) && glass.allocationHistory.length > 0) {
+                                    allocatedQty = glass.allocationHistory.reduce((total, allocation) => total + (allocation.quantity || 0), 0);
+                                  }
+                                  
+                                  // If isAllocated is true but no quantity calculated, assume fully allocated
+                                  if (glass.isAllocated && !allocatedQty) {
+                                    allocatedQty = glass.quantity;
+                                  }
+                                  
+                                  if (allocatedQty > 0) {
+                                    return (
+                                      <div className="text-xs text-emerald-600 font-medium mt-0.5">
+                                        ({allocatedQty} allocated)
+                                      </div>
+                                    );
+                                  }
+                                  return null;
+                                })()}
                               </td>
                               <td className="px-3 sm:px-4 py-2">
                                 {glass.isDisabled ? (
@@ -562,9 +583,21 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
                                   </span>
                                 ) : (
                                   (() => {
-                                    const allocatedQty = glass.allocatedQuantity || 0;
+                                    // Calculate allocated quantity from various sources
+                                    let allocatedQty = glass.allocatedQuantity || 0;
+                                    
+                                    // If no allocatedQuantity but has allocationHistory, calculate from history
+                                    if (!allocatedQty && glass.allocationHistory && Array.isArray(glass.allocationHistory) && glass.allocationHistory.length > 0) {
+                                      allocatedQty = glass.allocationHistory.reduce((total, allocation) => total + (allocation.quantity || 0), 0);
+                                    }
+                                    
+                                    // If isAllocated is true but no quantity calculated, assume fully allocated
+                                    if (glass.isAllocated && !allocatedQty) {
+                                      allocatedQty = glass.quantity;
+                                    }
+                                    
                                     const totalQty = glass.quantity;
-                                    const isFullyAllocated = allocatedQty >= totalQty;
+                                    const isFullyAllocated = glass.isAllocated && allocatedQty >= totalQty;
                                     const isPartiallyAllocated = allocatedQty > 0 && allocatedQty < totalQty;
                                     
                                     if (isFullyAllocated) {
@@ -600,7 +633,7 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
               {/* Equipment Table */}
               {exp.equipment && exp.equipment.length > 0 && (
                 <div className="mt-4">
-                  <div className="font-bold text-sm text-[#1E3A8A] mb-2 flex items-center">
+                  <div className="font-bold text-sm text-blue-900 mb-2 flex items-center">
                     <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mr-2"></div>
                     Equipment
                   </div>
@@ -623,7 +656,10 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
                             if (Array.isArray(lastAlloc.itemIds) && lastAlloc.itemIds.length > 0) {
                               const shown = lastAlloc.itemIds.slice(0, 2);
                               allocatedItemIds = shown.join(', ');
-                              if (lastAlloc.itemIds.length > 2) allocatedItemIds += ', ...';
+                              if (lastAlloc.itemIds.length > 2) {
+                                const remaining = lastAlloc.itemIds.length - 2;
+                                allocatedItemIds += ` +${remaining} more`;
+                              }
                             }
                           }
                           return (
@@ -643,11 +679,24 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
                               </td>
                               <td className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold ${eq.isDisabled ? 'text-rose-600' : THEME.primaryText}`}>
                                 {eq.quantity}
-                                {eq.allocatedQuantity && eq.allocatedQuantity > 0 && (
-                                  <div className="text-xs text-emerald-600 font-medium mt-0.5">
-                                    ({eq.allocatedQuantity} allocated)
-                                  </div>
-                                )}
+                                {(() => {
+                                  let allocatedQuantity = eq.allocatedQuantity || 0;
+                                  
+                                  // Calculate total allocated quantity from ALL allocation history
+                                  if (eq.allocationHistory && eq.allocationHistory.length > 0) {
+                                    allocatedQuantity = eq.allocationHistory.reduce((total, allocation) => {
+                                      return total + (allocation.quantity || 0);
+                                    }, 0);
+                                  }
+                                  
+                                  const remainingQuantity = eq.quantity - allocatedQuantity;
+                                  
+                                  return allocatedQuantity > 0 ? (
+                                    <div className="text-xs text-emerald-600 font-medium mt-0.5">
+                                      ({allocatedQuantity} allocated{remainingQuantity > 0 ? `, ${remainingQuantity} remaining` : ''})
+                                    </div>
+                                  ) : null;
+                                })()}
                               </td>
                               <td className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium ${eq.isDisabled ? 'text-rose-600' : THEME.mutedText}`}>
                                 {eq.variant}
@@ -659,7 +708,14 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
                                   </span>
                                 ) : (
                                   (() => {
-                                    const allocatedQty = eq.allocatedQuantity || 0;
+                                    let allocatedQty = eq.allocatedQuantity || 0;
+                                    
+                                    // Also check allocation history for allocated quantity
+                                    if (eq.allocationHistory && eq.allocationHistory.length > 0) {
+                                      const lastAllocation = eq.allocationHistory[eq.allocationHistory.length - 1];
+                                      allocatedQty = Math.max(allocatedQty, lastAllocation.quantity || 0);
+                                    }
+                                    
                                     const totalQty = eq.quantity;
                                     const isFullyAllocated = allocatedQty >= totalQty;
                                     const isPartiallyAllocated = allocatedQty > 0 && allocatedQty < totalQty;
