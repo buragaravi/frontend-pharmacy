@@ -53,18 +53,18 @@ const hasValidAllocationWindow = (request) => {
 
 // Constants for theming - Browser Compatible Version
 const THEME = {
-  // ✅ Compatible backgrounds - using standard Tailwind classes
-  background: 'bg-gradient-to-br from-blue-50 to-blue-100',
+  // ✅ Compatible backgrounds - using solid Tailwind classes
+  background: 'bg-blue-50',
   card: 'bg-white border border-blue-200 shadow-xl',
   border: 'border-blue-200',
   primaryText: 'text-blue-900',
   secondaryText: 'text-blue-600',
   mutedText: 'text-gray-600',
   
-  // ✅ Simple, compatible gradients
-  primaryBg: 'bg-gradient-to-r from-blue-500 to-blue-600',
-  secondaryBg: 'bg-gradient-to-r from-blue-400 to-blue-500',
-  hoverBg: 'hover:from-blue-600 hover:to-blue-700',
+  // ✅ Solid, compatible colors
+  primaryBg: 'bg-blue-600',
+  secondaryBg: 'bg-blue-500',
+  hoverBg: 'hover:bg-blue-700',
   
   // ✅ Standard focus/hover effects
   inputFocus: 'focus:ring-2 focus:ring-blue-300 focus:border-blue-400',
@@ -72,9 +72,9 @@ const THEME = {
   accent: 'text-blue-600',
   
   // ✅ Compatible status colors
-  success: 'bg-gradient-to-r from-green-500 to-green-600',
-  danger: 'bg-gradient-to-r from-red-500 to-red-600',
-  warning: 'bg-gradient-to-r from-yellow-500 to-yellow-600',
+  success: 'bg-green-600',
+  danger: 'bg-red-600',
+  warning: 'bg-yellow-600',
   
   // ✅ Simple hover effects
   cardHover: 'hover:shadow-2xl transition-shadow duration-300',
@@ -82,19 +82,52 @@ const THEME = {
   glassEffect: 'bg-white border border-gray-200'
 };
 
-// PDF Styles - Updated for vibrant blue theme
+// PDF Styles - Updated for College Header and Better Layout
 const styles = StyleSheet.create({
   page: {
     padding: 30,
     fontFamily: 'Helvetica',
     backgroundColor: '#F8FAFC'
   },
-  header: {
-    fontSize: 20,
+  // College Header Styles
+  collegeHeader: {
+    textAlign: 'center',
     marginBottom: 25,
+    paddingBottom: 15,
+    borderBottomWidth: 2,
+    borderBottomColor: '#1E3A8A'
+  },
+  collegeName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1E3A8A',
+    marginBottom: 5
+  },
+  collegeAccreditation: {
+    fontSize: 10,
+    color: '#1E40AF',
+    marginBottom: 3
+  },
+  collegeDetails: {
+    fontSize: 9,
+    color: '#374151',
+    marginBottom: 2
+  },
+  collegeAddress: {
+    fontSize: 9,
+    color: '#374151',
+    marginTop: 5
+  },
+  // Document Header
+  header: {
+    fontSize: 16,
+    marginBottom: 20,
     color: '#1E3A8A',
     textAlign: 'center',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    backgroundColor: '#EBF4FF',
+    padding: 10,
+    borderRadius: 5
   },
   row: {
     flexDirection: 'row',
@@ -126,6 +159,12 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: 12,
     color: '#1E3A8A'
+  },
+  subjectValue: {
+    fontSize: 11,
+    color: '#059669',
+    fontWeight: 'bold',
+    fontStyle: 'italic'
   },
   table: {
     width: '100%',
@@ -164,7 +203,21 @@ const styles = StyleSheet.create({
 const RequestPDF = ({ request }) => (
   <Document>
     <Page size="A4" style={styles.page}>
-      <Text style={styles.header}>Request Details</Text>
+      {/* College Header Section */}
+      <View style={styles.collegeHeader}>
+        <Text style={styles.collegeName}>PYDAH COLLEGE OF PHARMACY</Text>
+        <Text style={styles.collegeAccreditation}>
+          (Accredited by NAAC with 'A' Grade & Approved by AICTE & PCI, New Delhi)
+        </Text>
+        <Text style={styles.collegeAddress}>
+          Kakinada - 533461, East Godavari District, Andhra Pradesh, India
+        </Text>
+        <Text style={styles.collegeAddress}>
+          Ph: +91 98484 12547, Email: princpharma@pydah.edu.in
+        </Text>
+      </View>
+
+      <Text style={styles.header}>Laboratory Request Details</Text>
       <View style={styles.section}>
         <View style={styles.row}>
           <View style={styles.infoBox}>
@@ -211,60 +264,93 @@ const RequestPDF = ({ request }) => (
         <Text style={styles.sectionTitle}>Experiments</Text>
         {request.experiments?.map((exp, index) => (
           <View key={exp._id} style={{ marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#DBEAFE', paddingBottom: 8 }}>
-            <Text style={styles.infoValue}>Experiment {index + 1}: {exp.experimentName}</Text>
+            <Text style={styles.infoValue}>
+              Experiment {index + 1}: {exp.experimentId?.name || exp.experimentName || 'N/A'}
+            </Text>
+            {(exp.experimentId?.subject || exp.experimentId?.subjectId?.name) && (
+              <Text style={styles.subjectValue}>
+                Subject: {exp.experimentId?.subject || exp.experimentId?.subjectId?.name}({exp.experimentId?.subjectId?.code})
+              </Text>
+            )}
             <Text style={styles.infoLabel}>
               {exp.date.split('T')[0]} | Course: {exp.courseId?.courseName} ({exp.courseId?.courseCode}) | Batch: {exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.batchName} ({exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.batchCode}) - {exp.courseId?.batches?.find(batch => batch._id === exp.batchId)?.academicYear}
             </Text>
             {/* Chemicals Table */}
+            {/* Enhanced Chemicals Table */}
             {exp.chemicals && exp.chemicals.length > 0 && (
               <View style={styles.table}>
                 <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BFDBFE' }}>
                   <Text style={[styles.tableHeader, { flex: 2 }]}>Chemical</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Quantity</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Unit</Text>
+                  <Text style={[styles.tableHeader, { flex: 1 }]}>Requested</Text>
+                  <Text style={[styles.tableHeader, { flex: 1 }]}>Allocated</Text>
                   <Text style={[styles.tableHeader, { flex: 1 }]}>Status</Text>
                 </View>
                 {exp.chemicals?.map((chemical) => (
                   <View key={chemical._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F1F5F9' }}>
                     <Text style={[styles.tableRow, { flex: 2 }]}>{chemical.chemicalName}</Text>
-                    <Text style={[styles.tableRow, { flex: 1 }]}>{chemical.quantity}</Text>
-                    <Text style={[styles.tableRow, { flex: 1 }]}>{chemical.unit}</Text>
-                    <Text style={[styles.tableRow, { flex: 1 }]}>{chemical.isAllocated ? 'Allocated' : 'Pending'}</Text>
+                    <Text style={[styles.tableRow, { flex: 1 }]}>{chemical.quantity} {chemical.unit}</Text>
+                    <Text style={[styles.tableRow, { flex: 1 }]}>
+                      {chemical.allocatedQuantity ? `${chemical.allocatedQuantity} ${chemical.unit}` : '0'}
+                    </Text>
+                    <Text style={[styles.tableRow, { flex: 1 }]}>
+                      {chemical.isDisabled ? 'Disabled' : (chemical.isAllocated ? 'Allocated' : 'Pending')}
+                    </Text>
                   </View>
                 ))}
               </View>
             )}
-            {/* Glassware Table */}
+            {/* Enhanced Glassware Table */}
             {exp.glassware && exp.glassware.length > 0 && (
               <View style={[styles.table, { marginTop: 8 }]}> 
                 <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BFDBFE' }}>
                   <Text style={[styles.tableHeader, { flex: 2 }]}>Glassware</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Quantity</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Unit</Text>
+                  <Text style={[styles.tableHeader, { flex: 1 }]}>Requested</Text>
+                  <Text style={[styles.tableHeader, { flex: 1 }]}>Allocated</Text>
                   <Text style={[styles.tableHeader, { flex: 1 }]}>Status</Text>
-                </View>                {exp.glassware.map((glass) => (
-                  <View key={glass._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F1F5F9' }}>
-                    <Text style={[styles.tableRow, { flex: 2 }]}>{glass.name || glass.glasswareName || 'N/A'}</Text>
-                    <Text style={[styles.tableRow, { flex: 1 }]}>{glass.quantity}</Text>
-                    <Text style={[styles.tableRow, { flex: 1 }]}>{glass.unit || glass.variant || ''}</Text>
-                    <Text style={[styles.tableRow, { flex: 1 }]}>{glass.isAllocated ? 'Allocated' : 'Pending'}</Text>
-                  </View>
-                ))}
+                </View>
+                {exp.glassware.map((glass) => {
+                  // Calculate allocated quantity from allocation history
+                  let allocatedQty = glass.allocatedQuantity || 0;
+                  if (glass.allocationHistory && glass.allocationHistory.length > 0) {
+                    allocatedQty = glass.allocationHistory.reduce((total, allocation) => total + (allocation.quantity || 0), 0);
+                  }
+                  
+                  return (
+                    <View key={glass._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F1F5F9' }}>
+                      <Text style={[styles.tableRow, { flex: 2 }]}>{glass.name || glass.glasswareName || 'N/A'}</Text>
+                      <Text style={[styles.tableRow, { flex: 1 }]}>{glass.quantity} {glass.unit || glass.variant || ''}</Text>
+                      <Text style={[styles.tableRow, { flex: 1 }]}>
+                        {allocatedQty > 0 ? `${allocatedQty}` : '0'}
+                      </Text>
+                      <Text style={[styles.tableRow, { flex: 1 }]}>
+                        {glass.isDisabled ? 'Disabled' : (glass.isAllocated ? 'Allocated' : 'Pending')}
+                      </Text>
+                    </View>
+                  );
+                })}
               </View>
             )}
-            {/* Equipment Table */}
+            {/* Enhanced Equipment Table */}
             {exp.equipment && exp.equipment.length > 0 && (
               <View style={[styles.table, { marginTop: 8 }]}> 
                 <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BFDBFE' }}>
                   <Text style={[styles.tableHeader, { flex: 2 }]}>Equipment</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Quantity</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Variant</Text>
+                  <Text style={[styles.tableHeader, { flex: 1 }]}>Requested</Text>
+                  <Text style={[styles.tableHeader, { flex: 1 }]}>Allocated</Text>
                   <Text style={[styles.tableHeader, { flex: 1 }]}>Status</Text>
                   <Text style={[styles.tableHeader, { flex: 2 }]}>Allocated Item IDs</Text>
                 </View>
                 {exp.equipment.map((eq) => {
                   let allocatedItemIds = '';
-                  if (eq.isAllocated && Array.isArray(eq.allocationHistory) && eq.allocationHistory.length > 0) {
+                  let allocatedQuantity = eq.allocatedQuantity || 0;
+                  
+                  // Calculate total allocated quantity from ALL allocation history
+                  if (eq.allocationHistory && eq.allocationHistory.length > 0) {
+                    allocatedQuantity = eq.allocationHistory.reduce((total, allocation) => {
+                      return total + (allocation.quantity || 0);
+                    }, 0);
+                    
+                    // Get item IDs from the last allocation for display
                     const lastAlloc = eq.allocationHistory[eq.allocationHistory.length - 1];
                     if (Array.isArray(lastAlloc.itemIds) && lastAlloc.itemIds.length > 0) {
                       const shown = lastAlloc.itemIds.slice(0, 2);
@@ -275,12 +361,15 @@ const RequestPDF = ({ request }) => (
                       }
                     }
                   }
+                  
                   return (
                     <View key={eq._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F1F5F9' }}>
                       <Text style={[styles.tableRow, { flex: 2 }]}>{eq.name}</Text>
                       <Text style={[styles.tableRow, { flex: 1 }]}>{eq.quantity}</Text>
-                      <Text style={[styles.tableRow, { flex: 1 }]}>{eq.variant}</Text>
-                      <Text style={[styles.tableRow, { flex: 1 }]}>{eq.isAllocated ? 'Allocated' : 'Pending'}</Text>
+                      <Text style={[styles.tableRow, { flex: 1 }]}>{allocatedQuantity}</Text>
+                      <Text style={[styles.tableRow, { flex: 1 }]}>
+                        {eq.isDisabled ? 'Disabled' : (eq.isAllocated ? 'Allocated' : 'Pending')}
+                      </Text>
                       <Text style={[styles.tableRow, { flex: 2 }]}>{allocatedItemIds}</Text>
                     </View>
                   );
@@ -290,8 +379,35 @@ const RequestPDF = ({ request }) => (
           </View>
         ))}
       </View>
+      {/* Enhanced Footer Section */}
       <View style={styles.signature}>
-        <Text style={styles.signatureText}>Authorized Signature</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <View>
+            <Text style={styles.signatureText}>Authorized Signature</Text>
+            <Text style={{ fontSize: 8, color: '#6B7280', marginTop: 4 }}>
+              Lab Administrator
+            </Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={{ fontSize: 8, color: '#6B7280' }}>
+              Generated on: {new Date().toLocaleDateString('en-IN', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'Asia/Kolkata'
+              })}
+            </Text>
+            <Text style={{ fontSize: 8, color: '#6B7280', marginTop: 2 }}>
+              Time: {new Date().toLocaleTimeString('en-IN', { 
+                timeZone: 'Asia/Kolkata',
+                hour12: true 
+              })}
+            </Text>
+            <Text style={{ fontSize: 7, color: '#9CA3AF', marginTop: 4 }}>
+              JITS Laboratory Management System
+            </Text>
+          </View>
+        </View>
       </View>
     </Page>
   </Document>
@@ -329,7 +445,7 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
         {request.approvalHistory && request.approvalHistory.length > 0 && (
           <div className={`${THEME.card} p-3 sm:p-4 rounded-xl ${THEME.border} ${THEME.cardHover}`}>
             <h3 className={`text-sm font-bold ${THEME.primaryText} mb-3 flex items-center`}>
-              <div className="w-2 h-2 bg-gradient-to-r from-green-500 to-green-600 rounded-full mr-2"></div>
+              <div className="w-2 h-2 bg-green-600 rounded-full mr-2"></div>
               Approval History
             </h3>
             <div className="space-y-2 max-h-24 overflow-y-auto">
@@ -369,7 +485,7 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
         {request.adminEdits?.hasEdits && (
           <div className={`${THEME.card} p-3 sm:p-4 rounded-xl ${THEME.border} ${THEME.cardHover}`}>
             <h3 className={`text-sm font-bold ${THEME.primaryText} mb-3 flex items-center`}>
-              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mr-2"></div>
+              <div className="w-2 h-2 bg-blue-600 rounded-full mr-2"></div>
               Edit History
             </h3>
             <div className="bg-blue-50/80 p-2 rounded-lg">
@@ -419,8 +535,13 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
               {/* Simple Experiment Header for Print */}
               <div className="mb-4">
                 <p className={`font-bold ${THEME.primaryText} mb-2 text-sm sm:text-base`}>
-                  Experiment {index + 1}: {exp.experimentName}
+                  Experiment {index + 1}: {exp.experimentId?.name || exp.experimentName || 'N/A'}
                 </p>
+                {(exp.experimentId?.subject || exp.experimentId?.subjectId?.name) && (
+                  <p className="text-green-700 font-semibold italic mb-2 text-sm">
+                    Subject: {exp.experimentId?.subject || exp.experimentId?.subjectId?.name} ({exp.experimentId?.subjectId?.code})
+                  </p>
+                )}
                 <div className="text-xs space-y-1">
                   <p className={`${THEME.secondaryText} font-medium`}>
                     Course: {exp.courseId?.courseName} ({exp.courseId?.courseCode})
@@ -438,7 +559,7 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
               {exp.chemicals && exp.chemicals.length > 0 && (
                 <div className="mt-4">
                   <div className="font-bold text-sm text-blue-800 mb-2 flex items-center">
-                    <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mr-2"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-2"></div>
                     Chemicals
                   </div>
                   <div className="overflow-x-auto rounded-lg border border-blue-100/60 shadow-md">
@@ -477,7 +598,7 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
                             </td>
                               <td className="px-3 sm:px-4 py-2">
                                 {chemical.isDisabled ? (
-                                  <span className="px-2 py-0.5 inline-flex text-xs leading-4 font-bold rounded-full bg-gradient-to-r from-rose-100 to-rose-200 text-rose-800 shadow-sm">
+                                  <span className="px-2 py-0.5 inline-flex text-xs leading-4 font-bold rounded-full bg-rose-100 text-rose-800 shadow-sm">
                                     Disabled
                                   </span>
                                 ) : (
@@ -489,13 +610,13 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
                                     
                                     if (isFullyAllocated) {
                                       return (
-                                        <span className="px-2 py-0.5 inline-flex text-xs leading-4 font-bold rounded-full shadow-sm bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800">
+                                        <span className="px-2 py-0.5 inline-flex text-xs leading-4 font-bold rounded-full shadow-sm bg-emerald-100 text-emerald-800">
                                           Fully Allocated
                                         </span>
                                       );
                                     } else if (isPartiallyAllocated) {
                                       return (
-                                        <span className="px-2 py-0.5 inline-flex text-xs leading-4 font-bold rounded-full shadow-sm bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800">
+                                        <span className="px-2 py-0.5 inline-flex text-xs leading-4 font-bold rounded-full shadow-sm bg-yellow-100 text-yellow-800">
                                           Partially Allocated
                                         </span>
                                       );
@@ -521,7 +642,7 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
               {exp.glassware && exp.glassware.length > 0 && (
                 <div className="mt-4">
                   <div className="font-bold text-sm text-blue-800 mb-2 flex items-center">
-                    <div className="w-2 h-2 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-full mr-2"></div>
+                    <div className="w-2 h-2 bg-cyan-600 rounded-full mr-2"></div>
                     Glassware
                   </div>
                   <div className="overflow-x-auto rounded-lg border border-blue-100/60 shadow-md">
@@ -578,7 +699,7 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
                               </td>
                               <td className="px-3 sm:px-4 py-2">
                                 {glass.isDisabled ? (
-                                  <span className="px-2 py-0.5 inline-flex text-xs leading-4 font-bold rounded-full bg-gradient-to-r from-rose-100 to-rose-200 text-rose-800 shadow-sm">
+                                  <span className="px-2 py-0.5 inline-flex text-xs leading-4 font-bold rounded-full bg-rose-100 text-rose-800 shadow-sm">
                                     Disabled
                                   </span>
                                 ) : (
@@ -634,7 +755,7 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
               {exp.equipment && exp.equipment.length > 0 && (
                 <div className="mt-4">
                   <div className="font-bold text-sm text-blue-900 mb-2 flex items-center">
-                    <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mr-2"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-2"></div>
                     Equipment
                   </div>
                   <div className="overflow-x-auto rounded-lg border border-blue-100/60 shadow-md">
@@ -763,7 +884,10 @@ const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
 });
 
 const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
-  const [isPdfReady, setIsPdfReady] = useState(false);
+  // Enhanced PDF and Print state management
+  const [isPdfReady, setIsPdfReady] = useState(true); // Always ready for better UX
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false);
+  const [pdfError, setPdfError] = useState(null);
   const [showReturnDialog, setShowReturnDialog] = useState(false);
   const [userRole, setUserRole] = useState('');
   const [approvalReason, setApprovalReason] = useState('');
@@ -785,12 +909,15 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
   const componentRef = useRef();
 
   useEffect(() => {
+    // Always set PDF as ready when modal opens
     if (open && request) {
       setIsPdfReady(true);
+      setPdfError(null);
     } else {
       setIsPdfReady(false);
     }
   }, [open, request]);
+  console.log('RequestDetailsModal rendered with request:', request);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -853,7 +980,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
             name: chem.chemicalName,
             remainingQuantity: remainingQty,
             unit: chem.unit,
-            experimentName: exp.experimentName
+            experimentName: exp.experimentId?.name || exp.experimentName || 'N/A'
           });
         }
       });
@@ -867,7 +994,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
             name: glass.name || glass.glasswareName || 'N/A',
             remainingQuantity: remainingQty,
             unit: glass.unit || glass.variant || '',
-            experimentName: exp.experimentName
+            experimentName: exp.experimentId?.name || exp.experimentName || 'N/A'
           });
         }
       });
@@ -881,7 +1008,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
             name: equip.name,
             remainingQuantity: remainingQty,
             unit: equip.variant || '',
-            experimentName: exp.experimentName
+            experimentName: exp.experimentId?.name || exp.experimentName || 'N/A'
           });
         }
       });
@@ -1040,7 +1167,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
       exp.chemicals?.forEach(chemical => {
         allItems.push({
           experimentId: exp._id, // Use the experiment object's _id, not the reference experimentId
-          experimentName: exp.experimentName,
+          experimentName: exp.experimentId?.name || exp.experimentName || 'N/A',
           itemType: 'chemicals',
           itemId: chemical._id,
           itemName: chemical.chemicalName,
@@ -1058,7 +1185,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
       exp.glassware?.forEach(glass => {
         allItems.push({
           experimentId: exp._id, // Use the experiment object's _id, not the reference experimentId
-          experimentName: exp.experimentName,
+          experimentName: exp.experimentId?.name || exp.experimentName || 'N/A',
           itemType: 'glassware',
           itemId: glass._id,
           itemName: glass.name || glass.glasswareName || 'N/A',
@@ -1076,7 +1203,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
       exp.equipment?.forEach(equipment => {
         allItems.push({
           experimentId: exp._id, // Use the experiment object's _id, not the reference experimentId
-          experimentName: exp.experimentName,
+          experimentName: exp.experimentId?.name || exp.experimentName || 'N/A',
           itemType: 'equipment',
           itemId: equipment._id,
           itemName: equipment.name,
@@ -1245,10 +1372,73 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
     });
   };
   
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-    documentTitle: `Request_${request?.labId || 'Details'}`
-  });
+  // Simplified PDF and Print handlers
+  const handlePrint = async () => {
+    try {
+      setIsPdfGenerating(true);
+      
+      // Try PDF print first
+      try {
+        // Import pdf functions for printing
+        const { pdf } = await import('@react-pdf/renderer');
+        const pdfBlob = await pdf(<RequestPDF request={request} />).toBlob();
+        
+        // Create blob URL and open in new window for printing
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        const printWindow = window.open(blobUrl);
+        
+        if (printWindow) {
+          printWindow.onload = () => {
+            printWindow.print();
+            // Clean up blob URL after some delay
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+          };
+        } else {
+          throw new Error('Popup blocked');
+        }
+      } catch (pdfError) {
+        console.warn('PDF print failed, falling back to HTML print:', pdfError);
+        
+        // Fallback to HTML print using componentRef
+        if (componentRef.current) {
+          const printContent = componentRef.current.innerHTML;
+          const printWindow = window.open('', '_blank');
+          
+          if (printWindow) {
+            printWindow.document.write(`
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <title>Request Details - ${request.requestId || request.labId}</title>
+                  <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    @media print { body { margin: 0; } }
+                    .no-print { display: none !important; }
+                  </style>
+                </head>
+                <body>
+                  ${printContent}
+                </body>
+              </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+          } else {
+            throw new Error('Failed to open print window. Please check popup blocker settings.');
+          }
+        } else {
+          throw new Error('Print content not available.');
+        }
+      }
+      
+      toast.success('Print dialog opened successfully!');
+    } catch (error) {
+      console.error('Print error:', error);
+      toast.error('Failed to print. Please try again.');
+    } finally {
+      setIsPdfGenerating(false);
+    }
+  };
 
   // Check if any items are allocated for return and status is eligible
   const eligibleStatuses = ['fulfilled', 'partially_fulfilled'];
@@ -1294,25 +1484,54 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
                   <span>Edit Request</span>
                 </button>
               )}
+              {/* Enhanced Print Button */}
               <button 
                 onClick={handlePrint}
-                className={`flex items-center p-2.5 rounded-xl ${THEME.secondaryText} hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-600 hover:shadow-lg transition-all duration-300`}
-                title="Print Request"
+                disabled={isPdfGenerating}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl ${
+                  isPdfGenerating 
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                    : `${THEME.secondaryText} hover:text-white hover:bg-blue-600 hover:shadow-lg`
+                } transition-all duration-300`}
+                title={isPdfGenerating ? "Preparing PDF..." : "Print Request"}
               >
-                <Printer size={18} />
+                {isPdfGenerating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
+                    <span className="text-sm">Preparing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Printer size={18} />
+                    <span className="text-sm hidden sm:inline">Print</span>
+                  </>
+                )}
               </button>
-              {isPdfReady && (
-                <PDFDownloadLink 
-                  document={<RequestPDF request={request} />} 
-                  fileName={`Request_${request.labId}.pdf`}
-                  className={`flex items-center p-2.5 rounded-xl ${THEME.secondaryText} hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-600 hover:shadow-lg transition-all duration-300`}
-                  title="Download PDF"
-                >
-                  {({ loading }) => (
-                    loading ? <FileText size={18} className="animate-pulse" /> : <FileText size={18} />
-                  )}
-                </PDFDownloadLink>
-              )}
+
+              {/* Enhanced PDF Download Button */}
+              <PDFDownloadLink 
+                document={<RequestPDF request={request} />} 
+                fileName={`JITS_Request_${request.requestId || request.labId}_${new Date().toISOString().split('T')[0]}.pdf`}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl ${THEME.secondaryText} hover:text-white hover:bg-green-600 hover:shadow-lg transition-all duration-300`}
+                title="Download PDF"
+              >
+                {({ loading }) => (
+                  <>
+                    {loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                        <span className="text-sm">Generating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FileText size={18} />
+                        <span className="text-sm hidden sm:inline">Download</span>
+                      </>
+                    )}
+                  </>
+                )}
+              </PDFDownloadLink>
+
               {/* Return Items button for faculty only */}
               {showReturnButton && (
                 <button
@@ -1326,7 +1545,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
               )}
               <button
                 onClick={onClose}
-                className={`flex items-center p-2.5 rounded-xl ${THEME.secondaryText} hover:text-white hover:bg-gradient-to-r hover:from-rose-500 hover:to-rose-600 hover:shadow-lg transition-all duration-300`}
+                className={`flex items-center p-2.5 rounded-xl ${THEME.secondaryText} hover:text-white hover:bg-red-600 hover:shadow-lg transition-all duration-300`}
                 title="Close"
               >
                 <X size={18} />
@@ -1334,6 +1553,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
             </div>
           </div>
 
+          {/* Main Content Display */}
           <PrintableContent ref={componentRef} request={request} userRole={userRole} />
 
         
@@ -1341,7 +1561,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
           {userRole === 'admin' && request.status === 'pending' && (
             <div className={`${THEME.card} p-6 sm:p-8 rounded-2xl ${THEME.border} mt-8 ${THEME.cardHover}`}>
               <h3 className={`text-xl font-bold ${THEME.primaryText} mb-6 flex items-center`}>
-                <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-green-600 rounded-full mr-3"></div>
+                <div className="w-4 h-4 bg-green-600 rounded-full mr-3"></div>
                 Admin Approval
               </h3>
               <div className="space-y-6">
@@ -1406,12 +1626,12 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
             <div className="p-6 sm:p-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-6 border-b border-blue-100/50">
                 <h3 className={`text-xl sm:text-2xl font-bold ${THEME.primaryText} mb-4 sm:mb-0 flex items-center`}>
-                  <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mr-3"></div>
+                  <div className="w-4 h-4 bg-blue-600 rounded-full mr-3"></div>
                   Edit Request - All Items
                 </h3>
                 <button
                   onClick={() => setShowAdminEdit(false)}
-                  className="text-gray-500 hover:text-white hover:bg-gradient-to-r hover:from-rose-500 hover:to-rose-600 p-2 rounded-xl transition-all duration-300"
+                  className="text-gray-500 hover:text-white hover:bg-red-600 p-2 rounded-xl transition-all duration-300"
                 >
                   <X size={24} />
                 </button>
@@ -1446,7 +1666,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
                   </thead>
                   <tbody className="bg-white/95 divide-y divide-blue-50">
                     {editingItems.map((item, index) => (
-                      <tr key={`${item.experimentId}-${item.itemType}-${item.itemId}`} className={`${item.hasChanges ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400' : 'hover:bg-blue-50/50'} transition-all duration-200`}>
+                      <tr key={`${item.experimentId}-${item.itemType}-${item.itemId}`} className={`${item.hasChanges ? 'bg-amber-50 border-l-4 border-amber-400' : 'hover:bg-blue-50/50'} transition-all duration-200`}>
                         <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 font-medium">{item.experimentName}</td>
                         <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 capitalize font-medium">
                           <span className={`px-2 py-1 rounded-lg text-xs font-bold ${
@@ -1504,7 +1724,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
               
               <div className="flex flex-col sm:flex-row justify-between items-center mt-8 pt-6 border-t border-blue-100/50 space-y-4 sm:space-y-0">
                 <div className="text-sm text-gray-600 font-medium">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 font-bold">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-bold">
                     {editingItems.filter(item => item.hasChanges).length} items will be modified
                   </span>
                 </div>
@@ -1564,7 +1784,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
             <div className="p-6 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"></div>
+                <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
                 Confirm Remaining Items Allocation
               </h3>
             </div>
@@ -1620,7 +1840,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
                   handleAllocateRemaining();
                 }}
                 disabled={remainingItemsToAllocate.length === 0}
-                className="flex-1 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="flex-1 px-6 py-3 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {isAllocatingRemaining ? (
                   <div className="flex items-center justify-center gap-2">
