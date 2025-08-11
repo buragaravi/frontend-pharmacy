@@ -404,7 +404,7 @@ const RequestPDF = ({ request }) => (
               })}
             </Text>
             <Text style={{ fontSize: 7, color: '#9CA3AF', marginTop: 4 }}>
-              JITS Laboratory Management System
+              Pydah Laboratory Management System
             </Text>
           </View>
         </View>
