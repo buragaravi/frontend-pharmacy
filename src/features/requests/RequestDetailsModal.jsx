@@ -82,174 +82,222 @@ const THEME = {
   glassEffect: 'bg-white border border-gray-200'
 };
 
-// PDF Styles - Updated for College Header and Better Layout
+// PDF Styles - Optimized for A5 Size
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
+    padding: 20, // Reduced padding for A5
     fontFamily: 'Helvetica',
     backgroundColor: '#F8FAFC'
   },
-  // College Header Styles
+  // College Header Styles - Compact for A5
   collegeHeader: {
     textAlign: 'center',
-    marginBottom: 25,
-    paddingBottom: 15,
-    borderBottomWidth: 2,
+    marginBottom: 15, // Reduced margin
+    paddingBottom: 8,  // Reduced padding
+    borderBottomWidth: 1.5,
     borderBottomColor: '#1E3A8A'
   },
   collegeName: {
-    fontSize: 20,
+    fontSize: 14, // Reduced from 20 to 14
     fontWeight: 'bold',
     color: '#1E3A8A',
-    marginBottom: 5
+    marginBottom: 3 // Reduced margin
   },
   collegeAccreditation: {
-    fontSize: 10,
+    fontSize: 7,  // Reduced from 10 to 7
     color: '#1E40AF',
-    marginBottom: 3
-  },
-  collegeDetails: {
-    fontSize: 9,
-    color: '#374151',
     marginBottom: 2
   },
-  collegeAddress: {
-    fontSize: 9,
+  collegeDetails: {
+    fontSize: 6,  // Reduced from 9 to 6
     color: '#374151',
-    marginTop: 5
+    marginBottom: 1
   },
-  // Document Header
+  collegeAddress: {
+    fontSize: 6,  // Reduced from 9 to 6
+    color: '#374151',
+    marginTop: 3  // Reduced margin
+  },
+  // Document Header - Compact for A5
   header: {
-    fontSize: 16,
-    marginBottom: 20,
+    fontSize: 12, // Reduced from 16 to 12
+    marginBottom: 12, // Reduced margin
     color: '#1E3A8A',
     textAlign: 'center',
     fontWeight: 'bold',
     backgroundColor: '#EBF4FF',
-    padding: 10,
-    borderRadius: 5
+    padding: 6,   // Reduced padding
+    borderRadius: 3
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 18,
-    gap: 12
+    marginBottom: 10, // Reduced margin
+    gap: 8           // Reduced gap
   },
   section: {
-    marginBottom: 25
+    marginBottom: 15  // Reduced from 25 to 15
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 11,     // Reduced from 16 to 11
     color: '#1E3A8A',
-    marginBottom: 12,
+    marginBottom: 8,  // Reduced margin
     fontWeight: 'bold'
   },
   infoBox: {
-    marginBottom: 12,
-    padding: 8,
+    marginBottom: 8,  // Reduced margin
+    padding: 5,       // Reduced padding
     backgroundColor: '#F0F7FF',
-    borderRadius: 4
+    borderRadius: 3   // Reduced border radius
   },
   infoLabel: {
-    fontSize: 10,
+    fontSize: 7,      // Reduced from 10 to 7
     color: '#3B82F6',
-    marginBottom: 3,
+    marginBottom: 2,  // Reduced margin
     fontWeight: 'bold'
   },
   infoValue: {
-    fontSize: 12,
+    fontSize: 9,      // Reduced from 12 to 9
     color: '#1E3A8A'
   },
   subjectValue: {
-    fontSize: 11,
+    fontSize: 8,      // Reduced from 11 to 8
     color: '#059669',
     fontWeight: 'bold',
     fontStyle: 'italic'
   },
   table: {
     width: '100%',
-    marginTop: 12,
-    borderRadius: 4,
+    marginTop: 8,     // Reduced margin
+    borderRadius: 3,  // Reduced border radius
     overflow: 'hidden'
   },
   tableHeader: {
     backgroundColor: '#E6F3FF',
-    padding: 10,
-    fontSize: 10,
+    padding: 6,       // Reduced from 10 to 6
+    fontSize: 7,      // Reduced from 10 to 7
     color: '#1E3A8A',
     fontWeight: 'bold'
   },
   tableRow: {
-    padding: 10,
-    fontSize: 10,
+    padding: 6,       // Reduced from 10 to 6
+    fontSize: 7,      // Reduced from 10 to 7
     color: '#1E3A8A',
     backgroundColor: '#FFFFFF'
   },
   signature: {
-    marginTop: 40,
-    borderTopWidth: 2,
+    marginTop: 20,    // Reduced from 40 to 20
+    borderTopWidth: 1.5, // Reduced line width
     borderTopColor: '#3B82F6',
-    paddingTop: 8,
+    paddingTop: 5,    // Reduced padding
     alignSelf: 'flex-end'
   },
   signatureText: {
-    fontSize: 11,
+    fontSize: 8,      // Reduced from 11 to 8
     color: '#3B82F6',
     fontWeight: 'bold'
   }
 });
 
+// Content Analysis for A5 Optimization
+const analyzeContentDensity = (request) => {
+  const totalExperiments = request.experiments?.length || 0;
+  const totalChemicals = request.experiments?.reduce((sum, exp) => sum + (exp.chemicals?.length || 0), 0) || 0;
+  const totalEquipment = request.experiments?.reduce((sum, exp) => sum + (exp.equipment?.length || 0), 0) || 0;
+  const totalGlassware = request.experiments?.reduce((sum, exp) => sum + (exp.glassware?.length || 0), 0) || 0;
+  
+  const totalItems = totalChemicals + totalEquipment + totalGlassware;
+  
+  // Determine if we need ultra-compact layout
+  const isHighDensity = totalItems > 15 || totalExperiments > 2;
+  
+  return {
+    totalItems,
+    totalExperiments,
+    isHighDensity,
+    compactLevel: isHighDensity ? 'ultra' : 'normal'
+  };
+};
+
+// Dynamic styles based on content density
+const getDynamicStyles = (contentAnalysis) => {
+  if (contentAnalysis.isHighDensity) {
+    return {
+      ...styles,
+      tableHeader: {
+        ...styles.tableHeader,
+        fontSize: 6,  // Even smaller for high density
+        padding: 4
+      },
+      tableRow: {
+        ...styles.tableRow,
+        fontSize: 6,  // Even smaller for high density
+        padding: 4
+      },
+      infoValue: {
+        ...styles.infoValue,
+        fontSize: 7   // Smaller info values
+      }
+    };
+  }
+  return styles;
+};
+
 // PDF Document for Download
-const RequestPDF = ({ request }) => (
+const RequestPDF = ({ request }) => {
+  const contentAnalysis = analyzeContentDensity(request);
+  const dynamicStyles = getDynamicStyles(contentAnalysis);
+  
+  return (
   <Document>
-    <Page size="A4" style={styles.page}>
+    <Page size="A5" style={dynamicStyles.page}>
       {/* College Header Section */}
-      <View style={styles.collegeHeader}>
-        <Text style={styles.collegeName}>PYDAH COLLEGE OF PHARMACY</Text>
-        <Text style={styles.collegeAccreditation}>
+      <View style={dynamicStyles.collegeHeader}>
+        <Text style={dynamicStyles.collegeName}>PYDAH COLLEGE OF PHARMACY</Text>
+        <Text style={dynamicStyles.collegeAccreditation}>
           (Accredited by NAAC with 'A' Grade & Approved by AICTE & PCI, New Delhi)
         </Text>
-        <Text style={styles.collegeAddress}>
+        <Text style={dynamicStyles.collegeAddress}>
           Kakinada - 533461, East Godavari District, Andhra Pradesh, India
         </Text>
-        <Text style={styles.collegeAddress}>
+        <Text style={dynamicStyles.collegeAddress}>
           Ph: +91 98484 12547, Email: princpharma@pydah.edu.in
         </Text>
       </View>
 
-      <Text style={styles.header}>Laboratory Request Details</Text>
-      <View style={styles.section}>
-        <View style={styles.row}>
-          <View style={styles.infoBox}>
-            <Text style={styles.infoLabel}>Lab ID</Text>
-            <Text style={styles.infoValue}>{request.labId}</Text>
+      <Text style={dynamicStyles.header}>Laboratory Request Details</Text>
+      <View style={dynamicStyles.section}>
+        <View style={dynamicStyles.row}>
+          <View style={dynamicStyles.infoBox}>
+            <Text style={dynamicStyles.infoLabel}>Lab ID</Text>
+            <Text style={dynamicStyles.infoValue}>{request.labId}</Text>
           </View>
-          <View style={styles.infoBox}>
-            <Text style={styles.infoLabel}>Status</Text>
-            <Text style={styles.infoValue}>{request.status}</Text>
+          <View style={dynamicStyles.infoBox}>
+            <Text style={dynamicStyles.infoLabel}>Status</Text>
+            <Text style={dynamicStyles.infoValue}>{request.status}</Text>
           </View>
           {request.facultyId?.name && (
-            <View style={styles.infoBox}>
-              <Text style={styles.infoLabel}>Faculty</Text>
-              <Text style={styles.infoValue}>{request.facultyId.name}</Text>
+            <View style={dynamicStyles.infoBox}>
+              <Text style={dynamicStyles.infoLabel}>Faculty</Text>
+              <Text style={dynamicStyles.infoValue}>{request.facultyId.name}</Text>
             </View>
           )}
         </View>
         {/* Course and Batch Information */}
         {(request.courseId || request.batchId) && (
-          <View style={styles.row}>
+          <View style={dynamicStyles.row}>
             {request.courseId && (
-              <View style={styles.infoBox}>
-                <Text style={styles.infoLabel}>Course</Text>
-                <Text style={styles.infoValue}>
+              <View style={dynamicStyles.infoBox}>
+                <Text style={dynamicStyles.infoLabel}>Course</Text>
+                <Text style={dynamicStyles.infoValue}>
                   {request.courseId.courseCode} - {request.courseId.courseName}
                 </Text>
               </View>
             )}
             {request.courseId?.batches && request.batchId && (
-              <View style={styles.infoBox}>
-                <Text style={styles.infoLabel}>Batch</Text>
-                <Text style={styles.infoValue}>
+              <View style={dynamicStyles.infoBox}>
+                <Text style={dynamicStyles.infoLabel}>Batch</Text>
+                <Text style={dynamicStyles.infoValue}>
                   {(() => {
                     const batch = request.courseId.batches.find(b => b._id.toString() === request.batchId.toString());
                     return batch ? `${batch.batchCode}${batch.batchName ? ' - ' + batch.batchName : ''}${batch.academicYear ? ' (AY ' + batch.academicYear + ')' : ''}` : 'Unknown Batch';
@@ -260,16 +308,17 @@ const RequestPDF = ({ request }) => (
           </View>
         )}
       </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Experiments</Text>
+      <View style={dynamicStyles.section}>
+        <Text style={dynamicStyles.sectionTitle}>Experiments</Text>
         {request.experiments?.map((exp, index) => (
           <View key={exp._id} style={{ marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#DBEAFE', paddingBottom: 8 }}>
-            <Text style={styles.infoValue}>
+            <Text style={dynamicStyles.infoValue}>
               Experiment {index + 1}: {exp.experimentId?.name || exp.experimentName || 'N/A'}
             </Text>
             {(exp.experimentId?.subject || exp.experimentId?.subjectId?.name) && (
-              <Text style={styles.subjectValue}>
-                Subject: {exp.experimentId?.subject || exp.experimentId?.subjectId?.name}({exp.experimentId?.subjectId?.code})
+              <Text style={dynamicStyles.subjectValue}>
+                Subject: {exp.experimentId?.subject || exp.experimentId?.subjectId?.name}
+                {exp.experimentId?.subjectId?.code && ` (${exp.experimentId.subjectId.code})`}
               </Text>
             )}
             <Text style={styles.infoLabel}>
@@ -278,21 +327,21 @@ const RequestPDF = ({ request }) => (
             {/* Chemicals Table */}
             {/* Enhanced Chemicals Table */}
             {exp.chemicals && exp.chemicals.length > 0 && (
-              <View style={styles.table}>
+              <View style={dynamicStyles.table}>
                 <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BFDBFE' }}>
-                  <Text style={[styles.tableHeader, { flex: 2 }]}>Chemical</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Requested</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Allocated</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Status</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 2 }]}>Chemical</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 1 }]}>Requested</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 1 }]}>Allocated</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 1 }]}>Status</Text>
                 </View>
                 {exp.chemicals?.map((chemical) => (
                   <View key={chemical._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F1F5F9' }}>
-                    <Text style={[styles.tableRow, { flex: 2 }]}>{chemical.chemicalName}</Text>
-                    <Text style={[styles.tableRow, { flex: 1 }]}>{chemical.quantity} {chemical.unit}</Text>
-                    <Text style={[styles.tableRow, { flex: 1 }]}>
+                    <Text style={[dynamicStyles.tableRow, { flex: 2 }]}>{chemical.chemicalName}</Text>
+                    <Text style={[dynamicStyles.tableRow, { flex: 1 }]}>{chemical.quantity} {chemical.unit}</Text>
+                    <Text style={[dynamicStyles.tableRow, { flex: 1 }]}>
                       {chemical.allocatedQuantity ? `${chemical.allocatedQuantity} ${chemical.unit}` : '0'}
                     </Text>
-                    <Text style={[styles.tableRow, { flex: 1 }]}>
+                    <Text style={[dynamicStyles.tableRow, { flex: 1 }]}>
                       {chemical.isDisabled ? 'Disabled' : (chemical.isAllocated ? 'Allocated' : 'Pending')}
                     </Text>
                   </View>
@@ -301,12 +350,12 @@ const RequestPDF = ({ request }) => (
             )}
             {/* Enhanced Glassware Table */}
             {exp.glassware && exp.glassware.length > 0 && (
-              <View style={[styles.table, { marginTop: 8 }]}> 
+              <View style={[dynamicStyles.table, { marginTop: 8 }]}> 
                 <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BFDBFE' }}>
-                  <Text style={[styles.tableHeader, { flex: 2 }]}>Glassware</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Requested</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Allocated</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Status</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 2 }]}>Glassware</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 1 }]}>Requested</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 1 }]}>Allocated</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 1 }]}>Status</Text>
                 </View>
                 {exp.glassware.map((glass) => {
                   // Calculate allocated quantity from allocation history
@@ -317,12 +366,12 @@ const RequestPDF = ({ request }) => (
                   
                   return (
                     <View key={glass._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F1F5F9' }}>
-                      <Text style={[styles.tableRow, { flex: 2 }]}>{glass.name || glass.glasswareName || 'N/A'}</Text>
-                      <Text style={[styles.tableRow, { flex: 1 }]}>{glass.quantity} {glass.unit || glass.variant || ''}</Text>
-                      <Text style={[styles.tableRow, { flex: 1 }]}>
+                      <Text style={[dynamicStyles.tableRow, { flex: 2 }]}>{glass.name || glass.glasswareName || 'N/A'}</Text>
+                      <Text style={[dynamicStyles.tableRow, { flex: 1 }]}>{glass.quantity} {glass.unit || glass.variant || ''}</Text>
+                      <Text style={[dynamicStyles.tableRow, { flex: 1 }]}>
                         {allocatedQty > 0 ? `${allocatedQty}` : '0'}
                       </Text>
-                      <Text style={[styles.tableRow, { flex: 1 }]}>
+                      <Text style={[dynamicStyles.tableRow, { flex: 1 }]}>
                         {glass.isDisabled ? 'Disabled' : (glass.isAllocated ? 'Allocated' : 'Pending')}
                       </Text>
                     </View>
@@ -332,13 +381,13 @@ const RequestPDF = ({ request }) => (
             )}
             {/* Enhanced Equipment Table */}
             {exp.equipment && exp.equipment.length > 0 && (
-              <View style={[styles.table, { marginTop: 8 }]}> 
+              <View style={[dynamicStyles.table, { marginTop: 8 }]}> 
                 <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#BFDBFE' }}>
-                  <Text style={[styles.tableHeader, { flex: 2 }]}>Equipment</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Requested</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Allocated</Text>
-                  <Text style={[styles.tableHeader, { flex: 1 }]}>Status</Text>
-                  <Text style={[styles.tableHeader, { flex: 2 }]}>Allocated Item IDs</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 2 }]}>Equipment</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 1 }]}>Requested</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 1 }]}>Allocated</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 1 }]}>Status</Text>
+                  <Text style={[dynamicStyles.tableHeader, { flex: 2 }]}>Allocated Item IDs</Text>
                 </View>
                 {exp.equipment.map((eq) => {
                   let allocatedItemIds = '';
@@ -364,13 +413,13 @@ const RequestPDF = ({ request }) => (
                   
                   return (
                     <View key={eq._id} style={{ flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#F1F5F9' }}>
-                      <Text style={[styles.tableRow, { flex: 2 }]}>{eq.name}</Text>
-                      <Text style={[styles.tableRow, { flex: 1 }]}>{eq.quantity}</Text>
-                      <Text style={[styles.tableRow, { flex: 1 }]}>{allocatedQuantity}</Text>
-                      <Text style={[styles.tableRow, { flex: 1 }]}>
+                      <Text style={[dynamicStyles.tableRow, { flex: 2 }]}>{eq.name}</Text>
+                      <Text style={[dynamicStyles.tableRow, { flex: 1 }]}>{eq.quantity}</Text>
+                      <Text style={[dynamicStyles.tableRow, { flex: 1 }]}>{allocatedQuantity}</Text>
+                      <Text style={[dynamicStyles.tableRow, { flex: 1 }]}>
                         {eq.isDisabled ? 'Disabled' : (eq.isAllocated ? 'Allocated' : 'Pending')}
                       </Text>
-                      <Text style={[styles.tableRow, { flex: 2 }]}>{allocatedItemIds}</Text>
+                      <Text style={[dynamicStyles.tableRow, { flex: 2 }]}>{allocatedItemIds}</Text>
                     </View>
                   );
                 })}
@@ -380,10 +429,10 @@ const RequestPDF = ({ request }) => (
         ))}
       </View>
       {/* Enhanced Footer Section */}
-      <View style={styles.signature}>
+      <View style={dynamicStyles.signature}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <View>
-            <Text style={styles.signatureText}>Authorized Signature</Text>
+            <Text style={dynamicStyles.signatureText}>Authorized Signature</Text>
             <Text style={{ fontSize: 8, color: '#6B7280', marginTop: 4 }}>
               Lab Administrator
             </Text>
@@ -404,14 +453,15 @@ const RequestPDF = ({ request }) => (
               })}
             </Text>
             <Text style={{ fontSize: 7, color: '#9CA3AF', marginTop: 4 }}>
-              Pydah Laboratory Management System
+              JITS Laboratory Management System
             </Text>
           </View>
         </View>
       </View>
     </Page>
   </Document>
-);
+  );
+};
 
 // PrintableContent Component
 const PrintableContent = React.forwardRef(({ request, userRole }, ref) => {
@@ -1086,7 +1136,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
       }
       
       // Call the unified allocation endpoint
-      const response = await fetch(`https://backend-pharmacy-5541.onrender.com/api/requests/${request._id}/allocate-unified`, {
+      const response = await fetch(`https://backend-jits.onrender.com/api/requests/${request._id}/allocate-unified`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1511,7 +1561,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
               {/* Enhanced PDF Download Button */}
               <PDFDownloadLink 
                 document={<RequestPDF request={request} />} 
-                fileName={`PYDAH_Request_${request.requestId || request.labId}_${request.facultyId.name}_${new Date().toISOString().split('T')[0]}.pdf`}
+                fileName={`JITS_Request_${request.requestId || request.labId}_${new Date().toISOString().split('T')[0]}.pdf`}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl ${THEME.secondaryText} hover:text-white hover:bg-green-600 hover:shadow-lg transition-all duration-300`}
                 title="Download PDF"
               >
