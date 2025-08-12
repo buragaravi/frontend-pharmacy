@@ -453,7 +453,7 @@ const RequestPDF = ({ request }) => {
               })}
             </Text>
             <Text style={{ fontSize: 7, color: '#9CA3AF', marginTop: 4 }}>
-              JITS Laboratory Management System
+              Pydah Laboratory Management System
             </Text>
           </View>
         </View>
@@ -1561,7 +1561,7 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
               {/* Enhanced PDF Download Button */}
               <PDFDownloadLink 
                 document={<RequestPDF request={request} />} 
-                fileName={`JITS_Request_${request.requestId || request.labId}_${new Date().toISOString().split('T')[0]}.pdf`}
+                fileName={`Pydah_Request_${request.requestId || request.labId}_${request.facultyId?.name}_${new Date().toISOString().split('T')[0]}.pdf`}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl ${THEME.secondaryText} hover:text-white hover:bg-green-600 hover:shadow-lg transition-all duration-300`}
                 title="Download PDF"
               >

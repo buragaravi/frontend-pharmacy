@@ -33,7 +33,7 @@ This document outlines the comprehensive frontend implementation of the date-bas
 ## 📁 File Structure
 
 ```
-frontend-jits/src/
+frontend-Pydah/src/
 ├── utils/
 │   └── dateValidation.js          # Core date validation logic
 ├── services/
