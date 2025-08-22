@@ -166,6 +166,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
   const [toast, setToast] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
   const searchInputRef = useRef(null);
 
   // Per-graph filters
@@ -301,6 +302,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
 
       const res = await axios.get(url, { headers });
       setTransactions(res.data);
+      console.log('Fetched transactions:', res.data);
     } catch (err) {
       console.error(err);
       setError('Failed to fetch transactions');
@@ -321,9 +323,12 @@ const TransactionsPage = ({ labId: propLabId }) => {
 
   const filterTransactions = () => {
     return transactions.filter((tx) => {
-      const txDate = new Date(tx.createdAt);
-      const inDateRange =
-        txDate >= new Date(dateRange.from) && txDate <= new Date(dateRange.to + 'T23:59:59');
+      // If showAllTransactions is true, skip date range filtering
+      let inDateRange = true;
+      if (!showAllTransactions) {
+        const txDate = new Date(tx.createdAt);
+        inDateRange = txDate >= new Date(dateRange.from) && txDate <= new Date(dateRange.to + 'T23:59:59');
+      }
 
       const name = tx.chemicalName?.toLowerCase() || '';
       const nameMatch = name.includes(searchTerm);
@@ -359,6 +364,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
   const handleResetGlobalFilter = () => {
     setDateRange(DEFAULT_DATE_RANGE());
     setGlobalFilterApplied(false);
+    setShowAllTransactions(false);
     setCurrentPage(1);
     showToast('Date filter reset to default', 'success');
   };
@@ -420,7 +426,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
       doc.text(`Generated on: ${new Date().toLocaleDateString()}`, leftMargin, y);
       doc.text(`Total Transactions: ${filteredTransactions.length}`, leftMargin + 100, y);
       y += 7;
-      doc.text(`Date Range: ${dateRange.from} to ${dateRange.to}`, leftMargin, y);
+      doc.text(`Date Range: ${showAllTransactions ? 'All Time' : `${dateRange.from} to ${dateRange.to}`}`, leftMargin, y);
       doc.text(`Lab Filter: ${selectedLabFilter === 'all' ? 'All Labs' : selectedLabFilter === 'central' ? 'Central Store' : selectedLabFilter}`, leftMargin + 100, y);
       
       // Table columns
@@ -516,7 +522,7 @@ const TransactionsPage = ({ labId: propLabId }) => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Date range filter for all graphs and table
-  const filteredByDate = transactions.filter(tx => {
+  const filteredByDate = showAllTransactions ? transactions : transactions.filter(tx => {
     const txDate = new Date(tx.createdAt);
     return txDate >= new Date(dateRange.from) && txDate <= new Date(dateRange.to + 'T23:59:59');
   });
@@ -535,6 +541,11 @@ const TransactionsPage = ({ labId: propLabId }) => {
 
   // Per-graph filtered data
   const getFilteredByRange = (range) => {
+    // If showing all transactions, return all data regardless of range
+    if (showAllTransactions) {
+      return transactions;
+    }
+    
     const { from, to } = getRangeDates(range);
     return transactions.filter(tx => {
       const txDate = new Date(tx.createdAt);
@@ -573,14 +584,23 @@ const TransactionsPage = ({ labId: propLabId }) => {
   })();
 
   // --- Summary ---
-  const totalTransactions = filteredByDate.length;
+  const filteredData = filterTransactions();
+  const totalTransactions = filteredData.length;
   const totalQuantity = Math.round(
-    filteredByDate
+    filteredData
       .filter(tx => tx.transactionType !== 'entry')
       .reduce((sum, tx) => sum + (Number(tx.quantity) || 0), 0)
   );
   const mostActiveLab = (role === 'admin' || role === 'central_store_admin')
-    ? (labChartData.sort((a, b) => b.count - a.count)[0]?.lab || '-')
+    ? (() => {
+        const labCounts = {};
+        filteredData.forEach(tx => {
+          const lab = tx.fromLabId || 'Unknown';
+          labCounts[lab] = (labCounts[lab] || 0) + 1;
+        });
+        const sortedLabs = Object.entries(labCounts).sort((a, b) => b[1] - a[1]);
+        return sortedLabs[0]?.[0] || '-';
+      })()
     : null;
 
   // --- Dropdown options ---
@@ -652,6 +672,37 @@ const TransactionsPage = ({ labId: propLabId }) => {
           </div>
 
           <div className="p-8">
+            {/* Information Banner - Minimized */}
+            {!showAllTransactions && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+              >
+                <div className="flex items-center gap-2">
+                  <FiActivity className="h-4 w-4 text-blue-600" />
+                  <p className="text-blue-700 text-xs font-medium">
+                    Showing last 7 days • Use date range or "Show All" for complete history
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {showAllTransactions && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg"
+              >
+                <div className="flex items-center gap-2">
+                  <FiActivity className="h-4 w-4 text-purple-600" />
+                  <p className="text-purple-700 text-xs font-medium">
+                    All transactions displayed • Total: {transactions.length}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
             {/* Enhanced Global Date Range Filter */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -732,6 +783,22 @@ const TransactionsPage = ({ labId: propLabId }) => {
                       </div>
                       
                       <div className="flex gap-3">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`px-4 py-2 rounded-lg font-medium shadow transition text-sm ${
+                            showAllTransactions
+                              ? 'bg-purple-600 text-white hover:bg-purple-700'
+                              : 'bg-gray-600 text-white hover:bg-gray-700'
+                          }`}
+                          onClick={() => {
+                            setShowAllTransactions(!showAllTransactions);
+                            setCurrentPage(1);
+                          }}
+                        >
+                          {showAllTransactions ? 'Show Last 7 Days' : 'Show All Transactions'}
+                        </motion.button>
+                        
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
