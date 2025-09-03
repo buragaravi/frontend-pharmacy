@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import ProductForm from './ProductForm';
 import BulkProductUpload from './BulkProductUpload';
@@ -87,6 +87,8 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
 
   const isAdmin = userRole === 'admin' || userRole === 'central_store_admin';
   const canManageProducts = showAdminActions && isAdmin;
+  // Add a ref for the search input
+  const searchInputRef = useRef(null);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -207,40 +209,68 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
     const productName = product?.name?.toLowerCase() || '';
     const productVariant = (product?.variant || product?.unit || '').toLowerCase();
     const productDescription = (product?.description || '').toLowerCase();
-    
-    return productName.includes(searchLower) || 
-           productVariant.includes(searchLower) || 
-           productDescription.includes(searchLower);
+
+    return productName.includes(searchLower) ||
+      productVariant.includes(searchLower) ||
+      productDescription.includes(searchLower);
   });
 
   useEffect(() => {
     fetchProducts();
   }, []);
+  // Add keyboard shortcut handler
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Focus search on '/' key
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        // Prevent the '/' from being typed in any input field
+        if (document.activeElement.tagName !== 'INPUT' &&
+          document.activeElement.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          searchInputRef.current?.focus();
+        }
+      }
+
+      // Focus search on Ctrl+F or Cmd+F
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Clean up
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   // Get category colors and icons
   const getCategoryStyle = (category) => {
     const styles = {
-      chemical: { 
-        bg: 'bg-blue-100', 
-        text: 'text-blue-600', 
+      chemical: {
+        bg: 'bg-blue-100',
+        text: 'text-blue-600',
         icon: (
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
           </svg>
         )
       },
-      glassware: { 
-        bg: 'bg-blue-50', 
-        text: 'text-blue-500', 
+      glassware: {
+        bg: 'bg-blue-50',
+        text: 'text-blue-500',
         icon: (
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
           </svg>
         )
       },
-      equipment: { 
-        bg: 'bg-blue-200', 
-        text: 'text-blue-700', 
+      equipment: {
+        bg: 'bg-blue-200',
+        text: 'text-blue-700',
         icon: (
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -248,9 +278,9 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
           </svg>
         )
       },
-      others: { 
-        bg: 'bg-white', 
-        text: 'text-blue-400', 
+      others: {
+        bg: 'bg-white',
+        text: 'text-blue-400',
         icon: (
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -330,7 +360,7 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
                     <h1 className="text-2xl font-bold mb-1">Product Management</h1>
                   </div>
                 </div>
-                
+
                 {/* Stats Cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
                   <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
@@ -351,7 +381,7 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Decorative elements */}
               <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
                 <div className="w-32 h-32 bg-white/5 rounded-full"></div>
@@ -372,12 +402,19 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
                     </svg>
                   </div>
                   <input
+                    ref={searchInputRef}  // Add ref here
                     type="text"
-                    placeholder="Search by name, variant, or description..."
+                    placeholder="Search by name, variant, or description... (Press '/' to focus)"
                     className="block w-full pl-10 pr-4 py-2 border border-blue-200 rounded-lg bg-white text-gray-900 text-sm placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
+                  {/* Add keyboard shortcut hint */}
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <kbd className="hidden md:inline-flex items-center px-2 py-1 rounded text-xs font-sans font-medium text-gray-400 bg-gray-50 border border-gray-200">
+                      /
+                    </kbd>
+                  </div>
                 </div>
 
                 {/* Action Buttons */}
@@ -391,7 +428,7 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
                     </svg>
                     Refresh
                   </button>
-                  
+
                   {canManageProducts && (
                     <>
                       <button
@@ -403,7 +440,7 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
                         </svg>
                         Bulk Upload
                       </button>
-                      
+
                       <button
                         onClick={() => {
                           setEditingProduct(null);
@@ -431,11 +468,10 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
                   return (
                     <button
                       key={tab}
-                      className={`px-4 py-2 rounded-t-lg text-sm font-semibold transition-all duration-300 whitespace-nowrap border-b-2 transform hover:scale-105 ${
-                        isActive
-                          ? `bg-blue-50 ${categoryStyle.text} border-blue-500 shadow-lg`
-                          : 'bg-white text-blue-400 hover:bg-blue-50 border-transparent hover:shadow-md'
-                      }`}
+                      className={`px-4 py-2 rounded-t-lg text-sm font-semibold transition-all duration-300 whitespace-nowrap border-b-2 transform hover:scale-105 ${isActive
+                        ? `bg-blue-50 ${categoryStyle.text} border-blue-500 shadow-lg`
+                        : 'bg-white text-blue-400 hover:bg-blue-50 border-transparent hover:shadow-md'
+                        }`}
                       onClick={() => handleCategoryChange(tab)}
                     >
                       <span className="flex items-center gap-2">
@@ -508,7 +544,7 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
                         const isExpanded = expandedProductId === product._id;
                         return (
                           <React.Fragment key={product._id}>
-                            <tr 
+                            <tr
                               className="hover:bg-white/80 transition-all duration-200 group cursor-pointer"
                               style={{ animationDelay: `${index * 0.05}s` }}
                               onClick={() => handleToggleExpand(product._id)}
@@ -591,7 +627,7 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
                             </tr>
                             {/* Expanded inventory details */}
                             {isExpanded && (
-                              <ProductInventoryDetail 
+                              <ProductInventoryDetail
                                 productId={product._id}
                                 onClose={() => setExpandedProductId(null)}
                               />
@@ -611,18 +647,18 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
         {canManageProducts && showForm && (
           <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 pt-8 overflow-y-auto">
             {/* Backdrop */}
-            <div 
+            <div
               className="fixed inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => {
                 setShowForm(false);
                 setEditingProduct(null);
               }}
             ></div>
-            
+
             {/* Modal */}
             <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-white/20 overflow-hidden transform transition-all duration-300 scale-100 mt-4">
               <div className="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
-              <ProductForm 
+              <ProductForm
                 product={editingProduct}
                 onCreate={handleCreateProduct}
                 onUpdate={handleUpdateProduct}
@@ -639,15 +675,15 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
         {canManageProducts && showBulkUpload && (
           <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 pt-8 overflow-y-auto">
             {/* Backdrop */}
-            <div 
+            <div
               className="fixed inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setShowBulkUpload(false)}
             ></div>
-            
+
             {/* Modal */}
             <div className="relative w-full max-w-6xl bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all duration-300 scale-100 max-h-[85vh] mt-4">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-green-500"></div>
-              <BulkProductUpload 
+              <BulkProductUpload
                 onClose={() => setShowBulkUpload(false)}
                 onSuccess={handleBulkUploadSuccess}
               />
