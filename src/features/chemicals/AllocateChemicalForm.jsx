@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import useLabs from '../../hooks/useLabs';
+import * as XLSX from 'xlsx';
+import { toast } from 'react-toastify';
 
 // Glassmorphic theme constants
 const THEME = {
@@ -25,11 +27,14 @@ const AllocateChemicalForm = () => {
   // Fetch labs dynamically
   const { labs, loading: labsLoading } = useLabs();
   
+  const fileInputRef = useRef(null);
   const [labId, setLabId] = useState('');
   const [chemicals, setChemicals] = useState([{ chemicalName: '', quantity: 0, chemicalMasterId: '', unit: '', expiryDate: '' }]);
   const [availableChemicals, setAvailableChemicals] = useState([]);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fileUploading, setFileUploading] = useState(false);
+  const [unavailableChemicals, setUnavailableChemicals] = useState([]);
 
   const token = localStorage.getItem('token');
 
@@ -158,6 +163,141 @@ const AllocateChemicalForm = () => {
     }
   };
 
+  // Handle Excel file upload and parsing
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const fileTypes = [
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/csv'
+    ];
+
+    if (!fileTypes.includes(file.type)) {
+      setMessage('Please upload an Excel file (.xlsx, .xls, or .csv)');
+      return;
+    }
+
+    setFileUploading(true);
+    setMessage('');
+
+    try {
+      const data = await readExcelFile(file);
+      processExcelData(data);
+    } catch (error) {
+      console.error('Error processing Excel file:', error);
+      setMessage('Failed to process the Excel file. Please check the format.');
+    } finally {
+      setFileUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Read Excel file and return data
+  const readExcelFile = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = e.target.result;
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          resolve(jsonData);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  // Process Excel data and update chemicals state
+  const processExcelData = (data) => {
+    if (!data || data.length === 0) {
+      setMessage('The uploaded file contains no data or is in an incorrect format.');
+      return;
+    }
+
+    // Try to identify column names for chemical name and quantity
+    const firstRow = data[0];
+    const columns = Object.keys(firstRow);
+    
+    // Look for column names that might contain chemical name and quantity
+    const nameColumn = columns.find(col => 
+      col.toLowerCase().includes('name') || 
+      col.toLowerCase().includes('chemical') ||
+      col.toLowerCase().includes('item')
+    );
+    
+    const quantityColumn = columns.find(col => 
+      col.toLowerCase().includes('quantity') || 
+      col.toLowerCase().includes('qty') ||
+      col.toLowerCase().includes('amount')
+    );
+
+    if (!nameColumn || !quantityColumn) {
+      setMessage('Could not identify chemical name and quantity columns in the Excel file.');
+      return;
+    }
+
+    // Map Excel data to chemical objects
+    const excelChemicals = data.map(row => ({
+      chemicalName: row[nameColumn],
+      quantity: parseFloat(row[quantityColumn]) || 0,
+      chemicalMasterId: '',
+      unit: '',
+      expiryDate: ''
+    })).filter(chem => chem.chemicalName && chem.chemicalName.trim() !== '');
+
+    if (excelChemicals.length === 0) {
+      setMessage('No valid chemical data found in the uploaded file.');
+      return;
+    }
+
+    // Check which chemicals are available in inventory
+    const unavailable = [];
+    const updatedChemicals = excelChemicals.map(chem => {
+      const found = availableChemicals.find(
+        availChem => (availChem.displayName || availChem.chemicalName).toLowerCase() === chem.chemicalName.toLowerCase()
+      );
+
+      if (found) {
+        return {
+          ...chem,
+          chemicalMasterId: found.chemicalMasterId,
+          unit: found.unit,
+          expiryDate: found.expiryDate
+        };
+      } else {
+        unavailable.push(chem.chemicalName);
+        return chem;
+      }
+    });
+
+    setChemicals(updatedChemicals);
+    setUnavailableChemicals(unavailable);
+
+    if (unavailable.length > 0) {
+      setMessage(`${unavailable.length} chemical(s) from your file are not available in inventory.`);
+    } else {
+      setMessage('Excel data loaded successfully!');
+    }
+  };
+
+  // Trigger file input click
+  const triggerFileUpload = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50/90 via-blue-50/80 to-indigo-100/90 relative">
       {/* Floating bubbles background */}
@@ -265,8 +405,72 @@ const AllocateChemicalForm = () => {
         )}
 
         <form onSubmit={handleSubmit} className="w-full space-y-6">
+          {/* Excel Upload Section */}
+          <div className="w-full bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-4 sm:p-6 mb-6">
+            <h2 className="text-lg font-semibold text-blue-800 mb-3 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Bulk Upload Chemicals
+            </h2>
+            <p className="text-sm text-slate-600 mb-4">Upload an Excel file (.xlsx, .xls) or CSV file containing chemical names and quantities to allocate in bulk.</p>
+            
+            <div className="flex flex-wrap items-center gap-4">
+              <input 
+                type="file" 
+                ref={fileInputRef}
+                onChange={handleFileUpload} 
+                accept=".xlsx,.xls,.csv" 
+                className="hidden" 
+              />
+              <button
+                type="button"
+                onClick={triggerFileUpload}
+                disabled={fileUploading}
+                className={`px-4 py-2 rounded-lg flex items-center ${fileUploading ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+              >
+                {fileUploading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Upload Excel File
+                  </>
+                )}
+              </button>
+              <span className="text-sm text-slate-500">Supported formats: .xlsx, .xls, .csv</span>
+            </div>
+
+            {/* Unavailable Chemicals Section */}
+            {unavailableChemicals.length > 0 && (
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <h3 className="text-sm font-medium text-amber-800 mb-2 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  Unavailable Chemicals
+                </h3>
+                <p className="text-xs text-amber-700 mb-2">The following chemicals from your upload are not available in inventory:</p>
+                <div className="max-h-32 overflow-y-auto">
+                  <ul className="text-xs text-amber-800 list-disc pl-5 space-y-1">
+                    {unavailableChemicals.map((chem, idx) => (
+                      <li key={`unavailable-${idx}`}>{chem}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
           {/* Lab Selection */}
-          <div className="w-full bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+          <div className="w-full bg-white rounded-xl border border-gray-200 p-4 sm:p-6 transition-all duration-300 hover:shadow-md">
             <label className="block text-sm font-medium text-gray-700 mb-3">Select Destination Lab</label>
             <select
               value={labId}
@@ -286,6 +490,10 @@ const AllocateChemicalForm = () => {
 
           {/* Chemical Selection */}
           <div className="w-full space-y-4">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-medium text-gray-700">Chemical Selection</h3>
+              <div className="text-sm text-gray-500">{chemicals.length} item(s)</div>
+            </div>
             {chemicals.map((chemical, index) => {
               const isOutOfStock = chemical.chemicalName && !availableChemicals.some(
                 (chem) =>
@@ -294,7 +502,7 @@ const AllocateChemicalForm = () => {
               );
 
               return (
-                <div key={index} className="w-full bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                <div key={index} className="w-full bg-white rounded-xl border border-gray-200 p-4 sm:p-6 transition-all duration-300 hover:shadow-md">
                   <div className="w-full flex flex-wrap gap-4 items-end">
                     {/* Chemical Name */}
                     <div className="flex-1 min-w-[200px] max-w-full">
@@ -384,11 +592,11 @@ const AllocateChemicalForm = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="w-full flex flex-wrap gap-4 justify-between items-center">
+          <div className="w-full flex flex-wrap gap-4 justify-between items-center pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={addChemicalRow}
-              className="px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 rounded-xl font-medium transition-all duration-200 flex items-center"
+              className="px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 rounded-xl font-medium transition-all duration-200 flex items-center shadow-sm hover:shadow"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

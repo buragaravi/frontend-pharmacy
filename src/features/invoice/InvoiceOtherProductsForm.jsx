@@ -6,6 +6,20 @@ import Swal from 'sweetalert2';
 import ProductForm from '../products/ProductForm';
 import SafeButton from '../../components/SafeButton';
 
+// Add CSS for flash highlight animation
+const flashHighlightStyle = `
+  @keyframes flashHighlight {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  }
+  
+  .flash-highlight {
+    animation: flashHighlight 1s ease-in-out 2;
+    border: 2px solid #ef4444 !important;
+  }
+`;
+
 const API_BASE = 'https://backend-pharmacy-5541.onrender.com/api';
 
 const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
@@ -24,6 +38,17 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
   const [vendors, setVendors] = useState([]);
   const [products, setProducts] = useState([]);
   const [voucherId, setVoucherId] = useState('');
+  
+  // Add style tag for flash highlight animation
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = flashHighlightStyle;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
   
   // Form Data
   const [selectedVendor, setSelectedVendor] = useState(null);
@@ -355,6 +380,23 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
     }
   };
 
+  // Function to find duplicate product IDs in line items
+  const findDuplicateProductIds = () => {
+    const productIds = lineItems.map(item => item.productId).filter(id => id); // Filter out empty IDs
+    const uniqueIds = new Set();
+    const duplicateIds = [];
+    
+    productIds.forEach(id => {
+      if (uniqueIds.has(id)) {
+        duplicateIds.push(id);
+      } else {
+        uniqueIds.add(id);
+      }
+    });
+    
+    return [...new Set(duplicateIds)]; // Return unique duplicate IDs
+  };
+
   // ==================== FORM SUBMISSION ====================
   // Handle form submission with comprehensive validation
   const handleSubmit = async (e) => {
@@ -386,6 +428,29 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
     
     if (lineItems.length === 0 || !lineItems.some(item => item.productId && item.quantity && item.totalPrice)) {
       setError('Please add at least one valid line item');
+      setSubmitting(false);
+      return;
+    }
+    
+    // Check for duplicate products
+    const duplicateIds = findDuplicateProductIds();
+    if (duplicateIds.length > 0) {
+      setError('Please fix duplicate products before submitting.');
+      
+      // Scroll to the first duplicate item
+      setTimeout(() => {
+        const firstDuplicateIndex = lineItems.findIndex(item => item.productId === duplicateIds[0]);
+        const lineItemElements = document.querySelectorAll('.line-item-container');
+        
+        if (lineItemElements[firstDuplicateIndex]) {
+          lineItemElements[firstDuplicateIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          lineItemElements[firstDuplicateIndex].classList.add('flash-highlight');
+          setTimeout(() => {
+            lineItemElements[firstDuplicateIndex].classList.remove('flash-highlight');
+          }, 2000);
+        }
+      }, 100);
+      
       setSubmitting(false);
       return;
     }
@@ -713,7 +778,33 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                 <svg className="w-4 h-4 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
-                <div className="text-xs font-medium">{error}</div>
+                <div className="text-xs font-medium">
+                  {error}
+                  {error && error.includes('duplicate') && (
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        const duplicateIds = findDuplicateProductIds();
+                        if (duplicateIds.length > 0) {
+                          const firstDuplicateIndex = lineItems.findIndex(item => item.productId === duplicateIds[0]);
+                          if (firstDuplicateIndex !== -1) {
+                            const element = document.querySelectorAll('.line-item-container')[firstDuplicateIndex];
+                            if (element) {
+                              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                              element.classList.add('flash-highlight');
+                              setTimeout(() => {
+                                element.classList.remove('flash-highlight');
+                              }, 2000);
+                            }
+                          }
+                        }
+                      }}
+                      className="block mt-2 text-blue-600 hover:text-blue-800 underline text-xs font-medium"
+                    >
+                      Click here to view duplicate items
+                    </button>
+                  )}
+                </div>
               </div>
             )}
             {success && (
@@ -940,7 +1031,12 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
               {/* Mobile Layout (320px - 639px) */}
               <div className="block sm:hidden space-y-4">
                 {lineItems.map((item, idx) => (
-                  <div key={idx} className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-3 border border-gray-200 relative shadow-sm">
+                  <div key={idx} className={`line-item-container bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-3 border ${duplicateProductIds.has(item.productId) ? 'border-red-500 bg-red-50' : 'border-gray-200'} relative shadow-sm`}>
+                    {duplicateProductIds.has(item.productId) && (
+                      <div className="absolute -top-3 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                        Duplicate Product
+                      </div>
+                    )}
                     {/* Remove button for mobile */}
                     {lineItems.length > 1 && (
                       <button 
@@ -1056,11 +1152,16 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
                 <div className="overflow-x-auto">
                   <div className="space-y-2" style={{ minWidth: (category === 'equipment' || category === 'glassware') ? '1200px' : '1000px' }}>
                     {lineItems.map((item, idx) => (
-                      <div key={idx} className={`grid gap-1 sm:gap-2 items-end bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-2 border border-gray-200 relative hover:shadow-md transition-shadow duration-200 ${
+                      <div key={idx} className={`line-item-container grid gap-1 sm:gap-2 items-end bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-2 border ${duplicateProductIds.has(item.productId) ? 'border-red-500 bg-red-50' : 'border-gray-200'} relative hover:shadow-md transition-shadow duration-200 ${
                         (category === 'equipment' || category === 'glassware') 
                           ? 'grid-cols-12 md:grid-cols-14 lg:grid-cols-16 xl:grid-cols-18 2xl:grid-cols-20' 
                           : 'grid-cols-12 md:grid-cols-14 lg:grid-cols-16'
                       }`}>
+                        {duplicateProductIds.has(item.productId) && (
+                          <div className="absolute -top-3 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                            Duplicate Product
+                          </div>
+                        )}
                         
                         {/* Product Selection */}
                         <div className={`${(category === 'equipment' || category === 'glassware') ? 'col-span-4 md:col-span-3 lg:col-span-3 xl:col-span-3 2xl:col-span-4' : 'col-span-4 md:col-span-3 lg:col-span-4'}`}>

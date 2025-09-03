@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { applyCompatibilityFixes } from './utils/browserCompatibility';
 import LoginPage from './features/auth/LoginPage';
@@ -57,6 +59,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <Router>
         <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
+          <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
           <OfflineIndicator />
           <Routes>
             {/* Public Routes */}

@@ -6,6 +6,21 @@ import ProductForm from '../products/ProductForm';
 import Swal from 'sweetalert2';
 import SafeButton from '../../components/SafeButton';
 
+// Add CSS for flash highlight animation
+const flashHighlightStyle = `
+  @keyframes flashHighlight {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  }
+  
+  .flash-highlight {
+    animation: flashHighlight 1s ease-in-out 2;
+    border: 2px solid #ef4444 !important;
+  }
+`;
+
+
 const API_BASE = 'https://backend-pharmacy-5541.onrender.com/api';
 
 // Helper function to get auth headers
@@ -23,6 +38,17 @@ const InvoiceForm = () => {
     const [vendors, setVendors] = useState([]);
     const [products, setProducts] = useState([]);
     const [voucherId, setVoucherId] = useState('');
+    
+    // Add style tag for flash highlight animation
+    useEffect(() => {
+        const styleElement = document.createElement('style');
+        styleElement.textContent = flashHighlightStyle;
+        document.head.appendChild(styleElement);
+        
+        return () => {
+            document.head.removeChild(styleElement);
+        };
+    }, []);
     
     // Form Data
     const [selectedVendor, setSelectedVendor] = useState(null);
@@ -139,8 +165,29 @@ const InvoiceForm = () => {
     };
 
     // ==================== FORM CALCULATIONS ====================
-    // Prevent duplicate product selection
+    // Prevent duplicate product selection and identify duplicates
     const selectedProductIds = lineItems.map(item => item.productId).filter(Boolean);
+    
+    // Find duplicate product IDs for highlighting
+    const findDuplicateProductIds = () => {
+        const productIdCounts = {};
+        const duplicateIds = new Set();
+        
+        lineItems.forEach(item => {
+            if (!item.productId) return;
+            
+            if (productIdCounts[item.productId]) {
+                duplicateIds.add(item.productId);
+                productIdCounts[item.productId]++;
+            } else {
+                productIdCounts[item.productId] = 1;
+            }
+        });
+        
+        return duplicateIds;
+    };
+    
+    const duplicateProductIds = findDuplicateProductIds();
 
     // ==================== LINE ITEM MANAGEMENT ====================
     // Handle line item change
@@ -466,6 +513,29 @@ const InvoiceForm = () => {
         }
         if (lineItems.some(item => !item.productId || !item.quantity || !item.totalPrice /* removed check for !item.expiryDate */)) {
             setError('All line items must have a product, quantity, and total price.');
+            setSubmitting(false);
+            return;
+        }
+        
+        // Check for duplicate products and scroll to the first duplicate if found
+        const duplicateIds = findDuplicateProductIds();
+        if (duplicateIds.size > 0) {
+            // Find the index of the first duplicate item
+            const firstDuplicateIndex = lineItems.findIndex(item => duplicateIds.has(item.productId));
+            
+            // Find the corresponding DOM element and scroll to it
+            const lineItemElements = document.querySelectorAll('.line-item-container');
+            if (lineItemElements[firstDuplicateIndex]) {
+                lineItemElements[firstDuplicateIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Flash the element to draw attention
+                lineItemElements[firstDuplicateIndex].classList.add('flash-highlight');
+                setTimeout(() => {
+                    lineItemElements[firstDuplicateIndex].classList.remove('flash-highlight');
+                }, 2000);
+            }
+            
+            setError('Please fix duplicate products before submitting.');
             setSubmitting(false);
             return;
         }
@@ -875,7 +945,12 @@ const InvoiceForm = () => {
                                     <div className="space-y-3 min-w-[800px]">
                                         {lineItems.map((item, idx) => (
                                             <div key={idx} 
-                                                className="grid grid-cols-12 gap-3 items-end rounded-lg p-4 border border-gray-200 relative hover:shadow-md transition-shadow duration-200 bg-slate-50">
+                                                className={`line-item-container grid grid-cols-12 gap-3 items-end rounded-lg p-4 border ${duplicateProductIds.has(item.productId) ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-slate-50'} relative hover:shadow-md transition-shadow duration-200`}>
+                                                {duplicateProductIds.has(item.productId) && (
+                                                    <div className="absolute -top-3 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                                        Duplicate Product
+                                                    </div>
+                                                )}
                                                 {/* Product Selection */}
                                                 <div className="col-span-3">
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">Product</label>
@@ -1002,6 +1077,30 @@ const InvoiceForm = () => {
                                         {error && (
                                             <div className="p-3 bg-red-50 text-red-600 rounded-lg border border-red-200 mb-3 text-sm">
                                                 {error}
+                                                {error === 'Please fix duplicate products before submitting.' && (
+                                                    <div className="mt-2">
+                                                        <button 
+                                                            type="button" 
+                                                            className="text-sm text-blue-600 hover:text-blue-800 underline focus:outline-none"
+                                                            onClick={() => {
+                                                                const duplicateIds = findDuplicateProductIds();
+                                                                if (duplicateIds.size > 0) {
+                                                                    const firstDuplicateIndex = lineItems.findIndex(item => duplicateIds.has(item.productId));
+                                                                    const lineItemElements = document.querySelectorAll('.line-item-container');
+                                                                    if (lineItemElements[firstDuplicateIndex]) {
+                                                                        lineItemElements[firstDuplicateIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                                        lineItemElements[firstDuplicateIndex].classList.add('flash-highlight');
+                                                                        setTimeout(() => {
+                                                                            lineItemElements[firstDuplicateIndex].classList.remove('flash-highlight');
+                                                                        }, 2000);
+                                                                    }
+                                                                }
+                                                            }}
+                                                        >
+                                                            Click here to view duplicate items
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                         {success && (
