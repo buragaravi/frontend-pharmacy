@@ -78,6 +78,26 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
   const [showDraftPrompt, setShowDraftPrompt] = useState(false);
   const DRAFT_KEY = `invoiceOtherProductsFormDraft_${category}`;
 
+  // Calculate duplicate product IDs
+  const duplicateProductIds = new Set(findDuplicateProductIds());
+
+  // Function to find duplicate product IDs in line items
+  function findDuplicateProductIds() {
+    const productIds = lineItems.map(item => item.productId).filter(id => id); // Filter out empty IDs
+    const uniqueIds = new Set();
+    const duplicateIds = [];
+    
+    productIds.forEach(id => {
+      if (uniqueIds.has(id)) {
+        duplicateIds.push(id);
+      } else {
+        uniqueIds.add(id);
+      }
+    });
+    
+    return [...new Set(duplicateIds)]; // Return unique duplicate IDs
+  }
+
   // ==================== DATA FETCHING ====================
 
   // Fetch data on mount with comprehensive error handling
@@ -380,22 +400,7 @@ const InvoiceOtherProductsForm = ({ category, onSuccess }) => {
     }
   };
 
-  // Function to find duplicate product IDs in line items
-  const findDuplicateProductIds = () => {
-    const productIds = lineItems.map(item => item.productId).filter(id => id); // Filter out empty IDs
-    const uniqueIds = new Set();
-    const duplicateIds = [];
-    
-    productIds.forEach(id => {
-      if (uniqueIds.has(id)) {
-        duplicateIds.push(id);
-      } else {
-        uniqueIds.add(id);
-      }
-    });
-    
-    return [...new Set(duplicateIds)]; // Return unique duplicate IDs
-  };
+
 
   // ==================== FORM SUBMISSION ====================
   // Handle form submission with comprehensive validation
