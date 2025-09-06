@@ -110,10 +110,13 @@ export default defineConfig({
           utils: ['lodash', 'axios', 'date-fns']
         }
       }
-    },
+    },  
     chunkSizeWarningLimit: 1000
   },
   optimizeDeps: {
-    include: ['chart.js']
+    include: ['chart.js', 'pdfjs-dist']
+  },
+  define: {
+    global: 'globalThis',
   }
 })

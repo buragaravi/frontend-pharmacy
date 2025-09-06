@@ -37,7 +37,14 @@ const ProductForm = ({ product, onCreate, onUpdate, onClose, initialName }) => {
     variantOther: '',
   });
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
+  const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
   const toastTimeout = useRef(null);
+
+  // Helper function to properly capitalize product name
+  const capitalizeProductName = (name) => {
+    if (!name || typeof name !== 'string') return name;
+    return name.trim().toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  };
 
   useEffect(() => {
     if (product) {
@@ -77,6 +84,13 @@ const ProductForm = ({ product, onCreate, onUpdate, onClose, initialName }) => {
       setFormData((prev) => ({ ...prev, variant: value, variantOther: '' }));
     } else if (name === 'variantOther') {
       setFormData((prev) => ({ ...prev, variant: value, variantOther: value }));
+    } else if (name === 'name') {
+      // Auto-capitalize product name as user types
+      const capitalizedName = capitalizeProductName(value);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: capitalizedName,
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -130,7 +144,11 @@ const ProductForm = ({ product, onCreate, onUpdate, onClose, initialName }) => {
             onChange={handleChange}
             required
             className="mt-1 w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/70 backdrop-blur-sm focus:ring-blue-500 focus:border-blue-500 text-gray-800"
+            placeholder="e.g., Hydrogen Chloride"
           />
+          <p className="mt-1 text-xs text-gray-500">
+            Name will be automatically formatted (e.g., "hydrogen" → "Hydrogen")
+          </p>
         </div>
 
         {/* Category */}
