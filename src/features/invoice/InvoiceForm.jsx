@@ -345,7 +345,7 @@ const InvoiceForm = () => {
 
         // Define required and optional fields
         const requiredFields = ['productName', 'quantity', 'totalPrice', 'expiryDate'];
-        const optionalFields = ['vendor', 'invoiceNumber', 'invoiceDate'];
+        const optionalFields = ['vendor', 'invoiceNumber', 'invoiceDate', 'unit'];
         
         // Check for missing required fields
         const missingFields = requiredFields.filter(field => 
@@ -368,7 +368,55 @@ const InvoiceForm = () => {
             });
 
             const productName = normalizedRow['productname'] || '';
-            const product = products.find(p => p.name.toLowerCase() === productName.toLowerCase());
+            const unitFromFile = normalizedRow['unit'] || '';
+            
+            // Improved product matching logic
+            const findBestProductMatch = (name, unit) => {
+                if (!name) return null;
+                
+                // Step 1: Find all products with case-insensitive name match
+                const caseInsensitiveMatches = products.filter(p => 
+                    p.name.toLowerCase() === name.toLowerCase()
+                );
+                
+                if (caseInsensitiveMatches.length === 0) {
+                    return null;
+                }
+                
+                if (caseInsensitiveMatches.length === 1) {
+                    return caseInsensitiveMatches[0];
+                }
+                
+                // Step 2: If multiple matches, try case-sensitive matching first
+                const caseSensitiveMatches = caseInsensitiveMatches.filter(p => 
+                    p.name === name
+                );
+                
+                if (caseSensitiveMatches.length === 1) {
+                    return caseSensitiveMatches[0];
+                }
+                
+                // Step 3: If still multiple matches, try unit matching
+                if (unit) {
+                    const unitMatches = (caseSensitiveMatches.length > 0 ? caseSensitiveMatches : caseInsensitiveMatches)
+                        .filter(p => p.unit && p.unit.toLowerCase() === unit.toLowerCase());
+                    
+                    if (unitMatches.length === 1) {
+                        return unitMatches[0];
+                    }
+                    
+                    // Step 4: If unit matches multiple, try case-sensitive unit matching
+                    const caseSensitiveUnitMatches = unitMatches.filter(p => p.unit === unit);
+                    if (caseSensitiveUnitMatches.length === 1) {
+                        return caseSensitiveUnitMatches[0];
+                    }
+                }
+                
+                // Step 5: Return the first match if no better match found
+                return caseSensitiveMatches.length > 0 ? caseSensitiveMatches[0] : caseInsensitiveMatches[0];
+            };
+            
+            const product = findBestProductMatch(productName, unitFromFile);
             
             if (!product) {
                 if (productName) missingProducts.push(productName);
@@ -428,6 +476,7 @@ const InvoiceForm = () => {
                 quantity: 5,
                 totalPrice: 1250,
                 expiryDate: "2024-12-31",
+                unit: "kg",
                 pricePerUnit: 250,
                 vendor: "ABC Chemicals",
                 invoiceNumber: "INV-2023-001",
@@ -438,6 +487,7 @@ const InvoiceForm = () => {
                 quantity: 2,
                 totalPrice: 800,
                 expiryDate: "2025-06-30",
+                unit: "L",
                 vendor: "ABC Chemicals"
             }
         ];
@@ -868,6 +918,7 @@ const InvoiceForm = () => {
                                                         <p>• Product Name, Quantity</p>
                                                         <p>• Total Price, Expiry Date</p>
                                                         <p className="text-xs mt-1 text-blue-600">Format: DD-MM-YYYY</p>
+                                                        <p className="text-xs mt-1 text-green-600">• Unit (optional, improves matching)</p>
                                                     </div>
                                                 </div>
                                             </div>
