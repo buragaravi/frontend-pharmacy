@@ -369,7 +369,7 @@ const AllocateChemicalForm = () => {
     if (unavailable.length > 0) {
       setMessage(`${unavailable.length} chemical(s) from your file are not available in inventory.`);
     } else {
-      setMessage('Excel data loaded successfully!');
+      setMessage('Excel data Good loaded successfully!');
     }
   };
 
