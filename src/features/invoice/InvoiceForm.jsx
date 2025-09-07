@@ -74,6 +74,8 @@ const InvoiceForm = () => {
     const [productFormIndex, setProductFormIndex] = useState(0);
     const [productFormError, setProductFormError] = useState('');
     const [productFormLoading, setProductFormLoading] = useState(false);
+    const [registeredProducts, setRegisteredProducts] = useState(new Set());
+    const [skippedProducts, setSkippedProducts] = useState(new Set());
 
     // ==================== DATA FETCHING ====================
 
@@ -370,16 +372,37 @@ const InvoiceForm = () => {
             const productName = normalizedRow['productname'] || '';
             const unitFromFile = normalizedRow['unit'] || '';
             
-            // Improved product matching logic
+            // Improved product matching logic with better string handling
             const findBestProductMatch = (name, unit) => {
                 if (!name) return null;
                 
-                // Step 1: Find all products with case-insensitive name match
-                const caseInsensitiveMatches = products.filter(p => 
-                    p.name.toLowerCase() === name.toLowerCase()
-                );
+                // Clean and normalize the input name
+                const cleanName = name.trim().replace(/\s+/g, ' ');
+                const normalizedName = cleanName.toLowerCase();
+                
+                // Step 1: Find all products with case-insensitive name match (with normalization)
+                const caseInsensitiveMatches = products.filter(p => {
+                    const cleanProductName = p.name.trim().replace(/\s+/g, ' ');
+                    return cleanProductName.toLowerCase() === normalizedName;
+                });
                 
                 if (caseInsensitiveMatches.length === 0) {
+                    // Try fuzzy matching for common variations
+                    const fuzzyMatches = products.filter(p => {
+                        const cleanProductName = p.name.trim().replace(/\s+/g, ' ');
+                        const productNameLower = cleanProductName.toLowerCase();
+                        const inputNameLower = normalizedName;
+                        
+                        // Check for exact substring match or very similar names
+                        return productNameLower.includes(inputNameLower) || 
+                               inputNameLower.includes(productNameLower) ||
+                               productNameLower.replace(/[^a-z0-9]/g, '') === inputNameLower.replace(/[^a-z0-9]/g, '');
+                    });
+                    
+                    if (fuzzyMatches.length === 1) {
+                        return fuzzyMatches[0];
+                    }
+                    
                     return null;
                 }
                 
@@ -388,9 +411,10 @@ const InvoiceForm = () => {
                 }
                 
                 // Step 2: If multiple matches, try case-sensitive matching first
-                const caseSensitiveMatches = caseInsensitiveMatches.filter(p => 
-                    p.name === name
-                );
+                const caseSensitiveMatches = caseInsensitiveMatches.filter(p => {
+                    const cleanProductName = p.name.trim().replace(/\s+/g, ' ');
+                    return cleanProductName === cleanName;
+                });
                 
                 if (caseSensitiveMatches.length === 1) {
                     return caseSensitiveMatches[0];
@@ -398,15 +422,16 @@ const InvoiceForm = () => {
                 
                 // Step 3: If still multiple matches, try unit matching
                 if (unit) {
+                    const cleanUnit = unit.trim();
                     const unitMatches = (caseSensitiveMatches.length > 0 ? caseSensitiveMatches : caseInsensitiveMatches)
-                        .filter(p => p.unit && p.unit.toLowerCase() === unit.toLowerCase());
+                        .filter(p => p.unit && p.unit.trim().toLowerCase() === cleanUnit.toLowerCase());
                     
                     if (unitMatches.length === 1) {
                         return unitMatches[0];
                     }
                     
                     // Step 4: If unit matches multiple, try case-sensitive unit matching
-                    const caseSensitiveUnitMatches = unitMatches.filter(p => p.unit === unit);
+                    const caseSensitiveUnitMatches = unitMatches.filter(p => p.unit.trim() === cleanUnit);
                     if (caseSensitiveUnitMatches.length === 1) {
                         return caseSensitiveUnitMatches[0];
                     }
@@ -419,7 +444,15 @@ const InvoiceForm = () => {
             const product = findBestProductMatch(productName, unitFromFile);
             
             if (!product) {
-                if (productName) missingProducts.push(productName);
+                if (productName) {
+                    // Debug logging to help identify matching issues
+                    console.log('Product not found:', {
+                        searchedName: productName,
+                        unitFromFile: unitFromFile,
+                        availableProducts: products.map(p => ({ name: p.name, unit: p.unit }))
+                    });
+                    missingProducts.push(productName);
+                }
                 return; // skip this row
             }
             
@@ -688,17 +721,63 @@ const InvoiceForm = () => {
                 headers: getAuthHeaders()
             });
             setProducts(prev => [res.data.data, ...prev]);
+            
+            // Mark this product as registered
+            const currentProduct = unregisteredProducts[productFormIndex];
+            setRegisteredProducts(prev => new Set([...prev, currentProduct]));
+            
             // Move to next unregistered product or close modal
-            if (productFormIndex < unregisteredProducts.length - 1) {
-                setProductFormIndex(i => i + 1);
-            } else {
-                setShowProductFormModal(false);
-                setProductFormIndex(0);
-            }
+            moveToNextProduct();
         } catch (err) {
             setProductFormError(err.response?.data?.message || 'Failed to register product');
         } finally {
             setProductFormLoading(false);
+        }
+    };
+
+    // Helper function to move to next unregistered product
+    const moveToNextProduct = () => {
+        const nextIndex = findNextUnprocessedProduct();
+        if (nextIndex !== -1) {
+            setProductFormIndex(nextIndex);
+        } else {
+            // All products processed, close modal
+            setShowProductFormModal(false);
+            setProductFormIndex(0);
+            setRegisteredProducts(new Set());
+            setSkippedProducts(new Set());
+        }
+    };
+
+    // Helper function to find next unprocessed product
+    const findNextUnprocessedProduct = () => {
+        for (let i = 0; i < unregisteredProducts.length; i++) {
+            const product = unregisteredProducts[i];
+            if (!registeredProducts.has(product) && !skippedProducts.has(product)) {
+                return i;
+            }
+        }
+        return -1;
+    };
+
+    // Handle skipping a product
+    const handleSkipProduct = () => {
+        const currentProduct = unregisteredProducts[productFormIndex];
+        setSkippedProducts(prev => new Set([...prev, currentProduct]));
+        moveToNextProduct();
+    };
+
+    // Handle going back to previous product
+    const handlePreviousProduct = () => {
+        if (productFormIndex > 0) {
+            setProductFormIndex(productFormIndex - 1);
+        }
+    };
+
+    // Handle going to next product
+    const handleNextProduct = () => {
+        if (productFormIndex < unregisteredProducts.length - 1) {
+            setProductFormIndex(productFormIndex + 1);
         }
     };
 
@@ -1193,20 +1272,22 @@ const InvoiceForm = () => {
         {/* Product Registration Modal for Missing Products */}
         {showProductFormModal && (
                 <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 overflow-y-auto bg-black/30 backdrop-blur-md">
-                    <div className="w-full max-w-2xl rounded-2xl shadow-xl border border-gray-200 overflow-hidden relative my-4 bg-white">
+                    <div className="w-full max-w-4xl rounded-2xl shadow-xl border border-gray-200 overflow-hidden relative my-4 bg-white">
                         {/* Modal Header */}
                         <div className="text-white p-4 rounded-t-2xl bg-gradient-to-r from-blue-700 to-blue-600">
                             <div className="flex justify-between items-center">
                                 <div>
-                                    <h3 className="text-lg font-bold">Register Missing Product</h3>
-                                    {unregisteredProducts.length > 1 && (
-                                        <p className="text-blue-100 mt-1 text-sm">
-                                            {productFormIndex + 1} of {unregisteredProducts.length} products
-                                        </p>
-                                    )}
+                                    <h3 className="text-lg font-bold">Register Missing Products</h3>
+                                    <p className="text-blue-100 mt-1 text-sm">
+                                        {productFormIndex + 1} of {unregisteredProducts.length} products
+                                    </p>
                                 </div>
                                 <SafeButton 
-                                    onClick={() => setShowProductFormModal(false)} 
+                                    onClick={() => {
+                                        setShowProductFormModal(false);
+                                        setRegisteredProducts(new Set());
+                                        setSkippedProducts(new Set());
+                                    }} 
                                     variant="secondary"
                                     size="sm"
                                     className="text-white/80 hover:text-white"
@@ -1218,26 +1299,140 @@ const InvoiceForm = () => {
                             </div>
                         </div>
 
-                        {/* Modal Content */}
-                        <div className="p-4">
-                            {productFormError && (
-                                <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
-                                    <svg className="w-4 h-4 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                    </svg>
-                                    <div className="text-sm font-medium">{productFormError}</div>
+                        <div className="flex">
+                            {/* Product List Sidebar */}
+                            <div className="w-1/3 bg-gray-50 border-r border-gray-200 p-4">
+                                <h4 className="font-semibold text-gray-800 mb-3">Missing Products</h4>
+                                <div className="space-y-2 max-h-96 overflow-y-auto">
+                                    {unregisteredProducts.map((product, index) => {
+                                        const isCurrent = index === productFormIndex;
+                                        const isRegistered = registeredProducts.has(product);
+                                        const isSkipped = skippedProducts.has(product);
+                                        
+                                        return (
+                                            <div
+                                                key={index}
+                                                className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                                                    isCurrent 
+                                                        ? 'border-blue-500 bg-blue-50' 
+                                                        : isRegistered 
+                                                            ? 'border-green-300 bg-green-50' 
+                                                            : isSkipped 
+                                                                ? 'border-gray-300 bg-gray-100' 
+                                                                : 'border-gray-200 bg-white hover:bg-gray-50'
+                                                }`}
+                                                onClick={() => setProductFormIndex(index)}
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex-1">
+                                                        <div className="text-sm font-medium text-gray-800 truncate">
+                                                            {product}
+                                                        </div>
+                                                        <div className="text-xs text-gray-500">
+                                                            {isRegistered ? '✓ Registered' : isSkipped ? '⏭ Skipped' : 'Pending'}
+                                                        </div>
+                                                    </div>
+                                                    {isCurrent && (
+                                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                            )}
+                                
+                                {/* Summary */}
+                                <div className="mt-4 p-3 bg-white rounded-lg border border-gray-200">
+                                    <div className="text-sm text-gray-600">
+                                        <div className="flex justify-between">
+                                            <span>Total:</span>
+                                            <span>{unregisteredProducts.length}</span>
+                                        </div>
+                                        <div className="flex justify-between text-green-600">
+                                            <span>Registered:</span>
+                                            <span>{registeredProducts.size}</span>
+                                        </div>
+                                        <div className="flex justify-between text-gray-500">
+                                            <span>Skipped:</span>
+                                            <span>{skippedProducts.size}</span>
+                                        </div>
+                                        <div className="flex justify-between text-blue-600">
+                                            <span>Remaining:</span>
+                                            <span>{unregisteredProducts.length - registeredProducts.size - skippedProducts.size}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <ProductForm
-                                product={null}
-                                onCreate={handleCreateProductFromInvoice}
-                                onUpdate={() => {}}
-                                onClose={() => setShowProductFormModal(false)}
-                                // Pre-fill with missing product name
-                                initialName={unregisteredProducts[productFormIndex] || ''}
-                                submitting={productFormLoading}
-                            />
+                            {/* Product Form */}
+                            <div className="flex-1 p-4">
+                                {productFormError && (
+                                    <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
+                                        <svg className="w-4 h-4 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        </svg>
+                                        <div className="text-sm font-medium">{productFormError}</div>
+                                    </div>
+                                )}
+
+                                <div className="mb-4">
+                                    <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                                        Register: {unregisteredProducts[productFormIndex]}
+                                    </h4>
+                                    <p className="text-sm text-gray-600">
+                                        Fill in the details below to register this product in the system.
+                                    </p>
+                                </div>
+
+                                <ProductForm
+                                    product={null}
+                                    onCreate={handleCreateProductFromInvoice}
+                                    onUpdate={() => {}}
+                                    onClose={() => setShowProductFormModal(false)}
+                                    // Pre-fill with missing product name
+                                    initialName={unregisteredProducts[productFormIndex] || ''}
+                                    submitting={productFormLoading}
+                                />
+
+                                {/* Navigation Buttons */}
+                                <div className="mt-6 flex justify-between items-center">
+                                    <div className="flex gap-2">
+                                        <SafeButton
+                                            onClick={handlePreviousProduct}
+                                            disabled={productFormIndex === 0}
+                                            variant="secondary"
+                                            size="sm"
+                                        >
+                                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                            Previous
+                                        </SafeButton>
+                                        <SafeButton
+                                            onClick={handleNextProduct}
+                                            disabled={productFormIndex === unregisteredProducts.length - 1}
+                                            variant="secondary"
+                                            size="sm"
+                                        >
+                                            Next
+                                            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </SafeButton>
+                                    </div>
+                                    
+                                    <SafeButton
+                                        onClick={handleSkipProduct}
+                                        variant="warning"
+                                        size="sm"
+                                    >
+                                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                                        </svg>
+                                        Skip Product
+                                    </SafeButton>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
