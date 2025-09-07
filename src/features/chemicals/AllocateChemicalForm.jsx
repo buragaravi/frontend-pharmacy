@@ -94,11 +94,8 @@ const AllocateChemicalForm = () => {
     updated[index].unit = '';
     updated[index].expiryDate = '';
 
-    // Find the merged chemical by displayName
-    const selected = availableChemicals.find(
-      (chem) =>
-        (chem.displayName || chem.chemicalName).toLowerCase() === name.toLowerCase()
-    );
+    // Use the same robust matching logic for manual selection
+    const selected = findBestChemicalMatch(name, availableChemicals);
 
     if (selected) {
       updated[index].chemicalMasterId = selected.chemicalMasterId;
@@ -107,6 +104,75 @@ const AllocateChemicalForm = () => {
     }
 
     setChemicals(updated);
+  };
+
+  // Enhanced chemical matching logic with unit support
+  const findBestChemicalMatch = (chemicalName, availableChemicals, unitFromFile = '') => {
+    if (!chemicalName) return null;
+    
+    // Clean and normalize the input name
+    const cleanName = chemicalName.trim().replace(/\s+/g, ' ');
+    const normalizedName = cleanName.toLowerCase();
+    const cleanUnit = unitFromFile ? unitFromFile.trim() : '';
+    
+    // Step 1: Find all chemicals with case-insensitive name match (with normalization)
+    const caseInsensitiveMatches = availableChemicals.filter(chem => {
+      const cleanChemicalName = (chem.displayName || chem.chemicalName).trim().replace(/\s+/g, ' ');
+      return cleanChemicalName.toLowerCase() === normalizedName;
+    });
+    
+    if (caseInsensitiveMatches.length === 0) {
+      // Try fuzzy matching for common variations
+      const fuzzyMatches = availableChemicals.filter(chem => {
+        const cleanChemicalName = (chem.displayName || chem.chemicalName).trim().replace(/\s+/g, ' ');
+        const chemicalNameLower = cleanChemicalName.toLowerCase();
+        const inputNameLower = normalizedName;
+        
+        // Check for exact substring match or very similar names
+        return chemicalNameLower.includes(inputNameLower) || 
+               inputNameLower.includes(chemicalNameLower) ||
+               chemicalNameLower.replace(/[^a-z0-9]/g, '') === inputNameLower.replace(/[^a-z0-9]/g, '');
+      });
+      
+      if (fuzzyMatches.length === 1) {
+        return fuzzyMatches[0];
+      }
+      
+      return null;
+    }
+    
+    if (caseInsensitiveMatches.length === 1) {
+      return caseInsensitiveMatches[0];
+    }
+    
+    // Step 2: If multiple matches, try case-sensitive matching first
+    const caseSensitiveMatches = caseInsensitiveMatches.filter(chem => {
+      const cleanChemicalName = (chem.displayName || chem.chemicalName).trim().replace(/\s+/g, ' ');
+      return cleanChemicalName === cleanName;
+    });
+    
+    if (caseSensitiveMatches.length === 1) {
+      return caseSensitiveMatches[0];
+    }
+    
+    // Step 3: If still multiple matches, try unit matching (if unit provided)
+    if (cleanUnit) {
+      const unitMatches = (caseSensitiveMatches.length > 0 ? caseSensitiveMatches : caseInsensitiveMatches)
+        .filter(chem => chem.unit && chem.unit.trim().toLowerCase() === cleanUnit.toLowerCase());
+      
+      if (unitMatches.length === 1) {
+        return unitMatches[0];
+      }
+      
+      // Step 4: If unit matches multiple, try case-sensitive unit matching
+      const caseSensitiveUnitMatches = unitMatches.filter(chem => chem.unit.trim() === cleanUnit);
+      if (caseSensitiveUnitMatches.length === 1) {
+        return caseSensitiveUnitMatches[0];
+      }
+    }
+    
+    // Step 5: Return the first match if no better match found
+    return caseSensitiveMatches.length > 0 ? caseSensitiveMatches[0] : caseInsensitiveMatches[0];
   };
 
   const handleQuantityChange = (index, value) => {
@@ -229,7 +295,7 @@ const AllocateChemicalForm = () => {
     const firstRow = data[0];
     const columns = Object.keys(firstRow);
     
-    // Look for column names that might contain chemical name and quantity
+    // Look for column names that might contain chemical name, quantity, and unit
     const nameColumn = columns.find(col => 
       col.toLowerCase().includes('name') || 
       col.toLowerCase().includes('chemical') ||
@@ -242,6 +308,12 @@ const AllocateChemicalForm = () => {
       col.toLowerCase().includes('amount')
     );
 
+    const unitColumn = columns.find(col => 
+      col.toLowerCase().includes('unit') || 
+      col.toLowerCase().includes('uom') ||
+      col.toLowerCase().includes('measurement')
+    );
+
     if (!nameColumn || !quantityColumn) {
       setMessage('Could not identify chemical name and quantity columns in the Excel file.');
       return;
@@ -251,8 +323,8 @@ const AllocateChemicalForm = () => {
     const excelChemicals = data.map(row => ({
       chemicalName: row[nameColumn],
       quantity: parseFloat(row[quantityColumn]) || 0,
+      unit: unitColumn ? (row[unitColumn] || '') : '',
       chemicalMasterId: '',
-      unit: '',
       expiryDate: ''
     })).filter(chem => chem.chemicalName && chem.chemicalName.trim() !== '');
 
@@ -261,21 +333,31 @@ const AllocateChemicalForm = () => {
       return;
     }
 
+    // Use the existing findBestChemicalMatch function
+
     // Check which chemicals are available in inventory
     const unavailable = [];
     const updatedChemicals = excelChemicals.map(chem => {
-      const found = availableChemicals.find(
-        availChem => (availChem.displayName || availChem.chemicalName).toLowerCase() === chem.chemicalName.toLowerCase()
-      );
+      const found = findBestChemicalMatch(chem.chemicalName, availableChemicals, chem.unit);
 
       if (found) {
         return {
           ...chem,
           chemicalMasterId: found.chemicalMasterId,
-          unit: found.unit,
+          unit: found.unit, // Use the unit from available chemicals
           expiryDate: found.expiryDate
         };
       } else {
+        // Debug logging to help identify matching issues
+        console.log('Chemical not found in allocation:', {
+          searchedName: chem.chemicalName,
+          searchedUnit: chem.unit,
+          availableChemicals: availableChemicals.map(c => ({ 
+            name: c.displayName || c.chemicalName, 
+            unit: c.unit,
+            quantity: c.quantity 
+          }))
+        });
         unavailable.push(chem.chemicalName);
         return chem;
       }
@@ -414,6 +496,9 @@ const AllocateChemicalForm = () => {
               Bulk Upload Chemicals
             </h2>
             <p className="text-sm text-slate-600 mb-4">Upload an Excel file (.xlsx, .xls) or CSV file containing chemical names and quantities to allocate in bulk.</p>
+            <div className="text-xs text-blue-600 mb-2">
+              <strong>Supported columns:</strong> Chemical Name, Quantity (required) | Unit (optional, improves matching)
+            </div>
             
             <div className="flex flex-wrap items-center gap-4">
               <input 
@@ -495,11 +580,9 @@ const AllocateChemicalForm = () => {
               <div className="text-sm text-gray-500">{chemicals.length} item(s)</div>
             </div>
             {chemicals.map((chemical, index) => {
-              const isOutOfStock = chemical.chemicalName && !availableChemicals.some(
-                (chem) =>
-                  (chem.displayName || chem.chemicalName).toLowerCase() === chemical.chemicalName.toLowerCase() &&
-                  chem.quantity > 0
-              );
+              // Use robust matching to check if chemical is out of stock
+              const matchedChemical = findBestChemicalMatch(chemical.chemicalName, availableChemicals);
+              const isOutOfStock = chemical.chemicalName && (!matchedChemical || matchedChemical.quantity <= 0);
 
               return (
                 <div key={index} className="w-full bg-white rounded-xl border border-gray-200 p-4 sm:p-6 transition-all duration-300 hover:shadow-md">
