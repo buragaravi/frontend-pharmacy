@@ -35,6 +35,8 @@ const AllocateChemicalForm = () => {
   const [loading, setLoading] = useState(false);
   const [fileUploading, setFileUploading] = useState(false);
   const [unavailableChemicals, setUnavailableChemicals] = useState([]);
+  const [allocationResults, setAllocationResults] = useState(null);
+  const [showResults, setShowResults] = useState(false);
 
   const token = localStorage.getItem('token');
 
@@ -220,10 +222,63 @@ const AllocateChemicalForm = () => {
         { labId, allocations },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMessage('Chemicals allocated successfully!');
-      setChemicals([{ chemicalName: '', quantity: 0, chemicalMasterId: '', unit: '', expiryDate: '' }]);
+      
+      // Handle successful response
+      if (res.data.success) {
+        setMessage(`✅ All chemicals allocated successfully! (${res.data.successfulAllocations.length} items)`);
+        setAllocationResults(res.data);
+        setShowResults(true);
+        setChemicals([{ chemicalName: '', quantity: 0, chemicalMasterId: '', unit: '', expiryDate: '' }]);
+      } else {
+        // Handle partial success/failure
+        setMessage(`⚠️ ${res.data.message}`);
+        setAllocationResults(res.data);
+        setShowResults(true);
+        
+        // Pre-fill form with failed allocations for retry
+        if (res.data.failedAllocations && res.data.failedAllocations.length > 0) {
+          const failedChemicals = res.data.failedAllocations.map(failed => {
+            const matched = findBestChemicalMatch(failed.chemicalName, availableChemicals);
+            return {
+              chemicalName: failed.chemicalName,
+              quantity: failed.originalQuantity || failed.quantity,
+              chemicalMasterId: matched ? matched.chemicalMasterId : '',
+              unit: matched ? matched.unit : '',
+              expiryDate: matched ? matched.expiryDate : '',
+              isFailed: true,
+              failureReason: failed.reason
+            };
+          });
+          setChemicals(failedChemicals);
+        }
+      }
     } catch (err) {
-      setMessage(err.response?.data?.message || 'Allocation failed');
+      const errorData = err.response?.data;
+      if (errorData && errorData.failedAllocations) {
+        // Handle structured error response
+        setMessage(`❌ ${errorData.message}`);
+        setAllocationResults(errorData);
+        setShowResults(true);
+        
+        // Pre-fill form with failed allocations
+        if (errorData.failedAllocations.length > 0) {
+          const failedChemicals = errorData.failedAllocations.map(failed => {
+            const matched = findBestChemicalMatch(failed.chemicalName, availableChemicals);
+            return {
+              chemicalName: failed.chemicalName,
+              quantity: failed.originalQuantity || failed.quantity,
+              chemicalMasterId: matched ? matched.chemicalMasterId : '',
+              unit: matched ? matched.unit : '',
+              expiryDate: matched ? matched.expiryDate : '',
+              isFailed: true,
+              failureReason: failed.reason
+            };
+          });
+          setChemicals(failedChemicals);
+        }
+      } else {
+        setMessage(`❌ ${errorData?.message || 'Allocation failed'}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -380,6 +435,35 @@ const AllocateChemicalForm = () => {
     }
   };
 
+  // Clear allocation results and reset form
+  const clearResults = () => {
+    setAllocationResults(null);
+    setShowResults(false);
+    setMessage('');
+    setChemicals([{ chemicalName: '', quantity: 0, chemicalMasterId: '', unit: '', expiryDate: '' }]);
+  };
+
+  // Retry failed allocations
+  const retryFailedAllocations = () => {
+    if (allocationResults && allocationResults.failedAllocations) {
+      const failedChemicals = allocationResults.failedAllocations.map(failed => {
+        const matched = findBestChemicalMatch(failed.chemicalName, availableChemicals);
+        return {
+          chemicalName: failed.chemicalName,
+          quantity: failed.originalQuantity || failed.quantity,
+          chemicalMasterId: matched ? matched.chemicalMasterId : '',
+          unit: matched ? matched.unit : '',
+          expiryDate: matched ? matched.expiryDate : '',
+          isFailed: true,
+          failureReason: failed.reason
+        };
+      });
+      setChemicals(failedChemicals);
+      setShowResults(false);
+      setMessage('Retrying failed allocations. Please review and submit again.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50/90 via-blue-50/80 to-indigo-100/90 relative">
       {/* Floating bubbles background */}
@@ -461,27 +545,113 @@ const AllocateChemicalForm = () => {
         <div className="relative z-10 p-6">
         {message && (
           <div className={`w-full p-4 rounded-xl mb-6 ${
-            message.includes('success') 
+            message.includes('✅') || message.includes('success')
               ? 'bg-green-50 border border-green-200 text-green-800' 
+              : message.includes('⚠️')
+              ? 'bg-yellow-50 border border-yellow-200 text-yellow-800'
               : 'bg-red-50 border border-red-200 text-red-800'
           }`}>
-            <div className="flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className={`h-5 w-5 mr-2 ${
-                  message.includes('success') ? 'text-green-500' : 'text-red-500'
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                {message.includes('success') ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                )}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-5 w-5 mr-2 ${
+                    message.includes('✅') || message.includes('success') 
+                      ? 'text-green-500' 
+                      : message.includes('⚠️')
+                      ? 'text-yellow-500'
+                      : 'text-red-500'
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  {message.includes('✅') || message.includes('success') ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  ) : message.includes('⚠️') ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  )}
+                </svg>
+                {message}
+              </div>
+              {showResults && (
+                <button
+                  onClick={clearResults}
+                  className="text-sm text-gray-500 hover:text-gray-700 underline"
+                >
+                  Clear Results
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Allocation Results Display */}
+        {showResults && allocationResults && (
+          <div className="w-full bg-white rounded-xl border border-gray-200 p-6 mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              {message}
+              Allocation Results
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Successful Allocations */}
+              {allocationResults.successfulAllocations && allocationResults.successfulAllocations.length > 0 && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-green-800 mb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Successful Allocations ({allocationResults.successfulAllocations.length})
+                  </h4>
+                  <div className="max-h-40 overflow-y-auto space-y-2">
+                    {allocationResults.successfulAllocations.map((success, idx) => (
+                      <div key={`success-${idx}`} className="text-sm text-green-700 bg-green-100 rounded px-3 py-2">
+                        <div className="font-medium">{success.chemicalName}</div>
+                        <div className="text-xs text-green-600">
+                          Allocated: {success.allocatedQuantity} units
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Failed Allocations */}
+              {allocationResults.failedAllocations && allocationResults.failedAllocations.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-red-800 mb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Failed Allocations ({allocationResults.failedAllocations.length})
+                  </h4>
+                  <div className="max-h-40 overflow-y-auto space-y-2">
+                    {allocationResults.failedAllocations.map((failed, idx) => (
+                      <div key={`failed-${idx}`} className="text-sm text-red-700 bg-red-100 rounded px-3 py-2">
+                        <div className="font-medium">{failed.chemicalName}</div>
+                        <div className="text-xs text-red-600">
+                          Requested: {failed.originalQuantity || failed.quantity} units
+                          {failed.allocatedQuantity > 0 && ` | Allocated: ${failed.allocatedQuantity} units`}
+                        </div>
+                        <div className="text-xs text-red-500 mt-1">
+                          Reason: {failed.reason}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={retryFailedAllocations}
+                    className="mt-3 w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors"
+                  >
+                    Retry Failed Allocations
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -583,9 +753,16 @@ const AllocateChemicalForm = () => {
               // Use robust matching to check if chemical is out of stock
               const matchedChemical = findBestChemicalMatch(chemical.chemicalName, availableChemicals);
               const isOutOfStock = chemical.chemicalName && (!matchedChemical || matchedChemical.quantity <= 0);
+              const isFailed = chemical.isFailed;
 
               return (
-                <div key={index} className="w-full bg-white rounded-xl border border-gray-200 p-4 sm:p-6 transition-all duration-300 hover:shadow-md">
+                <div key={index} className={`w-full rounded-xl border p-4 sm:p-6 transition-all duration-300 hover:shadow-md ${
+                  isFailed 
+                    ? 'bg-red-50 border-red-200' 
+                    : isOutOfStock 
+                    ? 'bg-yellow-50 border-yellow-200' 
+                    : 'bg-white border-gray-200'
+                }`}>
                   <div className="w-full flex flex-wrap gap-4 items-end">
                     {/* Chemical Name */}
                     <div className="flex-1 min-w-[200px] max-w-full">
@@ -655,18 +832,37 @@ const AllocateChemicalForm = () => {
                     )}
                   </div>
 
-                  {isOutOfStock && (
-                    <div className="mt-4 flex items-center p-3 bg-red-50 border border-red-200 rounded-xl">
+                  {/* Status Messages */}
+                  {isFailed && (
+                    <div className="mt-4 flex items-center p-3 bg-red-100 border border-red-300 rounded-xl">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 mr-2"
+                        className="h-4 w-4 text-red-600 mr-2"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <p className="text-sm text-red-600">This chemical is currently out of stock.</p>
+                      <div>
+                        <p className="text-sm text-red-700 font-medium">Previous allocation failed</p>
+                        <p className="text-xs text-red-600 mt-1">Reason: {chemical.failureReason}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {isOutOfStock && !isFailed && (
+                    <div className="mt-4 flex items-center p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-yellow-500 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <p className="text-sm text-yellow-700">This chemical is currently out of stock.</p>
                     </div>
                   )}
                 </div>
