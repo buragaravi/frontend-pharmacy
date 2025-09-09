@@ -79,19 +79,50 @@ const ExperimentForm = ({ experiment, onClose }) => {
     };
   }, []);
 
-  // Fetch available chemicals
-  const { data: availableChemicals = [] } = useQuery({
-    queryKey: ['chemicals', 'available'],
+  // Fetch available chemicals from products endpoint
+  const { data: productsResponse, isLoading: chemicalsLoading, error: chemicalsError } = useQuery({
+    queryKey: ['products', 'chemicals'],
     queryFn: async () => {
       const token = localStorage.getItem('token');
-      const response = await api.get('/chemicals/central/available', {
+      const response = await api.get('/products?category=chemical', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       return response.data;
     },
+    retry: 2,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  // Extract chemicals array from response, handle different response structures
+  const availableChemicals = React.useMemo(() => {
+    console.log('Products response received:', productsResponse);
+    
+    if (!productsResponse) {
+      console.log('No products response yet');
+      return [];
+    }
+    
+    // Handle different possible response structures
+    if (Array.isArray(productsResponse)) {
+      console.log('Response is direct array, length:', productsResponse.length);
+      return productsResponse;
+    }
+    
+    if (productsResponse && Array.isArray(productsResponse.products)) {
+      console.log('Response has products array, length:', productsResponse.products.length);
+      return productsResponse.products;
+    }
+    
+    if (productsResponse && Array.isArray(productsResponse.data)) {
+      console.log('Response has data array, length:', productsResponse.data.length);
+      return productsResponse.data;
+    }
+    
+    console.warn('Unexpected products response structure:', productsResponse);
+    return [];
+  }, [productsResponse]);
 
   useEffect(() => {
     if (experiment) {
@@ -143,7 +174,7 @@ const ExperimentForm = ({ experiment, onClose }) => {
     mutationFn: async (data) => {
       console.log('Making API call with data:', data);
       const token = localStorage.getItem('token');
-      const response = await api.post('https://backend-pharmacy-5541.onrender.com/api/experiments', data, {
+      const response = await api.post('/experiments', data, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -276,22 +307,50 @@ const ExperimentForm = ({ experiment, onClose }) => {
   const isLoading = createMutation.isLoading || updateMutation.isLoading;
 
   // Chemical management functions
-  const filteredChemicals = availableChemicals.filter(chemical =>
-    chemical.chemicalName.toLowerCase().includes(chemicalSearchTerm.toLowerCase())
-  );
+  const filteredChemicals = React.useMemo(() => {
+    console.log('Filtering chemicals, availableChemicals:', availableChemicals);
+    console.log('Type of availableChemicals:', typeof availableChemicals);
+    console.log('Is array:', Array.isArray(availableChemicals));
+    
+    if (!Array.isArray(availableChemicals)) {
+      console.warn('availableChemicals is not an array:', availableChemicals);
+      return [];
+    }
+    
+    if (availableChemicals.length === 0) {
+      console.log('No chemicals available to filter');
+      return [];
+    }
+    
+    return availableChemicals.filter(chemical => {
+      if (!chemical || typeof chemical.name !== 'string') {
+        console.warn('Invalid chemical object:', chemical);
+        return false;
+      }
+      return chemical.name.toLowerCase().includes(chemicalSearchTerm.toLowerCase());
+    });
+  }, [availableChemicals, chemicalSearchTerm]);
 
   const addChemical = () => {
     if (!selectedChemical || !chemicalQuantity) {
       return;
     }
     
-    const chemical = availableChemicals.find(c => c._id === selectedChemical);
-    if (!chemical) return;
+    if (!Array.isArray(availableChemicals)) {
+      console.error('availableChemicals is not an array:', availableChemicals);
+      return;
+    }
+    
+    const chemical = availableChemicals.find(c => c && c._id === selectedChemical);
+    if (!chemical) {
+      console.error('Chemical not found with ID:', selectedChemical);
+      return;
+    }
 
     const newChemical = {
       chemicalId: chemical._id,
-      chemicalName: chemical.chemicalName,
-      quantity: parseFloat(chemicalQuantity),
+      chemicalName: chemical.name || 'Unknown Chemical',
+      quantity: parseFloat(chemicalQuantity) || 0,
       unit: chemical.unit || 'ml'
     };
 
@@ -437,12 +496,25 @@ const ExperimentForm = ({ experiment, onClose }) => {
             {/* Add Chemical Section */}
             <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
               <h4 className="text-sm font-medium text-gray-700 mb-3">Add Chemical</h4>
+              
+              {/* Error handling for chemicals loading */}
+              {chemicalsError && (
+                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center">
+                    <svg className="w-4 h-4 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm text-red-700">Failed to load chemicals. Please try again.</span>
+                  </div>
+                </div>
+              )}
+              
               <div className="space-y-3">
                 {/* Chemical Search */}
                 <div className="relative" ref={chemicalDropdownRef}>
                   <input
                     type="text"
-                    placeholder="Search for chemicals..."
+                    placeholder={chemicalsLoading ? "Loading chemicals..." : "Search for chemicals..."}
                     value={chemicalSearchTerm}
                     onChange={(e) => {
                       setChemicalSearchTerm(e.target.value);
@@ -450,28 +522,42 @@ const ExperimentForm = ({ experiment, onClose }) => {
                     }}
                     onFocus={() => setShowChemicalDropdown(true)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm"
-                    disabled={isLoading}
+                    disabled={isLoading || chemicalsLoading}
                   />
                   
                   {/* Chemical Dropdown */}
-                  {showChemicalDropdown && filteredChemicals.length > 0 && (
+                  {showChemicalDropdown && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                      {filteredChemicals.slice(0, 10).map((chemical) => (
-                        <button
-                          key={chemical._id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedChemical(chemical._id);
-                            setChemicalSearchTerm(chemical.chemicalName);
-                            setShowChemicalDropdown(false);
-                          }}
-                          className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm border-b border-gray-100 last:border-b-0"
-                          disabled={isLoading}
-                        >
-                          <div className="font-medium text-gray-900">{chemical.chemicalName}</div>
-                          <div className="text-xs text-gray-500">Unit: {chemical.unit || 'ml'}</div>
-                        </button>
-                      ))}
+                      {chemicalsLoading ? (
+                        <div className="px-3 py-2 text-sm text-gray-500 flex items-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Loading chemicals...
+                        </div>
+                      ) : filteredChemicals.length > 0 ? (
+                        filteredChemicals.slice(0, 10).map((chemical) => (
+                          <button
+                            key={chemical._id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedChemical(chemical._id);
+                              setChemicalSearchTerm(chemical.name);
+                              setShowChemicalDropdown(false);
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm border-b border-gray-100 last:border-b-0"
+                            disabled={isLoading}
+                          >
+                            <div className="font-medium text-gray-900">{chemical.name}</div>
+                            <div className="text-xs text-gray-500">Unit: {chemical.unit || 'ml'}</div>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="px-3 py-2 text-sm text-gray-500">
+                          {chemicalSearchTerm ? 'No chemicals found matching your search' : 'No chemicals available'}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -491,7 +577,7 @@ const ExperimentForm = ({ experiment, onClose }) => {
                   <button
                     type="button"
                     onClick={addChemical}
-                    disabled={!selectedChemical || !chemicalQuantity || isLoading}
+                    disabled={!selectedChemical || !chemicalQuantity || isLoading || chemicalsLoading}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                   >
                     Add
