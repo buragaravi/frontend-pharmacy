@@ -4,6 +4,19 @@ import axios from 'axios';
 import ExperimentSelector from './ExperimentSelector';
 import { toast } from 'react-toastify';
 
+// Debounce utility function
+const debounce = (func, wait) => {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
 // CSS Animations
 const AnimationStyles = () => (
   <style jsx>{`
@@ -47,21 +60,21 @@ api.interceptors.request.use(
   }
 );
 
-// Constants for theming
+// Constants for claymorphism theming
 const THEME = {
-  background: 'bg-gradient-to-br from-blue-100 to-blue-200',
-  card: 'bg-white/95 backdrop-blur-md border border-blue-300/30 shadow-xl',
-  border: 'border-blue-300/20',
-  primaryText: 'text-blue-900',
-  secondaryText: 'text-blue-600',
-  mutedText: 'text-gray-600',
-  primaryBg: 'bg-blue-900',
-  secondaryBg: 'bg-blue-600',
-  hoverBg: 'hover:bg-blue-700',
-  inputBg: 'bg-gray-50/80',
-  inputBorder: 'border-blue-300/30',
-  inputFocus: 'focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900',
-  cardHover: 'hover:bg-gray-50/50 transition-colors duration-200'
+  background: 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50',
+  card: 'bg-white/70 backdrop-blur-xl border border-white/20 shadow-2xl shadow-blue-500/10',
+  border: 'border-white/30',
+  primaryText: 'text-slate-800',
+  secondaryText: 'text-slate-600',
+  mutedText: 'text-slate-500',
+  primaryBg: 'bg-gradient-to-r from-blue-500 to-indigo-600',
+  secondaryBg: 'bg-gradient-to-r from-indigo-400 to-blue-500',
+  hoverBg: 'hover:from-blue-600 hover:to-indigo-700',
+  inputBg: 'bg-white/60 backdrop-blur-sm',
+  inputBorder: 'border-white/40',
+  inputFocus: 'focus:ring-4 focus:ring-blue-400/30 focus:border-blue-400/50 focus:bg-white/80',
+  cardHover: 'hover:bg-white/80 hover:shadow-3xl hover:shadow-blue-500/20 transition-all duration-300'
 };
 
 // Dynamic Lab IDs will be fetched from API
@@ -79,14 +92,17 @@ const ChemicalIcon = () => (
   </svg>
 );
 
-const CLOUDY_CARD = 'bg-gradient-to-br from-blue-50/80 to-white shadow-xl rounded-3xl border border-blue-100';
-const CLOUDY_INPUT = 'bg-white/80 border-2 border-blue-100 rounded-xl shadow-inner focus:ring-2 focus:ring-blue-200 focus:border-blue-300 transition-all duration-200';
-const CLOUDY_BTN = 'bg-gradient-to-br from-blue-200/80 to-white text-blue-900 font-semibold rounded-xl shadow-md hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 border border-blue-100';
-const CLOUDY_BTN_PRIMARY = 'bg-gradient-to-br from-blue-400/80 to-blue-200 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 border border-blue-300';
-const CLOUDY_SECTION = 'bg-white/70 rounded-2xl shadow-lg border border-blue-100 p-4 md:p-6 mb-8';
-const CLOUDY_LABEL = 'block text-base font-semibold text-blue-900 mb-2 drop-shadow-sm';
-const CLOUDY_HEADER = 'text-2xl md:text-3xl font-extrabold tracking-tight text-blue-900 drop-shadow-lg';
-const CLOUDY_SUBHEADER = 'text-lg font-bold text-blue-800 mb-4';
+// Claymorphism Design System
+const CLAY_CARD = 'bg-white/60 backdrop-blur-xl rounded-3xl border border-white/30 shadow-2xl shadow-blue-500/10';
+const CLAY_INPUT = 'bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl shadow-inner shadow-blue-500/5 focus:ring-4 focus:ring-blue-400/30 focus:border-blue-400/50 focus:bg-white/70 transition-all duration-300';
+const CLAY_BTN = 'bg-gradient-to-r from-blue-400/80 to-indigo-500/80 backdrop-blur-sm text-white font-medium rounded-2xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 hover:from-blue-500/90 hover:to-indigo-600/90 active:scale-95 transition-all duration-300 ease-out border border-white/20 px-6 py-3';
+const CLAY_BTN_PRIMARY = 'bg-gradient-to-r from-indigo-500/90 to-purple-600/90 backdrop-blur-sm text-white font-bold rounded-2xl shadow-xl shadow-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/50 hover:from-indigo-600 hover:to-purple-700 active:scale-95 transition-all duration-300 ease-out border border-white/20 px-8 py-4';
+const CLAY_BTN_SECONDARY = 'bg-gradient-to-r from-slate-100/80 to-slate-200/80 backdrop-blur-sm text-slate-700 font-medium rounded-2xl shadow-md shadow-slate-500/10 hover:shadow-lg hover:shadow-slate-500/20 hover:from-slate-200/90 hover:to-slate-300/90 active:scale-95 transition-all duration-300 ease-out border border-white/30 px-4 py-2';
+const CLAY_BTN_DANGER = 'bg-gradient-to-r from-red-400/80 to-pink-500/80 backdrop-blur-sm text-white font-medium rounded-2xl shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 hover:from-red-500/90 hover:to-pink-600/90 active:scale-95 transition-all duration-300 ease-out border border-white/20 px-4 py-2';
+const CLAY_SECTION = 'bg-white/50 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/20 p-6 md:p-8 mb-8';
+const CLAY_LABEL = 'block text-base font-semibold text-slate-800 mb-3 drop-shadow-sm';
+const CLAY_HEADER = 'text-2xl md:text-3xl font-extrabold tracking-tight text-slate-800 drop-shadow-sm';
+const CLAY_SUBHEADER = 'text-lg font-bold text-slate-700 mb-4';
 
 const CreateRequestForm = () => {
   const queryClient = useQueryClient();
@@ -386,16 +402,20 @@ const CreateRequestForm = () => {
 
       try {
         // Fetch available chemicals for matching
-        const response = await api.get(`/chemicals/central/available`);
-        const availableChemicals = response.data;
+        const response = await api.get(`/chemicals/all-with-lab-quantities`);
+        const availableChemicals = response.data.chemicals;
 
         return defaultChemicals.map(defaultChem => {
           // Find matching chemical by name (case-insensitive)
           const matchedChemical = availableChemicals.find(availableChem => 
-            availableChem.chemicalName.toLowerCase().trim() === defaultChem.chemicalName.toLowerCase().trim()
+            availableChem.displayName.toLowerCase().trim() === defaultChem.chemicalName.toLowerCase().trim()
           );
 
           if (matchedChemical) {
+            const availableQty = calculateAvailableQuantity(matchedChemical, labId);
+            const labQuantities = getLabQuantitiesForDisplay(matchedChemical, labId);
+            const hasZeroQuantity = availableQty === 0;
+            
             return {
               chemicalName: defaultChem.chemicalName,
               quantity: defaultChem.quantity,
@@ -403,7 +423,12 @@ const CreateRequestForm = () => {
               chemicalMasterId: matchedChemical._id,
               suggestions: [],
               showSuggestions: false,
-              availableQuantity: matchedChemical.quantity,
+              availableQuantity: availableQty,
+              labs: matchedChemical.labs, // Include all lab quantities
+              centralStoreQty: labQuantities.centralStoreQty,
+              selectedLabQty: labQuantities.selectedLabQty,
+              hasZeroQuantity,
+              totalQuantity: matchedChemical.totalQuantity || 0,
             };
           } else {
             // If no match found, keep the default chemical but without ID
@@ -415,6 +440,7 @@ const CreateRequestForm = () => {
               suggestions: [],
               showSuggestions: false,
               availableQuantity: null,
+              isAvailableInLab: false,
             };
           }
         });
@@ -601,54 +627,144 @@ const CreateRequestForm = () => {
     setExperiments(newExperiments);
   };
 
-  const handleChemicalSearch = async (expIndex, chemIndex, searchTerm) => {
-    handleChemicalChange(expIndex, chemIndex, 'chemicalName', searchTerm);
+  // Helper function to calculate available quantity for selected lab
+  const calculateAvailableQuantity = (chemical, selectedLabId) => {
+    if (!selectedLabId) {
+      // If no lab selected, show only Central Store quantity
+      if (!chemical.labs) {
+        return chemical.totalQuantity || 0;
+      }
+      const centralStoreQty = chemical.labs.find(lab => lab.labId === 'central-store')?.quantity || 0;
+      return centralStoreQty;
+    }
     
+    if (!chemical.labs) {
+      return 0;
+    }
+    
+    // Calculate central-store + selected lab quantities
+    const centralStoreQty = chemical.labs.find(lab => lab.labId === 'central-store')?.quantity || 0;
+    const selectedLabQty = chemical.labs.find(lab => lab.labId === selectedLabId)?.quantity || 0;
+    
+    return centralStoreQty + selectedLabQty;
+  };
+
+  // Helper function to get lab-specific quantities for display
+  const getLabQuantitiesForDisplay = (chemical, selectedLabId) => {
+    if (!chemical.labs) {
+      return { centralStoreQty: 0, selectedLabQty: 0 };
+    }
+    
+    const centralStoreQty = chemical.labs.find(lab => lab.labId === 'central-store')?.quantity || 0;
+    const selectedLabQty = selectedLabId ? (chemical.labs.find(lab => lab.labId === selectedLabId)?.quantity || 0) : 0;
+    
+    return { centralStoreQty, selectedLabQty };
+  };
+
+  // Helper function to check if chemical is available in selected lab
+  const isChemicalAvailableInLab = (chemical, selectedLabId) => {
+    if (!selectedLabId || !chemical.labs) {
+      return true; // If no lab selected, show all chemicals
+    }
+    
+    // Check if chemical is available in central-store or selected lab
+    const centralStoreQty = chemical.labs.find(lab => lab.labId === 'central-store')?.quantity || 0;
+    const selectedLabQty = chemical.labs.find(lab => lab.labId === selectedLabId)?.quantity || 0;
+    
+    return (centralStoreQty + selectedLabQty) > 0;
+  };
+
+  // Debounced search function
+  const debouncedSearch = React.useCallback(
+    debounce(async (expIndex, chemIndex, searchTerm) => {
     if (!searchTerm.trim()) {
       const updated = [...experiments];
       updated[expIndex].chemicals[chemIndex] = {
         ...updated[expIndex].chemicals[chemIndex],
         suggestions: [],
         showSuggestions: false,
-        availableQuantity: null
+          availableQuantity: null,
+          totalSuggestions: 0
       };
       setExperiments(updated);
       return;
     }
 
     try {
-      const response = await api.get(`/chemicals/central/available`);
-      const suggestions = response.data.map(item => ({
-        name: item.chemicalName,
+        const response = await api.get(`/chemicals/all-with-lab-quantities?search=${encodeURIComponent(searchTerm)}`);
+        
+        // Show ALL chemicals from ALL labs - no filtering
+        const suggestions = response.data.chemicals.map(item => {
+          const availableQty = calculateAvailableQuantity(item, labId);
+          const labQuantities = getLabQuantitiesForDisplay(item, labId);
+          const hasZeroQuantity = availableQty === 0;
+          
+          
+          return {
+            name: item.displayName,
         unit: item.unit,
         id: item._id,
-        availableQuantity: item.quantity,
-      }));
+            availableQuantity: availableQty,
+            labs: item.labs, // Include all lab quantities
+            centralStoreQty: labQuantities.centralStoreQty,
+            selectedLabQty: labQuantities.selectedLabQty,
+            hasZeroQuantity,
+            totalQuantity: item.totalQuantity || 0, // Total across all labs
+            // Add individual lab quantities for display
+            individualLabQuantities: item.labs || [],
+          };
+        });
 
       const updated = [...experiments];
       updated[expIndex].chemicals[chemIndex] = {
         ...updated[expIndex].chemicals[chemIndex],
         suggestions,
         showSuggestions: true,
+          totalSuggestions: suggestions.length,
       };
       setExperiments(updated);
     } catch (err) {
       console.error('Search error:', err);
       toast.error('Failed to search chemicals');
     }
+    }, 300),
+    [labId, experiments]
+  );
+
+  const handleChemicalSearch = (expIndex, chemIndex, searchTerm) => {
+    handleChemicalChange(expIndex, chemIndex, 'chemicalName', searchTerm);
+    debouncedSearch(expIndex, chemIndex, searchTerm);
   };
 
   const handleChemicalSelect = (expIndex, chemIndex, suggestion) => {
     const updated = [...experiments];
-    updated[expIndex].chemicals[chemIndex] = {
+    
+    // Create a proper chemical object structure for quantity calculations
+    const chemicalForCalculation = {
+      labs: suggestion.labs || [],
+      totalQuantity: suggestion.totalQuantity || 0
+    };
+    
+    const availableQty = calculateAvailableQuantity(chemicalForCalculation, labId);
+    const labQuantities = getLabQuantitiesForDisplay(chemicalForCalculation, labId);
+    const hasZeroQuantity = availableQty === 0;
+    
+    const newChemical = {
       chemicalName: suggestion.name,
       unit: suggestion.unit,
       chemicalMasterId: suggestion.id,
       quantity: '',
       suggestions: [],
       showSuggestions: false,
-      availableQuantity: suggestion.availableQuantity,
+      availableQuantity: availableQty,
+      labs: suggestion.labs || [], // Include all lab quantities
+      centralStoreQty: labQuantities.centralStoreQty,
+      selectedLabQty: labQuantities.selectedLabQty,
+      hasZeroQuantity,
+      totalQuantity: suggestion.totalQuantity || 0,
     };
+    
+    updated[expIndex].chemicals[chemIndex] = newChemical;
     setExperiments(updated);
   };
 
@@ -667,6 +783,42 @@ const CreateRequestForm = () => {
       updated[expIndex].chemicals[chemIndex].showSuggestions = false;
       setExperiments(updated);
     }, 200);
+  };
+
+  // Refresh chemical suggestions when lab changes
+  const refreshChemicalSuggestions = async (expIndex, chemIndex) => {
+    const chemical = experiments[expIndex].chemicals[chemIndex];
+    if (chemical.chemicalName.trim()) {
+      await handleChemicalSearch(expIndex, chemIndex, chemical.chemicalName);
+    }
+  };
+
+  // Handle lab change and update quantities only
+  const handleLabChange = (newLabId) => {
+    setLabId(newLabId);
+    
+    // Update all existing chemicals with new lab quantities
+    const updatedExperiments = experiments.map(experiment => ({
+      ...experiment,
+      chemicals: experiment.chemicals.map(chemical => {
+        if (chemical.chemicalMasterId && chemical.labs) {
+          const availableQty = calculateAvailableQuantity(chemical, newLabId);
+          const labQuantities = getLabQuantitiesForDisplay(chemical, newLabId);
+          const hasZeroQuantity = availableQty === 0;
+          
+          return {
+            ...chemical,
+            availableQuantity: availableQty,
+            centralStoreQty: labQuantities.centralStoreQty,
+            selectedLabQty: labQuantities.selectedLabQty,
+            hasZeroQuantity,
+          };
+        }
+        return chemical;
+      })
+    }));
+    
+    setExperiments(updatedExperiments);
   };
   // --- Glassware Handlers ---
   const handleGlasswareChange = (expIndex, gwIndex, field, value) => {
@@ -971,11 +1123,11 @@ const CreateRequestForm = () => {
     const chemical = experiments[expIndex].chemicals[chemIndex];
     
     return (
-      <div className="relative group bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200">
-        <div className="grid grid-cols-12 gap-4 items-center">
+      <div className={`bg-white/70 backdrop-blur-sm rounded-2xl shadow-md shadow-blue-500/5 border border-white/30 p-4 sm:p-6 lg:${CLAY_CARD} lg:p-6 relative group`}>
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-start sm:items-center">
           {/* Chemical Name */}
-          <div className="col-span-5 relative">
-            <label className="block text-xs font-medium text-gray-600 mb-1">Chemical Name</label>
+          <div className="sm:col-span-5 relative z-40">
+            <label className={`${CLAY_LABEL} text-sm`}>Chemical Name</label>
             <input
               type="text"
               placeholder="Search chemical..."
@@ -984,76 +1136,175 @@ const CreateRequestForm = () => {
               onFocus={() => handleFocus(expIndex, chemIndex)}
               onBlur={() => handleBlur(expIndex, chemIndex)}
               required
-              className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className={`${CLAY_INPUT} w-full px-4 py-3 text-sm`}
             />
             {chemical.showSuggestions && chemical.suggestions.length > 0 && (
-              <ul className="absolute z-20 mt-1 w-full border border-gray-300 rounded-lg bg-white shadow-lg max-h-60 overflow-auto">
+              <div className="absolute z-[9999] mt-2 w-full bg-white/90 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl shadow-blue-500/20 max-h-60 overflow-auto">
+                {/* Count display */}
+                <div className="px-4 py-3 text-sm text-slate-600 bg-slate-100/60 border-b border-white/30 rounded-t-2xl">
+                  Showing {chemical.suggestions.length} chemical{chemical.suggestions.length !== 1 ? 's' : ''}
+                </div>
+                
+                <ul>
                 {chemical.suggestions.map((sug, idx) => (
                   <li
                     key={`suggestion-${expIndex}-${chemIndex}-${idx}`}
-                    className="px-3 py-2 text-sm hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                    onClick={() => handleChemicalSelect(expIndex, chemIndex, sug)}
-                  >
-                    <div className="flex justify-between items-center">
+                      className={`px-4 py-3 text-sm hover:bg-blue-100/60 cursor-pointer border-b border-white/20 last:border-b-0 transition-all duration-200 ${
+                        sug.hasZeroQuantity ? 'bg-red-100/60 hover:bg-red-200/60' : 'hover:bg-blue-100/60'
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleChemicalSelect(expIndex, chemIndex, sug);
+                      }}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
                       <span className="font-medium">{sug.name}</span>
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                        Available: {sug.availableQuantity} {sug.unit}
+                            {sug.hasZeroQuantity && (
+                              <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">
+                                ⚠️ Not Available
                       </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1">
+                            {labId ? `Available for ${labId}: ${sug.availableQuantity} ${sug.unit}` : `Central Store Available: ${sug.availableQuantity} ${sug.unit}`}
+                          </div>
+                          {sug.hasZeroQuantity && (
+                            <div className="text-xs text-red-600 mt-1">
+                              Total across all labs: {sug.totalQuantity} {sug.unit}
+                            </div>
+                          )}
+                          {labId && sug.individualLabQuantities && sug.individualLabQuantities.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {sug.individualLabQuantities.map((lab, labIdx) => (
+                                <span 
+                                  key={labIdx} 
+                                  className={`text-xs px-2 py-1 rounded ${
+                                    lab.labId === 'central-store' 
+                                      ? 'bg-green-100 text-green-700' 
+                                      : lab.labId === labId 
+                                        ? 'bg-blue-100 text-blue-700' 
+                                        : 'bg-gray-100 text-gray-700'
+                                  }`}
+                                >
+                                  {lab.labId}: {lab.quantity}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {!labId && sug.individualLabQuantities && sug.individualLabQuantities.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {sug.individualLabQuantities.slice(0, 3).map((lab, labIdx) => (
+                                <span 
+                                  key={labIdx} 
+                                  className={`text-xs px-2 py-1 rounded ${
+                                    lab.labId === 'central-store' 
+                                      ? 'bg-green-100 text-green-700' 
+                                      : 'bg-blue-100 text-blue-700'
+                                  }`}
+                                >
+                                  {lab.labId}: {lab.quantity}
+                                </span>
+                              ))}
+                              {sug.individualLabQuantities.length > 3 && (
+                                <span className="text-xs text-gray-500">
+                                  +{sug.individualLabQuantities.length - 3} more labs
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
                     </div>
                   </li>
                 ))}
               </ul>
+              </div>
             )}
           </div>
 
           {/* Quantity */}
-          <div className="col-span-3">
-            <label className="block text-xs font-medium text-gray-600 mb-1">Quantity</label>
+          <div className="sm:col-span-3">
+            <label className={`${CLAY_LABEL} text-sm`}>Quantity</label>
             <input
               type="number"
               placeholder="0"
               value={chemical.quantity}
               onChange={(e) => handleChemicalChange(expIndex, chemIndex, 'quantity', e.target.value)}
               required
-              className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className={`${CLAY_INPUT} w-full px-4 py-3 text-sm`}
               max={chemical.availableQuantity || undefined}
               min="0"
               step="0.01"
             />
             {chemical.availableQuantity !== null && (
-              <div className="flex items-center mt-1 text-xs">
-                <span className="text-gray-500">Available: {chemical.availableQuantity} {chemical.unit}</span>
+              <div className="mt-1 text-xs">
+                <div className="flex items-center">
+                  <span className="text-gray-500">
+                    {labId ? `Available for ${labId}: ${chemical.availableQuantity} ${chemical.unit}` : `Central Store Available: ${chemical.availableQuantity} ${chemical.unit}`}
+                  </span>
                 {chemical.quantity > chemical.availableQuantity && (
                   <span className="ml-2 text-red-500 font-medium">
                     (Exceeds limit)
                   </span>
+                )}
+                </div>
+                {chemical.availableQuantity === 0 && (
+                  <div className="mt-1 text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                    ⚠️ Not available in selected context. Total across all labs: {chemical.totalQuantity || 0} {chemical.unit}
+                  </div>
+                )}
+                {labId && chemical.centralStoreQty !== undefined && chemical.selectedLabQty !== undefined && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                      Central: {chemical.centralStoreQty}
+                    </span>
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                      {labId}: {chemical.selectedLabQty}
+                    </span>
+                  </div>
+                )}
+                {!labId && chemical.labs && chemical.labs.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {chemical.labs.slice(0, 4).map((lab, labIdx) => (
+                      <span key={labIdx} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                        {lab.labId}: {lab.quantity}
+                      </span>
+                    ))}
+                    {chemical.labs.length > 4 && (
+                      <span className="text-xs text-gray-500">
+                        +{chemical.labs.length - 4} more
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
             )}
           </div>
 
           {/* Unit */}
-          <div className="col-span-3">
-            <label className="block text-xs font-medium text-gray-600 mb-1">Unit</label>
+          <div className="sm:col-span-3">
+            <label className={`${CLAY_LABEL} text-sm`}>Unit</label>
             <input
               type="text"
               placeholder="g, ml, etc."
               value={chemical.unit}
               readOnly
-              className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+              className={`${CLAY_INPUT} w-full px-4 py-3 text-sm bg-gray-100/60 text-gray-600`}
             />
           </div>
 
           {/* Delete Button */}
-          <div className="col-span-1 flex justify-center">
+          <div className="sm:col-span-1 flex justify-center sm:justify-center">
             <button
               type="button"
               onClick={() => removeChemical(expIndex, chemIndex)}
-              className="w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200 group-hover:opacity-100 opacity-60"
+              className="w-10 h-10 flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-100/60 rounded-2xl transition-all duration-200 group-hover:opacity-100 opacity-60 shadow-lg shadow-red-500/10"
               title="Remove chemical"
               disabled={experiments[expIndex].chemicals.length <= 1}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
               </svg>
             </button>
@@ -1066,9 +1317,10 @@ const CreateRequestForm = () => {
   const renderGlasswareInput = (expIndex, gwIndex) => {
     const gw = experiments[expIndex].glassware[gwIndex];
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-        <div className="relative">
-          <label className={`block text-sm font-medium ${THEME.secondaryText} mb-1`}>Glassware Name</label>
+      <div className={`bg-white/70 backdrop-blur-sm rounded-2xl shadow-md shadow-blue-500/5 border border-white/30 p-4 sm:p-6 lg:${CLAY_CARD} lg:p-6 relative group`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+        <div className="relative z-40">
+          <label className={`${CLAY_LABEL} text-sm`}>Glassware Name</label>
           <input
             type="text"
             placeholder="Search glassware"
@@ -1081,14 +1333,14 @@ const CreateRequestForm = () => {
               setExperiments(updated);
             }, 200)}
             required
-            className={`w-full px-3 py-2 text-sm md:text-base border ${THEME.border} rounded-lg ${THEME.inputFocus} transition-colors`}
+            className={`${CLAY_INPUT} w-full px-4 py-3 text-sm`}
           />
           {gw.showSuggestions && gw.suggestions.length > 0 && (
-            <ul className="absolute z-10 mt-1 w-full border border-gray-300 rounded-lg bg-white shadow-lg max-h-60 overflow-auto">
+            <ul className="absolute z-[9999] mt-2 w-full bg-white/90 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl shadow-blue-500/20 max-h-60 overflow-auto">
               {gw.suggestions.map((sug, idx) => (
                 <li
                   key={`glassware-suggestion-${expIndex}-${gwIndex}-${idx}`}
-                  className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer border-b border-gray-300 last:border-b-0"
+                  className="px-4 py-3 text-sm hover:bg-blue-100/60 cursor-pointer border-b border-white/20 last:border-b-0 transition-all duration-200"
                   onClick={() => handleGlasswareSelect(expIndex, gwIndex, sug)}
                 >
                   <div className="flex justify-between items-center">
@@ -1106,14 +1358,14 @@ const CreateRequestForm = () => {
           )}
         </div>
         <div>
-          <label className={`block text-sm font-medium ${THEME.secondaryText} mb-1`}>Quantity</label>
+          <label className={`${CLAY_LABEL} text-sm`}>Quantity</label>
           <input
             type="number"
             placeholder="Enter quantity"
             value={gw.quantity}
             onChange={e => handleGlasswareChange(expIndex, gwIndex, 'quantity', e.target.value)}
             required
-            className={`w-full px-3 py-2 text-sm md:text-base border ${THEME.border} rounded-lg ${THEME.inputFocus} transition-colors`}
+            className={`${CLAY_INPUT} w-full px-4 py-3 text-sm`}
             max={gw.availableQuantity || undefined}
           />
           {gw.availableQuantity !== null && (
@@ -1126,23 +1378,43 @@ const CreateRequestForm = () => {
               )}
             </div>
           )}
-        </div>        <div>
-          <label className={`block text-sm font-medium ${THEME.secondaryText} mb-1`}>Unit</label>
+        </div>        
+        <div>
+          <label className={`${CLAY_LABEL} text-sm`}>Unit</label>
           <input
             type="text"
             placeholder="Unit (e.g., piece, ml, etc.)"
             value={gw.unit}
             onChange={e => handleGlasswareChange(expIndex, gwIndex, 'unit', e.target.value)}
-            className={`w-full px-3 py-2 text-sm md:text-base border ${THEME.border} rounded-lg ${THEME.inputFocus} transition-colors ${
-              gw.glasswareId ? 'bg-gray-100' : 'bg-white'
+            className={`${CLAY_INPUT} w-full px-4 py-3 text-sm ${
+              gw.glasswareId ? 'bg-gray-100/60' : 'bg-white/60'
             }`}
             readOnly={!!gw.glasswareId} // Only readonly if selected from suggestions
           />
           {gw.glasswareId && (
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-slate-500 mt-2 bg-slate-100/60 px-3 py-1 rounded-lg">
               Unit is set from selected glassware
             </div>
           )}
+        </div>
+        </div>
+        
+        {/* Remove Button */}
+        <div className="absolute top-3 right-3">
+          <button
+            type="button"
+            onClick={() => {
+              const newExperiments = [...experiments];
+              newExperiments[expIndex].glassware.splice(gwIndex, 1);
+              setExperiments(newExperiments);
+            }}
+            className="w-10 h-10 flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-100/60 rounded-2xl transition-all duration-200 group-hover:opacity-100 opacity-60 shadow-lg shadow-red-500/10"
+            title="Remove glassware"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+          </button>
         </div>
       </div>
     );
@@ -1173,9 +1445,10 @@ const CreateRequestForm = () => {
   const renderEquipmentInput = (expIndex, eqIndex) => {
     const eq = experiments[expIndex].equipment[eqIndex];
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-        <div className="relative">
-          <label className={`block text-sm font-medium ${THEME.secondaryText} mb-1`}>Equipment Name</label>
+      <div className={`bg-white/70 backdrop-blur-sm rounded-2xl shadow-md shadow-blue-500/5 border border-white/30 p-4 sm:p-6 lg:${CLAY_CARD} lg:p-6 relative group`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+        <div className="relative z-40">
+          <label className={`${CLAY_LABEL} text-sm`}>Equipment Name</label>
           <input
             type="text"
             placeholder="Search equipment"
@@ -1188,14 +1461,14 @@ const CreateRequestForm = () => {
               setExperiments(updated);
             }, 200)}
             required
-            className={`w-full px-3 py-2 text-sm md:text-base border ${THEME.border} rounded-lg ${THEME.inputFocus} transition-colors`}
+            className={`${CLAY_INPUT} w-full px-4 py-3 text-sm`}
           />
           {eq.showSuggestions && eq.suggestions && eq.suggestions.length > 0 && (
-            <ul className="absolute z-10 mt-1 w-full border border-gray-300 rounded-lg bg-white shadow-lg max-h-60 overflow-auto">
+            <ul className="absolute z-[9999] mt-2 w-full bg-white/90 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl shadow-blue-500/20 max-h-60 overflow-auto">
               {eq.suggestions.map((sug, idx) => (
                 <li
                   key={`equipment-suggestion-${expIndex}-${eqIndex}-${idx}`}
-                  className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer border-b border-gray-300 last:border-b-0"
+                  className="px-4 py-3 text-sm hover:bg-blue-100/60 cursor-pointer border-b border-white/20 last:border-b-0 transition-all duration-200"
                   onClick={() => handleEquipmentSelect(expIndex, eqIndex, sug)}
                 >
                   <div className="flex flex-col gap-2">
@@ -1234,23 +1507,23 @@ const CreateRequestForm = () => {
           )}
         </div>
         <div>
-          <label className={`block text-sm font-medium ${THEME.secondaryText} mb-1`}>Variant</label>
+          <label className={`${CLAY_LABEL} text-sm`}>Variant</label>
           <input
             type="text"
             value={eq.variant}
             readOnly
-            className="w-full px-3 py-2 text-sm md:text-base border border-gray-300 rounded-lg bg-gray-100"
+            className={`${CLAY_INPUT} w-full px-4 py-3 text-sm bg-gray-100/60`}
           />
         </div>
         <div>
-          <label className={`block text-sm font-medium ${THEME.secondaryText} mb-1`}>Quantity</label>
+          <label className={`${CLAY_LABEL} text-sm`}>Quantity</label>
           <input
             type="number"
             placeholder="Enter quantity"
             value={eq.quantity}
             onChange={e => handleEquipmentChange(expIndex, eqIndex, 'quantity', e.target.value)}
             required
-            className={`w-full px-3 py-2 text-sm md:text-base border ${THEME.border} rounded-lg ${THEME.inputFocus} transition-colors`}
+            className={`${CLAY_INPUT} w-full px-4 py-3 text-sm`}
             min={1}
             max={eq.available || undefined}
           />
@@ -1277,19 +1550,40 @@ const CreateRequestForm = () => {
             </div>
           )}
         </div>
+        </div>
+        
+        {/* Remove Button */}
+        <div className="absolute top-3 right-3">
+          <button
+            type="button"
+            onClick={() => {
+              const newExperiments = [...experiments];
+              newExperiments[expIndex].equipment.splice(eqIndex, 1);
+              setExperiments(newExperiments);
+            }}
+            className="w-10 h-10 flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-100/60 rounded-2xl transition-all duration-200 group-hover:opacity-100 opacity-60 shadow-lg shadow-red-500/10"
+            title="Remove equipment"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+          </button>
+        </div>
       </div>
     );
   };
 
   const renderEquipmentSection = (expIndex) => {
     return (
-      <div className="space-y-4 mt-6">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <ChemicalIcon />
-            <h4 className="text-md font-semibold text-blue-800">Equipment</h4>
+      <div className="space-y-6 mt-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+          <div className="flex items-center gap-3">
+            <div className={`${THEME.secondaryBg} p-2 rounded-xl shadow-lg shadow-indigo-500/25 text-white`}>
+              <ChemicalIcon />
+            </div>
+            <h4 className={`${CLAY_SUBHEADER}`}>Equipment</h4>
             {equipmentLoading && (
-              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full animate-pulse">
+              <span className="text-sm bg-blue-100/60 text-blue-800 px-3 py-1 rounded-full animate-pulse font-medium">
                 Loading...
               </span>
             )}
@@ -1297,7 +1591,7 @@ const CreateRequestForm = () => {
           <button
             type="button"
             onClick={() => addEquipment(expIndex)}
-            className={`${CLOUDY_BTN} px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400`}
+            className={`${CLAY_BTN_SECONDARY} text-sm w-full sm:w-auto`}
             aria-label="Add equipment"
             title="Add equipment"
           >
@@ -1315,24 +1609,31 @@ const CreateRequestForm = () => {
   };
 
   return (
-    <div className={`min-h-screen ${THEME.background} relative overflow-hidden`}>
-      {/* Floating bubbles */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-4 -left-4 w-72 h-72 bg-blue-300/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -top-4 -right-4 w-72 h-72 bg-blue-300/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+    <div className="w-full relative overflow-hidden">
+      {/* Floating claymorphism bubbles - hidden on small/medium screens */}
+      <div className="hidden lg:block fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-indigo-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob"></div>
+        <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-indigo-200/30 to-purple-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-20 left-1/4 w-96 h-96 bg-gradient-to-br from-purple-200/30 to-pink-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob animation-delay-4000"></div>
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 w-full p-4 md:p-6">
-        <div className={`${THEME.card} rounded-xl p-6 md:p-8 w-full`}>
+      <div className="relative z-0 w-full">
+        {/* Transparent background on small/medium, card on large screens */}
+        <div className={`w-full ${
+          // Small and medium screens: transparent background, full width
+          'bg-transparent p-2 sm:p-4 md:p-6' 
+        } ${
+          // Large screens: card background with max width
+          'lg:bg-white/60 lg:backdrop-blur-xl lg:rounded-3xl lg:shadow-2xl lg:shadow-blue-500/10 lg:border lg:border-white/30 lg:p-8 lg:max-w-7xl lg:mx-auto'
+        }`}>
           {/* Header */}
-          <div className="mb-6 pb-4 border-b border-gray-200/50">
-            <div className="flex items-center gap-3">
-              <div className={`${THEME.secondaryBg} p-2 rounded-lg text-white`}>
+          <div className="mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-slate-200/50 lg:border-white/30">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className={`${THEME.secondaryBg} p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-lg shadow-indigo-500/25 text-white`}>
                 <ExperimentIcon />
               </div>
-              <h1 className={`text-lg font-semibold ${THEME.primaryText}`}>Create New Request</h1>
+              <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 lg:text-slate-800`}>Create New Request</h1>
             </div>
           </div>
 
@@ -1347,15 +1648,15 @@ const CreateRequestForm = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
             {/* Lab ID Selection */}
-            <div className={`${THEME.inputBg} ${THEME.inputBorder} border rounded-lg p-4`}>
-              <label className={`block text-sm font-medium ${THEME.primaryText} mb-2`}>Lab ID</label>
+            <div className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg shadow-blue-500/10 border border-white/40 p-4 sm:p-6 lg:${CLAY_CARD} lg:p-6`}>
+              <label className={`${CLAY_LABEL} text-sm sm:text-base`}>Lab ID</label>
               <select
                 value={labId}
-                onChange={(e) => setLabId(e.target.value)}
+                onChange={(e) => handleLabChange(e.target.value)}
                 required
-                className={`w-full ${THEME.inputBg} ${THEME.inputBorder} border rounded-md px-3 py-2 text-sm ${THEME.inputFocus} transition-all`}
+                className={`w-full ${CLAY_INPUT} px-4 py-3 text-sm`}
                 aria-label="Select Lab"
               >
                 <option value="">Select Lab</option>
@@ -1365,17 +1666,39 @@ const CreateRequestForm = () => {
                   </option>
                 ))}
               </select>
+              {!labId && (
+                <div className="mt-4 bg-amber-100/60 backdrop-blur-sm border border-amber-200/50 rounded-2xl px-4 py-3 shadow-lg shadow-amber-500/10">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 mt-0.5 flex-shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm text-amber-800 leading-relaxed">Showing Central Store quantities only. Select a lab to see lab-specific availability</span>
+                  </div>
+                </div>
+              )}
+              {labId && (
+                <div className="mt-4 bg-green-100/60 backdrop-blur-sm border border-green-200/50 rounded-2xl px-4 py-3 shadow-lg shadow-green-500/10">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 mt-0.5 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-sm text-green-800 leading-relaxed">Showing chemicals available in Central Store + {labId}</span>
+                  </div>
+                </div>
+              )}
             </div>
             {experiments.map((experiment, expIndex) => (
               <div
                 key={`experiment-${expIndex}`}
-                className={`${CLOUDY_SECTION} transition-all duration-500 border-l-4 border-blue-200 relative group`}
+                className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg shadow-blue-500/10 border border-white/40 p-4 sm:p-6 lg:${CLAY_SECTION} transition-all duration-500 relative group`}
                 ref={el => (experimentRefs.current[expIndex] = el)}
               >
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className={`${THEME.secondaryBg} p-3 rounded-2xl shadow-lg shadow-indigo-500/25 text-white`}>
                     <ExperimentIcon />
-                    <h3 className={CLOUDY_SUBHEADER}>Experiment {expIndex + 1}</h3>
+                    </div>
+                    <h3 className={`${CLAY_SUBHEADER}`}>Experiment {expIndex + 1}</h3>
                   </div>
                   {expIndex > 0 && (
                     <button
@@ -1387,7 +1710,7 @@ const CreateRequestForm = () => {
                         newExperiments.splice(expIndex, 1);
                         setExperiments(newExperiments);
                       }}
-                      className={`${CLOUDY_BTN} px-4 py-1 text-red-500 border-red-200 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-300`}
+                      className={`${CLAY_BTN_DANGER} text-sm sm:text-base`}
                       aria-label="Remove this experiment"
                       title="Remove this experiment"
                     >
@@ -1398,7 +1721,7 @@ const CreateRequestForm = () => {
 
                 {/* Only allow experiment selection if not already selected */}
                 {!experiment.experimentId && (
-                  <div className="mb-6 transition-all duration-500">
+                  <div className="mb-8 transition-all duration-500">
                     <ExperimentSelector
                       key={`selector-${expIndex}`}
                       onExperimentSelect={(experiment) => handleExperimentSelect(expIndex, experiment)}
@@ -1406,16 +1729,16 @@ const CreateRequestForm = () => {
                   </div>
                 )}
                 {experiment.experimentId && (
-                  <div className="mb-6 transition-all duration-500">
-                    <div className="flex flex-col gap-2">
+                  <div className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg shadow-blue-500/10 border border-white/40 p-4 sm:p-6 lg:${CLAY_CARD} lg:p-6 mb-6 sm:mb-8 transition-all duration-500`}>
+                    <div className="flex flex-col gap-4">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-blue-700 font-semibold text-lg">
-                          <span className="bg-blue-100 px-3 py-1 rounded-xl shadow-inner">{experiment.experimentName}</span>
+                        <div className="flex items-center gap-3">
+                          <span className={`${THEME.primaryBg} text-white px-4 py-2 rounded-2xl shadow-lg shadow-indigo-500/25 font-semibold text-lg`}>{experiment.experimentName}</span>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleResetExperiment(expIndex)}
-                          className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200 flex items-center gap-1"
+                          className={`${CLAY_BTN_DANGER} text-sm flex items-center gap-2`}
                           title="Reset experiment selection"
                         >
                           <span>×</span>
@@ -1423,7 +1746,7 @@ const CreateRequestForm = () => {
                         </button>
                       </div>
                       {(experiment.courseId || experiment.batchId) && (
-                        <div className="text-sm text-gray-600 ml-1">
+                        <div className={`text-sm ${THEME.secondaryText} ml-1`}>
                           {experiment.courseId && (
                             <span>
                               Course: {coursesData.find(c => c._id === experiment.courseId)?.courseName} ({coursesData.find(c => c._id === experiment.courseId)?.courseCode})
@@ -1441,31 +1764,31 @@ const CreateRequestForm = () => {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                   <div>
-                    <label className={CLOUDY_LABEL}>Date</label>
+                    <label className={`${CLAY_LABEL}`}>Date</label>
                     <input
                       type="date"
                       value={experiment.date}
                       onChange={(e) => handleExperimentChange(expIndex, 'date', e.target.value)}
                       required
-                      className={`${CLOUDY_INPUT} w-full px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                      className={`${CLAY_INPUT} w-full px-4 py-3 text-sm`}
                       aria-label="Experiment date"
                     />
                   </div>
                   <div>
-                    <label className={CLOUDY_LABEL}>Course</label>
+                    <label className={`${CLAY_LABEL}`}>Course</label>
                     {experiment.experimentId ? (
                       <div className="relative">
                         <input
                           type="text"
                           value={`${experiment.courseName} (${experiment.courseCode})`}
                           readOnly
-                          className={`${CLOUDY_INPUT} w-full px-3 py-2 text-base bg-green-50 border-green-300 text-green-800 cursor-not-allowed`}
+                          className={`${CLAY_INPUT} w-full px-4 py-3 text-sm bg-green-100/60 border-green-300/50 text-green-800 cursor-not-allowed`}
                           aria-label="Course (Auto-filled from experiment)"
                         />
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                          <span className="text-green-600 text-xs">✓ Auto-filled</span>
+                          <span className="text-green-600 text-xs font-medium">✓ Auto-filled</span>
                         </div>
                       </div>
                     ) : (
@@ -1473,7 +1796,7 @@ const CreateRequestForm = () => {
                         value={experiment.courseId}
                         onChange={(e) => handleCourseChange(expIndex, e.target.value)}
                         required
-                        className={`${CLOUDY_INPUT} w-full px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                        className={`${CLAY_INPUT} w-full px-4 py-3 text-sm`}
                         aria-label="Course"
                       >
                         <option value="">Select Course</option>
@@ -1485,14 +1808,14 @@ const CreateRequestForm = () => {
                       </select>
                     )}
                   </div>
-                  <div>
-                    <label className={CLOUDY_LABEL}>Batch</label>
+                  <div className="sm:col-span-2 lg:col-span-1">
+                    <label className={`${CLAY_LABEL}`}>Batch</label>
                     <select
                       value={experiment.batchId || ''}
                       onChange={(e) => handleExperimentChange(expIndex, 'batchId', e.target.value)}
                       required
                       disabled={!experiment.courseId || experiment.courseId === ''}
-                      className={`${CLOUDY_INPUT} w-full px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 ${(!experiment.courseId || experiment.courseId === '') ? 'bg-gray-100 cursor-not-allowed' : 'focus:border-blue-500 bg-white'}`}
+                      className={`${CLAY_INPUT} w-full px-4 py-3 text-sm ${(!experiment.courseId || experiment.courseId === '') ? 'bg-gray-100/60 cursor-not-allowed' : 'bg-white/60'}`}
                       aria-label="Batch"
                     >
                       <option value="">
@@ -1505,7 +1828,7 @@ const CreateRequestForm = () => {
                       ))}
                     </select>
                     {experiment.experimentId && experiment.courseId && experiment.courseId !== '' && (
-                      <div className="mt-1 text-xs text-green-600">
+                      <div className="mt-2 text-xs text-green-600 bg-green-100/60 px-3 py-1 rounded-lg">
                         <span>✓</span> Course auto-filled - Please select appropriate batch
                       </div>
                     )}
@@ -1513,13 +1836,15 @@ const CreateRequestForm = () => {
                 </div>
 
                 {/* Chemicals Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
+                <div className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`${THEME.secondaryBg} p-2 rounded-xl shadow-lg shadow-indigo-500/25 text-white`}>
                       <ChemicalIcon />
-                      <h4 className="text-lg font-semibold text-blue-800">Required Chemicals</h4>
+                      </div>
+                      <h4 className={`${CLAY_SUBHEADER}`}>Required Chemicals</h4>
                       {experiment.chemicals.length > 0 && (
-                        <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">
+                        <span className="bg-blue-100/60 text-blue-700 text-sm px-3 py-1 rounded-full font-medium">
                           {experiment.chemicals.length} item{experiment.chemicals.length !== 1 ? 's' : ''}
                         </span>
                       )}
@@ -1527,7 +1852,7 @@ const CreateRequestForm = () => {
                     <button
                       type="button"
                       onClick={() => addChemical(expIndex)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2 text-sm font-medium"
+                      className={`${CLAY_BTN} flex items-center gap-2 text-sm font-medium w-full sm:w-auto justify-center`}
                       aria-label="Add chemical"
                       title="Add chemical"
                     >
@@ -1543,16 +1868,18 @@ const CreateRequestForm = () => {
                 </div>
 
                 {/* Glassware Section */}
-                <div className="space-y-4 mt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <ChemicalIcon />
-                      <h4 className="text-md font-semibold text-blue-800">Glassware</h4>
+                <div className="space-y-6 mt-8">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`${THEME.secondaryBg} p-2 rounded-xl shadow-lg shadow-indigo-500/25 text-white`}>
+                        <ChemicalIcon />
+                      </div>
+                      <h4 className={`${CLAY_SUBHEADER}`}>Glassware</h4>
                     </div>
                     <button
                       type="button"
                       onClick={() => addGlassware(expIndex)}
-                      className={`${CLOUDY_BTN} px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                      className={`${CLAY_BTN_SECONDARY} text-sm w-full sm:w-auto`}
                       aria-label="Add glassware"
                       title="Add glassware"
                     >
@@ -1572,7 +1899,7 @@ const CreateRequestForm = () => {
             <button
               type="button"
               onClick={handleAddExperiment}
-              className={`${CLOUDY_BTN_PRIMARY} w-full py-3 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60`}
+              className={`${CLAY_BTN} w-full py-4 mt-8 disabled:opacity-60 text-sm sm:text-base`}
               aria-label="Add another experiment"
               title="Add another experiment"
               disabled={experiments.some(e => !e.experimentId)}
@@ -1584,7 +1911,7 @@ const CreateRequestForm = () => {
               <button
                 type="submit"
                 disabled={createRequestMutation.isLoading}
-                className={`${CLOUDY_BTN_PRIMARY} px-12 py-4 text-xl font-bold focus:outline-none focus:ring-4 focus:ring-blue-400 disabled:opacity-60 transform hover:scale-105 transition-all duration-200 shadow-2xl`}
+                className={`${CLAY_BTN_PRIMARY} px-8 sm:px-16 py-4 sm:py-5 text-lg sm:text-xl font-bold disabled:opacity-60 w-full sm:w-auto`}
                 aria-label="Submit request"
               >
                 {createRequestMutation.isLoading ? (
@@ -1593,14 +1920,14 @@ const CreateRequestForm = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Submitting Request...
+                    <span className="text-base">Submitting Request...</span>
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-3">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
-                    Submit Request
+                    <span className="text-base">Submit Request</span>
                   </span>
                 )}
               </button>

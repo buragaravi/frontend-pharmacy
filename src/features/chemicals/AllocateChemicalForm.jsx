@@ -228,7 +228,7 @@ const AllocateChemicalForm = () => {
         setMessage(`✅ All chemicals allocated successfully! (${res.data.successfulAllocations.length} items)`);
         setAllocationResults(res.data);
         setShowResults(true);
-        setChemicals([{ chemicalName: '', quantity: 0, chemicalMasterId: '', unit: '', expiryDate: '' }]);
+      setChemicals([{ chemicalName: '', quantity: 0, chemicalMasterId: '', unit: '', expiryDate: '' }]);
       } else {
         // Handle partial success/failure
         setMessage(`⚠️ ${res.data.message}`);
@@ -552,29 +552,29 @@ const AllocateChemicalForm = () => {
               : 'bg-red-50 border border-red-200 text-red-800'
           }`}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className={`h-5 w-5 mr-2 ${
+            <div className="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`h-5 w-5 mr-2 ${
                     message.includes('✅') || message.includes('success') 
                       ? 'text-green-500' 
                       : message.includes('⚠️')
                       ? 'text-yellow-500'
                       : 'text-red-500'
-                  }`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                   {message.includes('✅') || message.includes('success') ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   ) : message.includes('⚠️') ? (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  )}
-                </svg>
-                {message}
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                )}
+              </svg>
+              {message}
               </div>
               {showResults && (
                 <button

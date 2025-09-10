@@ -51,35 +51,35 @@ const hasValidAllocationWindow = (request) => {
   return request.experiments.some(exp => canAllocateRemaining(exp.date));
 };
 
-// Constants for theming - Browser Compatible Version
+// Claymorphism Theme for Modal
 const THEME = {
-  // ✅ Compatible backgrounds - using solid Tailwind classes
-  background: 'bg-blue-50',
-  card: 'bg-white border border-blue-200 shadow-xl',
-  border: 'border-blue-200',
-  primaryText: 'text-blue-900',
-  secondaryText: 'text-blue-600',
-  mutedText: 'text-gray-600',
+  // Claymorphism backgrounds
+  background: 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50',
+  card: 'bg-white/80 backdrop-blur-xl border border-white/30 shadow-2xl shadow-blue-500/20',
+  border: 'border-white/40',
+  primaryText: 'text-slate-800',
+  secondaryText: 'text-slate-600',
+  mutedText: 'text-slate-500',
   
-  // ✅ Solid, compatible colors
-  primaryBg: 'bg-blue-600',
-  secondaryBg: 'bg-blue-500',
-  hoverBg: 'hover:bg-blue-700',
+  // Claymorphism colors
+  primaryBg: 'bg-gradient-to-r from-indigo-500/90 to-purple-600/90',
+  secondaryBg: 'bg-gradient-to-r from-blue-400/80 to-indigo-500/80',
+  hoverBg: 'hover:from-indigo-600 hover:to-purple-700',
   
-  // ✅ Standard focus/hover effects
-  inputFocus: 'focus:ring-2 focus:ring-blue-300 focus:border-blue-400',
-  modalOverlay: 'bg-black bg-opacity-50',
-  accent: 'text-blue-600',
+  // Enhanced focus/hover effects
+  inputFocus: 'focus:ring-4 focus:ring-blue-400/30 focus:border-blue-400/50',
+  modalOverlay: 'bg-black/20 backdrop-blur-sm',
+  accent: 'text-indigo-600',
   
-  // ✅ Compatible status colors
-  success: 'bg-green-600',
-  danger: 'bg-red-600',
-  warning: 'bg-yellow-600',
+  // Status colors with claymorphism
+  success: 'bg-gradient-to-r from-green-400/80 to-emerald-500/80',
+  danger: 'bg-gradient-to-r from-red-400/80 to-pink-500/80',
+  warning: 'bg-gradient-to-r from-yellow-400/80 to-orange-500/80',
   
-  // ✅ Simple hover effects
-  cardHover: 'hover:shadow-2xl transition-shadow duration-300',
-  buttonShadow: 'shadow-lg',
-  glassEffect: 'bg-white border border-gray-200'
+  // Claymorphism effects
+  cardHover: 'hover:shadow-3xl hover:shadow-blue-500/30 transition-all duration-300',
+  buttonShadow: 'shadow-lg shadow-blue-500/25',
+  glassEffect: 'bg-white/60 backdrop-blur-sm border border-white/40'
 };
 
 // PDF Styles - Optimized for A5 Size
@@ -1512,48 +1512,56 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
 
   return (
     <div 
-      className={`fixed inset-0 ${THEME.modalOverlay} flex items-center justify-center z-[999999] p-2 sm:p-4`}
+      className={`fixed inset-0 ${THEME.modalOverlay} flex items-center justify-center z-[999999] p-2 sm:p-4 lg:p-6`}
       onClick={(e) => e.target === e.currentTarget && onClose()}
       style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999 }}
     >
-      <div className={`${THEME.card} rounded-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden relative z-[999999] ${THEME.buttonShadow}`}>
-        <div className="p-4 sm:p-6 lg:p-8 overflow-y-auto max-h-[95vh]">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-6 border-b border-blue-100/50">
-            <h2 className={`text-xl sm:text-2xl font-bold ${THEME.primaryText} mb-4 sm:mb-0`}>Request Details</h2>
-            <div className="flex items-center space-x-2 flex-wrap gap-2">
+      {/* Floating claymorphism bubbles */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-br from-blue-200/20 to-indigo-300/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-indigo-200/20 to-purple-300/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-20 left-1/4 w-96 h-96 bg-gradient-to-br from-purple-200/20 to-pink-300/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <div className={`${THEME.card} rounded-3xl w-full max-w-7xl max-h-[98vh] overflow-hidden relative z-10 ${THEME.buttonShadow}`}>
+        <div className="p-3 sm:p-4 md:p-6 lg:p-8 overflow-y-auto max-h-[98vh]">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-white/30">
+            <h2 className={`text-lg sm:text-xl md:text-2xl font-bold ${THEME.primaryText} mb-3 sm:mb-0`}>Request Details</h2>
+            <div className="flex items-center space-x-2 flex-wrap gap-2 sm:gap-3">
               {/* Universal Edit Button for Admin */}
               {userRole === 'admin' && (request.status === 'pending' || request.status === 'approved' || request.status === 'partially_fulfilled' || request.status === 'fulfilled') && (
                 <button
                   onClick={handleEditRequest}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl ${THEME.primaryBg} ${THEME.hoverBg} text-white font-semibold text-sm transition-all duration-300 ${THEME.buttonShadow} hover:scale-105`}
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl ${THEME.primaryBg} ${THEME.hoverBg} text-white font-semibold text-xs sm:text-sm transition-all duration-300 ${THEME.buttonShadow} hover:scale-105`}
                   title="Edit Request"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
-                  <span>Edit Request</span>
+                  <span className="hidden sm:inline">Edit Request</span>
+                  <span className="sm:hidden">Edit</span>
                 </button>
               )}
               {/* Enhanced Print Button */}
               <button 
                 onClick={handlePrint}
                 disabled={isPdfGenerating}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl ${
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl ${
                   isPdfGenerating 
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                    : `${THEME.secondaryText} hover:text-white hover:bg-blue-600 hover:shadow-lg`
-                } transition-all duration-300`}
+                    ? 'bg-gray-300/60 text-gray-500 cursor-not-allowed' 
+                    : `${THEME.secondaryBg} text-white hover:shadow-xl hover:shadow-blue-500/40`
+                } transition-all duration-300 ${THEME.buttonShadow}`}
                 title={isPdfGenerating ? "Preparing PDF..." : "Print Request"}
               >
                 {isPdfGenerating ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
-                    <span className="text-sm">Preparing...</span>
+                    <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                    <span className="text-xs sm:text-sm">Preparing...</span>
                   </>
                 ) : (
                   <>
-                    <Printer size={18} />
-                    <span className="text-sm hidden sm:inline">Print</span>
+                    <Printer size={16} className="sm:w-4 sm:h-4" />
+                    <span className="text-xs sm:text-sm hidden sm:inline">Print</span>
                   </>
                 )}
               </button>
@@ -1562,20 +1570,21 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
               <PDFDownloadLink 
                 document={<RequestPDF request={request} />} 
                 fileName={`Pydah_Request_${request.requestId || request.labId}_${request.facultyId?.name}_${new Date().toISOString().split('T')[0]}.pdf`}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl ${THEME.secondaryText} hover:text-white hover:bg-green-600 hover:shadow-lg transition-all duration-300`}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl ${THEME.glassEffect} text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-green-500 hover:to-emerald-600 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-300 ${THEME.buttonShadow}`}
                 title="Download PDF"
               >
                 {({ loading }) => (
                   <>
                     {loading ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                        <span className="text-sm">Generating...</span>
+                        <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-current"></div>
+                        <span className="text-xs sm:text-sm">Generating...</span>
                       </>
                     ) : (
                       <>
-                        <FileText size={18} />
-                        <span className="text-sm hidden sm:inline">Download</span>
+                        <FileText size={16} className="sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm hidden sm:inline">Download</span>
+                        <span className="text-xs sm:hidden">PDF</span>
                       </>
                     )}
                   </>
@@ -1585,20 +1594,21 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
               {/* Return Items button for faculty only */}
               {showReturnButton && (
                 <button
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl ${THEME.primaryBg} ${THEME.hoverBg} text-white font-semibold text-sm transition-all duration-300 ${THEME.buttonShadow} hover:scale-105`}
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl ${THEME.primaryBg} ${THEME.hoverBg} text-white font-semibold text-xs sm:text-sm transition-all duration-300 ${THEME.buttonShadow} hover:scale-105`}
                   onClick={() => setShowReturnDialog(true)}
                   title="Return Items"
                 >
-                  <RotateCcw size={16} />
-                  <span>Return</span>
+                  <RotateCcw size={14} className="sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Return</span>
+                  <span className="sm:hidden">Return</span>
                 </button>
               )}
               <button
                 onClick={onClose}
-                className={`flex items-center p-2.5 rounded-xl ${THEME.secondaryText} hover:text-white hover:bg-red-600 hover:shadow-lg transition-all duration-300`}
+                className={`flex items-center p-2 sm:p-2.5 rounded-2xl ${THEME.glassEffect} text-slate-700 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-pink-600 hover:shadow-xl hover:shadow-red-500/40 transition-all duration-300 ${THEME.buttonShadow}`}
                 title="Close"
               >
-                <X size={18} />
+                <X size={16} className="sm:w-4 sm:h-4" />
               </button>
             </div>
           </div>
@@ -1609,25 +1619,25 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
         
           {/* Admin Approval Section */}
           {userRole === 'admin' && request.status === 'pending' && (
-            <div className={`${THEME.card} p-6 sm:p-8 rounded-2xl ${THEME.border} mt-8 ${THEME.cardHover}`}>
-              <h3 className={`text-xl font-bold ${THEME.primaryText} mb-6 flex items-center`}>
-                <div className="w-4 h-4 bg-green-600 rounded-full mr-3"></div>
+            <div className={`${THEME.card} p-4 sm:p-6 lg:p-8 rounded-3xl ${THEME.border} mt-6 sm:mt-8 ${THEME.cardHover}`}>
+              <h3 className={`text-lg sm:text-xl font-bold ${THEME.primaryText} mb-4 sm:mb-6 flex items-center`}>
+                <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full mr-2 sm:mr-3 shadow-lg shadow-green-500/25"></div>
                 Admin Approval
               </h3>
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div>
-                  <label className={`block text-sm font-semibold ${THEME.secondaryText} mb-3`}>
+                  <label className={`block text-sm font-semibold ${THEME.secondaryText} mb-2 sm:mb-3`}>
                     Reason (Optional)
                   </label>
                   <textarea
                     value={approvalReason}
                     onChange={(e) => setApprovalReason(e.target.value)}
                     placeholder="Enter reason for approval/rejection (optional)"
-                    className={`w-full px-4 py-3 border border-blue-200 rounded-xl ${THEME.inputFocus} resize-none bg-white/90 placeholder-gray-400`}
+                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 border border-white/40 rounded-2xl ${THEME.inputFocus} resize-none bg-white/60 backdrop-blur-sm placeholder-slate-400 text-sm`}
                     rows={3}
                     maxLength={500}
                   />
-                  <p className="text-xs text-gray-500 mt-2 font-medium">
+                  <p className="text-xs text-slate-500 mt-2 font-medium">
                     {approvalReason.length}/500 characters
                   </p>
                 </div>
@@ -1636,12 +1646,12 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
                   <button
                     onClick={() => handleAdminApproval('approve')}
                     disabled={isApproving || isRejecting}
-                    className={`flex-1 flex items-center justify-center px-6 py-3 rounded-xl ${THEME.success} text-white font-bold text-sm hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105`}
+                    className={`flex-1 flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl ${THEME.success} text-white font-bold text-xs sm:text-sm hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 ${THEME.buttonShadow}`}
                   >
                     {isApproving ? (
                       <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                        Approving...
+                        <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2 sm:mr-3"></div>
+                        <span className="text-xs sm:text-sm">Approving...</span>
                       </>
                     ) : (
                       'Approve Request'
@@ -1651,12 +1661,12 @@ const RequestDetailsModal = ({ request, open, onClose, onRequestUpdate }) => {
                   <button
                     onClick={() => handleAdminApproval('reject')}
                     disabled={isApproving || isRejecting}
-                    className={`flex-1 flex items-center justify-center px-6 py-3 rounded-xl ${THEME.danger} text-white font-bold text-sm hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105`}
+                    className={`flex-1 flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl ${THEME.danger} text-white font-bold text-xs sm:text-sm hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 ${THEME.buttonShadow}`}
                   >
                     {isRejecting ? (
                       <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                        Rejecting...
+                        <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2 sm:mr-3"></div>
+                        <span className="text-xs sm:text-sm">Rejecting...</span>
                       </>
                     ) : (
                       'Reject Request'

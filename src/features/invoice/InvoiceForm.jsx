@@ -1278,9 +1278,9 @@ const InvoiceForm = () => {
                             <div className="flex justify-between items-center">
                                 <div>
                                     <h3 className="text-lg font-bold">Register Missing Products</h3>
-                                    <p className="text-blue-100 mt-1 text-sm">
-                                        {productFormIndex + 1} of {unregisteredProducts.length} products
-                                    </p>
+                                        <p className="text-blue-100 mt-1 text-sm">
+                                            {productFormIndex + 1} of {unregisteredProducts.length} products
+                                        </p>
                                 </div>
                                 <SafeButton 
                                     onClick={() => {
@@ -1366,14 +1366,14 @@ const InvoiceForm = () => {
 
                             {/* Product Form */}
                             <div className="flex-1 p-4">
-                                {productFormError && (
-                                    <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
-                                        <svg className="w-4 h-4 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                        <div className="text-sm font-medium">{productFormError}</div>
-                                    </div>
-                                )}
+                            {productFormError && (
+                                <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
+                                    <svg className="w-4 h-4 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                    <div className="text-sm font-medium">{productFormError}</div>
+                                </div>
+                            )}
 
                                 <div className="mb-4">
                                     <h4 className="text-lg font-semibold text-gray-800 mb-2">
@@ -1384,15 +1384,15 @@ const InvoiceForm = () => {
                                     </p>
                                 </div>
 
-                                <ProductForm
-                                    product={null}
-                                    onCreate={handleCreateProductFromInvoice}
-                                    onUpdate={() => {}}
-                                    onClose={() => setShowProductFormModal(false)}
-                                    // Pre-fill with missing product name
-                                    initialName={unregisteredProducts[productFormIndex] || ''}
-                                    submitting={productFormLoading}
-                                />
+                            <ProductForm
+                                product={null}
+                                onCreate={handleCreateProductFromInvoice}
+                                onUpdate={() => {}}
+                                onClose={() => setShowProductFormModal(false)}
+                                // Pre-fill with missing product name
+                                initialName={unregisteredProducts[productFormIndex] || ''}
+                                submitting={productFormLoading}
+                            />
 
                                 {/* Navigation Buttons */}
                                 <div className="mt-6 flex justify-between items-center">
