@@ -8,6 +8,7 @@ import ProductList from '../products/ProductList';
 import RequirementsPage from '../requirements/RequirementsPage';
 import AuditRouter from '../audit/AuditRouter';
 import { useNavigate } from 'react-router-dom';
+import { logoutUser, getCurrentToken } from '../../utils/authUtils';
 
 const menuItems = [
   { 
@@ -53,23 +54,26 @@ const FacultyDashboard = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('https://backend-pharmacy-5541.onrender.com/api/auth/me', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(res.data);
+        const token = getCurrentToken();
+        if (token) {
+          const res = await axios.get('https://backend-pharmacy-5541.onrender.com/api/auth/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setUser(res.data);
+        }
       } catch (error) {
         console.error('Error fetching user:', error);
+        // If token is invalid, logout user
+        logoutUser(navigate);
       } finally {
         setLoading(false);
       }
     };
     fetchUser();
-  }, []);
+  }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.reload();
+    logoutUser(navigate);
   };
 
   const renderContent = () => {

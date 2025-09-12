@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { applyCompatibilityFixes } from './utils/browserCompatibility';
+import { validateStoredCredentials, getDashboardRoute, clearAllStoredCredentials } from './utils/authUtils';
 import LoginPage from './features/auth/LoginPage';
 import RegisterPage from './features/auth/RegisterPage';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -49,6 +50,77 @@ import { AllocateEquipmentToLabByScanForm } from './features/equipment';
 
 const queryClient = new QueryClient();
 
+// Auto-login component that checks for stored credentials
+const AutoLoginHandler = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const checkAutoLogin = async () => {
+      try {
+        // Only check for auto-login if user is on login page or home page
+        if (location.pathname === '/login' || location.pathname === '/') {
+          // Simple check - just look for token in localStorage
+          const token = localStorage.getItem('token');
+          
+          if (token) {
+            // Validate token with backend
+            const response = await fetch('https://backend-pharmacy-5541.onrender.com/api/auth/me', {
+              headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            if (response.ok) {
+              const userData = await response.json();
+              // Token is valid, redirect to appropriate dashboard
+              const dashboardRoute = getDashboardRoute(userData.role);
+              if (dashboardRoute !== '/login') {
+                navigate(dashboardRoute, { replace: true });
+                return;
+              }
+            } else {
+              // Token is invalid, clear stored data
+              localStorage.removeItem('token');
+              localStorage.removeItem('labId');
+              localStorage.removeItem('user');
+            }
+          }
+          // If no token or validation failed, stay on current page
+        }
+      } catch (error) {
+        console.log('Auto-login check failed:', error);
+        // Clear invalid credentials
+        localStorage.removeItem('token');
+        localStorage.removeItem('labId');
+        localStorage.removeItem('user');
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAutoLogin();
+  }, [navigate, location.pathname]);
+
+  // Show loading spinner while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl px-8 py-6 shadow-lg shadow-blue-500/10 border border-white/40">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-slate-600 font-medium">Checking authentication...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
+
 const App = () => {
   // 🌐 Apply browser compatibility fixes on app load
   useEffect(() => {
@@ -58,6 +130,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
+        <AutoLoginHandler />
         <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
           <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
           <OfflineIndicator />

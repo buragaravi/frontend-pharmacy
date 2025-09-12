@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
+import { logoutUser, getCurrentToken } from '../../utils/authUtils';
 import { useResponsiveColors } from '../../hooks/useResponsiveColors';
 import SafeButton from '../../components/SafeButton';
 import UserDetails from '../../components/UserDetails';
@@ -526,8 +527,7 @@ const AdminDashboard = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+    logoutUser(navigate);
   };
 
   // Handler for parent (category) click

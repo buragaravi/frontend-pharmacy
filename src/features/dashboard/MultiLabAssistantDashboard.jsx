@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { logoutUser, getCurrentToken } from '../../utils/authUtils';
 import IndentPage from '../indents/IndentPage';
 import ChemicalDashboard from '../chemicals/ChemicalDashboard';
 import TransactionsPage from '../transactions/TransactionsPage';
@@ -136,32 +137,33 @@ const MultiLabDashboard = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('https://backend-pharmacy-5541.onrender.com/api/auth/me', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const userData = res.data;
-        setUser(userData);
-        
-        // Set initial active lab (first lab assignment or legacy labId)
-        if (userData.labAssignments && userData.labAssignments.length > 0) {
-          // Use first active lab assignment
-          const firstActiveLab = userData.labAssignments.find(lab => lab.isActive);
-          if (firstActiveLab) {
-            setActiveLabId(firstActiveLab.labId);
-            setActiveLabPermission(firstActiveLab.permission);
+        const token = getCurrentToken();
+        if (token) {
+          const res = await axios.get('https://backend-pharmacy-5541.onrender.com/api/auth/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const userData = res.data;
+          setUser(userData);
+          
+          // Set initial active lab (first lab assignment or legacy labId)
+          if (userData.labAssignments && userData.labAssignments.length > 0) {
+            // Use first active lab assignment
+            const firstActiveLab = userData.labAssignments.find(lab => lab.isActive);
+            if (firstActiveLab) {
+              setActiveLabId(firstActiveLab.labId);
+              setActiveLabPermission(firstActiveLab.permission);
+            }
+          } else if (userData.labId) {
+            // Legacy single lab support
+            setActiveLabId(userData.labId);
+            setActiveLabPermission('read_write'); // Default for legacy
           }
-        } else if (userData.labId) {
-          // Legacy single lab support
-          setActiveLabId(userData.labId);
-          setActiveLabPermission('read_write'); // Default for legacy
         }
         
       } catch (error) {
         console.error('Error fetching user:', error);
         if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          navigate('/login');
+          logoutUser(navigate);
         }
       } finally {
         setLoading(false);
@@ -172,8 +174,7 @@ const MultiLabDashboard = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+    logoutUser(navigate);
   };
 
   // Handle lab switching

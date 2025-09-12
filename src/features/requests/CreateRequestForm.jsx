@@ -1579,7 +1579,7 @@ const CreateRequestForm = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
           <div className="flex items-center gap-3">
             <div className={`${THEME.secondaryBg} p-2 rounded-xl shadow-lg shadow-indigo-500/25 text-white`}>
-              <ChemicalIcon />
+            <ChemicalIcon />
             </div>
             <h4 className={`${CLAY_SUBHEADER}`}>Equipment</h4>
             {equipmentLoading && (
@@ -1872,7 +1872,7 @@ const CreateRequestForm = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
                     <div className="flex items-center gap-3">
                       <div className={`${THEME.secondaryBg} p-2 rounded-xl shadow-lg shadow-indigo-500/25 text-white`}>
-                        <ChemicalIcon />
+                      <ChemicalIcon />
                       </div>
                       <h4 className={`${CLAY_SUBHEADER}`}>Glassware</h4>
                     </div>

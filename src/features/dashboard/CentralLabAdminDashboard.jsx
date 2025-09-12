@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { logoutUser, getCurrentToken } from '../../utils/authUtils';
 import { format } from 'date-fns';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -353,8 +354,7 @@ const CentralLabAdminDashboard = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+    logoutUser(navigate);
   };
 
   const handleParentClick = (category) => {

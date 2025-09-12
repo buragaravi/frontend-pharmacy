@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { logoutUser, getCurrentToken } from '../../utils/authUtils';
 import IndentPage from '../indents/IndentPage';
 import ChemicalDashboard from '../chemicals/ChemicalDashboard';
 import TransactionsPage from '../transactions/TransactionsPage';
@@ -187,8 +188,7 @@ const LabAssistantDashboard = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.reload();
+    logoutUser(navigate);
   };
 
   const renderContent = () => {

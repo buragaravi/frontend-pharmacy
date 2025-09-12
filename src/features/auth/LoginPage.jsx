@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { 
+    storeCredentials, 
+    getStoredCredentials, 
+    clearAllStoredCredentials, 
+    validateStoredCredentials, 
+    getDashboardRoute 
+} from '../../utils/authUtils';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -8,7 +15,45 @@ const LoginPage = () => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const navigate = useNavigate();    const handleSubmit = async (e) => {
+    const [rememberMe, setRememberMe] = useState(false);
+    const navigate = useNavigate();
+
+    // Auto-login functionality - check for stored token on component mount
+    useEffect(() => {
+        const checkStoredToken = async () => {
+            try {
+                // Simple check - just look for token in localStorage
+                const token = localStorage.getItem('token');
+                
+                if (token) {
+                    // Validate token with backend
+                    const response = await axios.get('https://backend-pharmacy-5541.onrender.com/api/auth/me', {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    
+                    if (response.data) {
+                        // Token is valid, auto-login user
+                        const dashboardRoute = getDashboardRoute(response.data.role);
+                        navigate(dashboardRoute);
+                    } else {
+                        // Token is invalid, clear stored data
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('labId');
+                        localStorage.removeItem('user');
+                    }
+                }
+                // If no token, stay on login page
+            } catch (error) {
+                // Token is invalid or expired, clear stored data
+                console.log('Auto-login failed:', error);
+                localStorage.removeItem('token');
+                localStorage.removeItem('labId');
+                localStorage.removeItem('user');
+            }
+        };
+
+        checkStoredToken();
+    }, [navigate]);    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
@@ -21,27 +66,17 @@ const LoginPage = () => {
 
             const { token, user } = response.data;
 
+            // Simple storage - always store in localStorage like before
             localStorage.setItem('token', token);
             localStorage.setItem('labId', user.labId || '');
             localStorage.setItem('user', JSON.stringify(user));
             
-            // Navigate to role-specific dashboard
-            switch (user.role) {
-                case 'admin':
-                    navigate('/dashboard/admin');
-                    break;
-                case 'central_store_admin':
-                    navigate('/dashboard/central');
-                    break;
-                case 'lab_assistant':
-                    navigate('/dashboard/lab');
-                    break;
-                case 'faculty':
-                    navigate('/dashboard/faculty');
-                    break;
-                default:
-                    setError('Unknown user role');
-                    break;
+            // Navigate to appropriate dashboard
+            const dashboardRoute = getDashboardRoute(user.role);
+            if (dashboardRoute === '/login') {
+                setError('Unknown user role');
+            } else {
+                navigate(dashboardRoute);
             }
         } catch (err) {
             console.error(err);
@@ -256,6 +291,8 @@ const LoginPage = () => {
                                                 id="remember-me"
                                                 name="remember-me"
                                                 type="checkbox"
+                                                checked={rememberMe}
+                                                onChange={(e) => setRememberMe(e.target.checked)}
                                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-blue-300 rounded"
                                             />
                                             <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">

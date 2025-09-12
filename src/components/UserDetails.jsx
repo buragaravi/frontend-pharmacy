@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { logoutUser, getCurrentToken } from '../utils/authUtils';
 
 // Glassmorphic theme constants
 const THEME = {
@@ -26,29 +27,30 @@ const UserDetails = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('labId');
-    localStorage.removeItem('user');
-    navigate('/login');
+    logoutUser(navigate);
   };
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('https://backend-pharmacy-5541.onrender.com/api/auth/me', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(res.data);
+        const token = getCurrentToken();
+        if (token) {
+          const res = await axios.get('https://backend-pharmacy-5541.onrender.com/api/auth/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setUser(res.data);
+        }
       } catch (error) {
         console.error('Error fetching user:', error);
+        // If token is invalid, logout user
+        logoutUser(navigate);
       } finally {
         setLoading(false);
       }
     };
 
     fetchUser();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (
