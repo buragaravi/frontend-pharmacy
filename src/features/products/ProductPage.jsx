@@ -4,6 +4,8 @@ import ProductList from './ProductList';
 import ProductForm from './ProductForm';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 
 const BASE_URL = 'https://backend-pharmacy-5541.onrender.com/api/products';
@@ -16,6 +18,8 @@ const ProductPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(30);
   const toastTimeout = useRef(null);
 
   // Fetch products
@@ -41,6 +45,18 @@ const ProductPage = () => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  // Pagination logic
+  const totalItems = filteredProducts.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+  // Reset to first page when search term or category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, activeTab]);
 
   // Create product
   const handleCreate = async (productData) => {
@@ -148,6 +164,134 @@ const ProductPage = () => {
     }
   };
 
+  // Export to CSV
+  const exportToCSV = () => {
+    // Sort products alphabetically by name (export ALL filtered products, not just current page)
+    const sortedProducts = [...filteredProducts].sort((a, b) => 
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    );
+    
+    const headers = ['Product Name', 'Units', 'Category', 'Threshold'];
+    const csvContent = [
+      headers.join(','),
+      ...sortedProducts.map(product => [
+        `"${product.name}"`,
+        `"${product.unit || product.variant || 'N/A'}"`,
+        `"${product.category}"`,
+        product.thresholdValue || 0
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `products-export-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    
+    Swal.fire({
+      title: 'Success!',
+      text: 'Products exported to CSV successfully!',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  };
+
+  // Export to PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm' });
+    const pageWidth = 210;
+    const margin = 20;
+    
+    // College header with soft blue styling (following existing pattern)
+    doc.setFillColor(59, 130, 246); // Blue-500
+    doc.rect(0, 0, pageWidth, 35, 'F');
+    
+    // College name
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(255, 255, 255);
+    doc.text('PYDAH COLLEGE OF PHARMACY', pageWidth / 2, 15, { align: 'center' });
+    
+    doc.setFontSize(11);
+    doc.setTextColor(219, 234, 254); // Blue-100
+    doc.text('Product Inventory Report', pageWidth / 2, 25, { align: 'center' });
+    
+    let yPos = 50;
+    
+    // Report details
+    doc.setTextColor(55, 65, 81); // Gray-700
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    
+    // Check if all products belong to a single category
+    const uniqueCategories = [...new Set(sortedProducts.map(p => p.category))];
+    const categoryTitle = uniqueCategories.length === 1 && activeTab !== 'all' 
+      ? `Product Inventory Details - ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`
+      : 'Product Inventory Details';
+    
+    doc.text(categoryTitle, margin, yPos);
+    
+    yPos += 10;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, margin, yPos);
+    doc.text(`Total Products: ${filteredProducts.length}`, margin + 80, yPos);
+    yPos += 5;
+    doc.text(`Category: ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`, margin, yPos);
+    yPos += 15;
+
+    // Sort products alphabetically by name (export ALL filtered products, not just current page)
+    const sortedProducts = [...filteredProducts].sort((a, b) => 
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    );
+
+    // Prepare table data
+    const tableData = sortedProducts.map(product => [
+      product.name,
+      product.unit || product.variant || 'N/A',
+      product.category,
+      product.thresholdValue || 0
+    ]);
+
+    // Table styling (following existing pattern)
+    const tableStyle = {
+      styles: { 
+        fontSize: 8, 
+        cellPadding: 3,
+        lineColor: [219, 234, 254], // Blue-100
+        lineWidth: 0.5
+      },
+      headStyles: { 
+        fillColor: [59, 130, 246], // Blue-500
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 9
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252] // Gray-50
+      },
+      margin: { left: margin, right: margin }
+    };
+
+    autoTable(doc, {
+      head: [['Product Name', 'Units', 'Category', 'Threshold']],
+      body: tableData,
+      startY: yPos,
+      ...tableStyle
+    });
+
+    doc.save(`products-export-${new Date().toISOString().split('T')[0]}.pdf`);
+    
+    Swal.fire({
+      title: 'Success!',
+      text: 'Products exported to PDF successfully!',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  };
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -190,19 +334,46 @@ const ProductPage = () => {
               </svg>
             </div>
 
-            {/* Add Product Button */}
-            <button
-              onClick={() => {
-                setEditingProduct(null);
-                setShowForm(true);
-              }}
-              className="px-6 py-2.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full text-white font-medium hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Add Product
-            </button>
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              {/* Export Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={exportToCSV}
+                  className="px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-white font-medium hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300 flex items-center gap-2"
+                  title="Export to CSV"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  CSV
+                </button>
+                <button
+                  onClick={exportToPDF}
+                  className="px-4 py-2.5 bg-gradient-to-r from-red-500 to-pink-600 rounded-full text-white font-medium hover:shadow-lg hover:shadow-red-500/30 transition-all duration-300 flex items-center gap-2"
+                  title="Export to PDF"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  PDF
+                </button>
+              </div>
+              
+              {/* Add Product Button */}
+              <button
+                onClick={() => {
+                  setEditingProduct(null);
+                  setShowForm(true);
+                }}
+                className="px-6 py-2.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full text-white font-medium hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Product
+              </button>
+            </div>
           </div>
 
           {/* Category Tabs */}
@@ -236,12 +407,19 @@ const ProductPage = () => {
               </div>
             ) : (
               <ProductList 
-                products={filteredProducts} 
+                products={paginatedProducts} 
                 onEdit={(product) => {
                   setEditingProduct(product);
                   setShowForm(true);
                 }}
                 onDelete={handleDelete}
+                totalItems={totalItems}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                startIndex={startIndex}
+                endIndex={endIndex}
               />
             )}
           </div>

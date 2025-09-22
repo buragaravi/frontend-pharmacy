@@ -3,6 +3,10 @@ import axios from 'axios';
 import ProductForm from './ProductForm';
 import BulkProductUpload from './BulkProductUpload';
 import ProductInventoryDetail from '../../components/ProductInventoryDetail';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 // Add custom styles for animations
 const customStyles = `
@@ -74,7 +78,20 @@ const customStyles = `
 
 const BASE_URL = 'https://backend-pharmacy-5541.onrender.com/api/products';
 
-const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
+const ProductList = ({ 
+  userRole = 'admin', 
+  showAdminActions = true,
+  products: externalProducts,
+  onEdit,
+  onDelete,
+  totalItems: externalTotalItems,
+  currentPage: externalCurrentPage,
+  totalPages: externalTotalPages,
+  onPageChange: externalOnPageChange,
+  itemsPerPage: externalItemsPerPage,
+  startIndex: externalStartIndex,
+  endIndex: externalEndIndex
+}) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -84,6 +101,8 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
   const [currentCategory, setCurrentCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedProductId, setExpandedProductId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(30);
 
   const isAdmin = userRole === 'admin' || userRole === 'central_store_admin';
   const canManageProducts = showAdminActions && isAdmin;
@@ -190,6 +209,134 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
     setError(null);
   };
 
+  // Export to CSV
+  const exportToCSV = () => {
+    // Sort products alphabetically by name (export ALL filtered products, not just current page)
+    const sortedProducts = [...filteredProducts].sort((a, b) => 
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    );
+    
+    const headers = ['Product Name', 'Units', 'Category', 'Threshold'];
+    const csvContent = [
+      headers.join(','),
+      ...sortedProducts.map(product => [
+        `"${product.name}"`,
+        `"${product.unit || product.variant || 'N/A'}"`,
+        `"${product.category}"`,
+        product.thresholdValue || 0
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `products-export-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    
+    Swal.fire({
+      title: 'Success!',
+      text: 'Products exported to CSV successfully!',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  };
+
+  // Export to PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm' });
+    const pageWidth = 210;
+    const margin = 20;
+    
+    // College header with soft blue styling (following existing pattern)
+    doc.setFillColor(59, 130, 246); // Blue-500
+    doc.rect(0, 0, pageWidth, 35, 'F');
+    
+    // College name
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(255, 255, 255);
+    doc.text('PYDAH COLLEGE OF PHARMACY', pageWidth / 2, 15, { align: 'center' });
+    
+    doc.setFontSize(11);
+    doc.setTextColor(219, 234, 254); // Blue-100
+    doc.text('Product Inventory Report', pageWidth / 2, 25, { align: 'center' });
+    
+    let yPos = 50;
+    
+    // Sort products alphabetically by name (export ALL filtered products, not just current page)
+    const sortedProducts = [...filteredProducts].sort((a, b) => 
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    );
+
+    // Report details
+    doc.setTextColor(55, 65, 81); // Gray-700
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    
+    // Check if all products belong to a single category
+    const uniqueCategories = [...new Set(sortedProducts.map(p => p.category))];
+    const categoryTitle = uniqueCategories.length === 1 && currentCategory !== 'all' 
+      ? `Product Inventory Details - ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}`
+      : 'Product Inventory Details';
+    
+    doc.text(categoryTitle, margin, yPos);
+    
+    yPos += 10;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, margin, yPos);
+    doc.text(`Total Products: ${filteredProducts.length}`, margin + 80, yPos);
+    yPos += 5;
+    doc.text(`Category: ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}`, margin, yPos);
+    yPos += 15;
+
+    // Prepare table data
+    const tableData = sortedProducts.map(product => [
+      product.name,
+      product.unit || product.variant || 'N/A',
+      product.category,
+      product.thresholdValue || 0
+    ]);
+
+    // Table styling (following existing pattern)
+    const tableStyle = {
+      styles: { 
+        fontSize: 8, 
+        cellPadding: 3,
+        lineColor: [219, 234, 254], // Blue-100
+        lineWidth: 0.5
+      },
+      headStyles: { 
+        fillColor: [59, 130, 246], // Blue-500
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 9
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252] // Gray-50
+      },
+      margin: { left: margin, right: margin }
+    };
+
+    autoTable(doc, {
+      head: [['Product Name', 'Units', 'Category', 'Threshold']],
+      body: tableData,
+      startY: yPos,
+      ...tableStyle
+    });
+
+    doc.save(`products-export-${new Date().toISOString().split('T')[0]}.pdf`);
+    
+    Swal.fire({
+      title: 'Success!',
+      text: 'Products exported to PDF successfully!',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  };
+
   const handleCategoryChange = (category) => {
     setCurrentCategory(category);
     setExpandedProductId(null); // Close any expanded product when changing category
@@ -214,6 +361,19 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
       productVariant.includes(searchLower) ||
       productDescription.includes(searchLower);
   });
+
+  // Pagination logic - use external props if provided, otherwise use internal state
+  const isExternalPagination = externalProducts !== undefined;
+  const totalItems = isExternalPagination ? externalTotalItems : filteredProducts.length;
+  const totalPages = isExternalPagination ? externalTotalPages : Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = isExternalPagination ? externalStartIndex : (currentPage - 1) * itemsPerPage;
+  const endIndex = isExternalPagination ? externalEndIndex : startIndex + itemsPerPage;
+  const paginatedProducts = isExternalPagination ? externalProducts : filteredProducts.slice(startIndex, endIndex);
+
+  // Reset to first page when search term or category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, currentCategory]);
 
   useEffect(() => {
     fetchProducts();
@@ -429,6 +589,30 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
                     Refresh
                   </button>
 
+                  {/* Export Buttons - Available for all users */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={exportToCSV}
+                      className="px-3 py-2 bg-green-600 rounded-lg text-white text-sm font-semibold hover:bg-green-700 hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
+                      title="Export to CSV"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      CSV
+                    </button>
+                    <button
+                      onClick={exportToPDF}
+                      className="px-3 py-2 bg-red-600 rounded-lg text-white text-sm font-semibold hover:bg-red-700 hover:shadow-lg transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
+                      title="Export to PDF"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      PDF
+                    </button>
+                  </div>
+
                   {canManageProducts && (
                     <>
                       <button
@@ -488,7 +672,7 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
             <div className="p-4 bg-white">
               {loading ? (
                 <ProductTableSkeleton rows={6} />
-              ) : filteredProducts.length === 0 ? (
+              ) : paginatedProducts.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="mx-auto w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
                     <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -539,7 +723,7 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
                       </tr>
                     </thead>
                     <tbody className="bg-white/50 divide-y divide-gray-200/30">
-                      {filteredProducts.map((product, index) => {
+                      {paginatedProducts.map((product, index) => {
                         const categoryStyle = getCategoryStyle(product.category);
                         const isExpanded = expandedProductId === product._id;
                         return (
@@ -637,6 +821,104 @@ const ProductList = ({ userRole = 'admin', showAdminActions = true }) => {
                       })}
                     </tbody>
                   </table>
+                </div>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-6 flex items-center justify-between bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                  <div className="flex flex-1 justify-between sm:hidden">
+                    <button
+                      onClick={() => {
+                        const newPage = Math.max(1, (isExternalPagination ? externalCurrentPage : currentPage) - 1);
+                        isExternalPagination ? externalOnPageChange(newPage) : setCurrentPage(newPage);
+                      }}
+                      disabled={(isExternalPagination ? externalCurrentPage : currentPage) === 1}
+                      className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => {
+                        const newPage = Math.min(totalPages, (isExternalPagination ? externalCurrentPage : currentPage) + 1);
+                        isExternalPagination ? externalOnPageChange(newPage) : setCurrentPage(newPage);
+                      }}
+                      disabled={(isExternalPagination ? externalCurrentPage : currentPage) === totalPages}
+                      className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm text-gray-700">
+                        Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+                        <span className="font-medium">{Math.min(endIndex, totalItems)}</span> of{' '}
+                        <span className="font-medium">{totalItems}</span> results
+                      </p>
+                    </div>
+                    <div>
+                      <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                        <button
+                          onClick={() => {
+                            const newPage = Math.max(1, (isExternalPagination ? externalCurrentPage : currentPage) - 1);
+                            isExternalPagination ? externalOnPageChange(newPage) : setCurrentPage(newPage);
+                          }}
+                          disabled={(isExternalPagination ? externalCurrentPage : currentPage) === 1}
+                          className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <span className="sr-only">Previous</span>
+                          <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                        
+                        {/* Page numbers */}
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          let pageNum;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => {
+                                isExternalPagination ? externalOnPageChange(pageNum) : setCurrentPage(pageNum);
+                              }}
+                              className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+                                (isExternalPagination ? externalCurrentPage : currentPage) === pageNum
+                                  ? 'z-10 bg-blue-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                                  : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                        
+                        <button
+                          onClick={() => {
+                            const newPage = Math.min(totalPages, (isExternalPagination ? externalCurrentPage : currentPage) + 1);
+                            isExternalPagination ? externalOnPageChange(newPage) : setCurrentPage(newPage);
+                          }}
+                          disabled={(isExternalPagination ? externalCurrentPage : currentPage) === totalPages}
+                          className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <span className="sr-only">Next</span>
+                          <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
