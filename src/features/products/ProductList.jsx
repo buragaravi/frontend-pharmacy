@@ -210,40 +210,64 @@ const ProductList = ({
   };
 
   // Export to CSV
-  const exportToCSV = () => {
-    // Sort products alphabetically by name (export ALL filtered products, not just current page)
-    const sortedProducts = [...filteredProducts].sort((a, b) => 
-      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-    );
-    
-    const headers = ['Product Name', 'Units', 'Category', 'Threshold'];
-    const csvContent = [
-      headers.join(','),
-      ...sortedProducts.map(product => [
-        `"${product.name}"`,
-        `"${product.unit || product.variant || 'N/A'}"`,
-        `"${product.category}"`,
-        product.thresholdValue || 0
-      ].join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `products-export-${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    
+  const exportToCSV = async () => {
     Swal.fire({
-      title: 'Success!',
-      text: 'Products exported to CSV successfully!',
-      icon: 'success',
-      timer: 1500,
-      showConfirmButton: false
+      title: 'Generating Report...',
+      text: 'Please wait while we fetch the complete inventory data.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
     });
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${BASE_URL}/export?reportType=complete`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const inventoryData = res.data || [];
+
+      const headers = ['Product Name', 'Category', 'Total Quantity', 'Lab Distribution'];
+      const csvContent = [
+        headers.join(','),
+        ...inventoryData.map(item => {
+          const labDetails = Object.entries(item.labDetails)
+            .map(([lab, qty]) => `${lab}: ${qty}`)
+            .join('; ');
+
+          return [
+            `"${item.productName}"`,
+            `"${item.category}"`,
+            item.totalQuantity,
+            `"${labDetails}"`
+          ].join(',');
+        })
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `inventory-report-${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+
+      Swal.fire({
+        title: 'Success!',
+        text: 'Inventory report exported to CSV successfully!',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } catch (err) {
+      Swal.fire({
+        title: 'Error!',
+        text: err.response?.data?.message || 'Failed to export inventory report.',
+        icon: 'error',
+      });
+    }
   };
 
   // Export to PDF
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm' });
     const pageWidth = 210;
     const margin = 20;
@@ -260,81 +284,72 @@ const ProductList = ({
     
     doc.setFontSize(11);
     doc.setTextColor(219, 234, 254); // Blue-100
-    doc.text('Product Inventory Report', pageWidth / 2, 25, { align: 'center' });
+    doc.text('Complete Inventory Report', pageWidth / 2, 25, { align: 'center' });
     
     let yPos = 50;
-    
-    // Sort products alphabetically by name (export ALL filtered products, not just current page)
-    const sortedProducts = [...filteredProducts].sort((a, b) => 
-      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-    );
 
-    // Report details
-    doc.setTextColor(55, 65, 81); // Gray-700
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    
-    // Check if all products belong to a single category
-    const uniqueCategories = [...new Set(sortedProducts.map(p => p.category))];
-    const categoryTitle = uniqueCategories.length === 1 && currentCategory !== 'all' 
-      ? `Product Inventory Details - ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}`
-      : 'Product Inventory Details';
-    
-    doc.text(categoryTitle, margin, yPos);
-    
-    yPos += 10;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, margin, yPos);
-    doc.text(`Total Products: ${filteredProducts.length}`, margin + 80, yPos);
-    yPos += 5;
-    doc.text(`Category: ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}`, margin, yPos);
-    yPos += 15;
-
-    // Prepare table data
-    const tableData = sortedProducts.map(product => [
-      product.name,
-      product.unit || product.variant || 'N/A',
-      product.category,
-      product.thresholdValue || 0
-    ]);
-
-    // Table styling (following existing pattern)
-    const tableStyle = {
-      styles: { 
-        fontSize: 8, 
-        cellPadding: 3,
-        lineColor: [219, 234, 254], // Blue-100
-        lineWidth: 0.5
-      },
-      headStyles: { 
-        fillColor: [59, 130, 246], // Blue-500
-        textColor: 255,
-        fontStyle: 'bold',
-        fontSize: 9
-      },
-      alternateRowStyles: {
-        fillColor: [248, 250, 252] // Gray-50
-      },
-      margin: { left: margin, right: margin }
-    };
-
-    autoTable(doc, {
-      head: [['Product Name', 'Units', 'Category', 'Threshold']],
-      body: tableData,
-      startY: yPos,
-      ...tableStyle
-    });
-
-    doc.save(`products-export-${new Date().toISOString().split('T')[0]}.pdf`);
-    
     Swal.fire({
-      title: 'Success!',
-      text: 'Products exported to PDF successfully!',
-      icon: 'success',
-      timer: 1500,
-      showConfirmButton: false
+      title: 'Generating Report...',
+      text: 'Please wait while we fetch the complete inventory data.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
     });
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${BASE_URL}/export?reportType=complete`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const inventoryData = res.data || [];
+
+      // Report details
+      doc.setTextColor(55, 65, 81); // Gray-700
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Complete Inventory Stock Details', margin, yPos);
+      yPos += 10;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, margin, yPos);
+      doc.text(`Total Unique Products: ${inventoryData.length}`, margin + 80, yPos);
+      yPos += 15;
+
+      // Prepare table data
+      const tableData = inventoryData.map(item => {
+        const labDetails = Object.entries(item.labDetails)
+          .map(([lab, qty]) => `${lab}: ${qty}`)
+          .join('\n');
+        return [item.productName, item.category, item.totalQuantity, labDetails];
+      });
+
+      autoTable(doc, {
+        head: [['Product Name', 'Category', 'Total Qty', 'Lab Distribution']],
+        body: tableData,
+        startY: yPos,
+        styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
+        headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        margin: { left: margin, right: margin }
+      });
+
+      doc.save(`inventory-report-${new Date().toISOString().split('T')[0]}.pdf`);
+
+      Swal.fire({
+        title: 'Success!',
+        text: 'Inventory report exported to PDF successfully!',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } catch (err) {
+      Swal.fire({
+        title: 'Error!',
+        text: err.response?.data?.message || 'Failed to export inventory report.',
+        icon: 'error',
+      });
+    }
   };
 
   const handleCategoryChange = (category) => {
