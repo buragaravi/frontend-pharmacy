@@ -737,18 +737,18 @@ const CreateRequestForm = () => {
   };
 
   const handleChemicalSelect = (expIndex, chemIndex, suggestion) => {
-    const updated = [...experiments];
-    
+    console.log('handleChemicalSelect called', { expIndex, chemIndex, suggestion });
+
     // Create a proper chemical object structure for quantity calculations
     const chemicalForCalculation = {
       labs: suggestion.labs || [],
       totalQuantity: suggestion.totalQuantity || 0
     };
-    
+
     const availableQty = calculateAvailableQuantity(chemicalForCalculation, labId);
     const labQuantities = getLabQuantitiesForDisplay(chemicalForCalculation, labId);
     const hasZeroQuantity = availableQty === 0;
-    
+
     const newChemical = {
       chemicalName: suggestion.name,
       unit: suggestion.unit,
@@ -763,9 +763,50 @@ const CreateRequestForm = () => {
       hasZeroQuantity,
       totalQuantity: suggestion.totalQuantity || 0,
     };
-    
-    updated[expIndex].chemicals[chemIndex] = newChemical;
-    setExperiments(updated);
+
+    setExperiments(prev => {
+      const updated = [...prev];
+      // Ensure experiment exists
+      if (!updated[expIndex]) {
+        updated[expIndex] = {
+          experimentId: '',
+          experimentName: '',
+          courseId: '',
+          batchId: '',
+          date: '',
+          chemicals: [],
+          equipment: [],
+          glassware: [],
+        };
+      }
+      if (!Array.isArray(updated[expIndex].chemicals)) updated[expIndex].chemicals = [];
+
+      updated[expIndex].chemicals[chemIndex] = newChemical;
+      return updated;
+    });
+
+    // Focus the input so the selected chemical is visible immediately
+    setTimeout(() => {
+      try {
+        const selector = `[data-chem-input=\"chem-${expIndex}-${chemIndex}\"]`;
+        const el = document.querySelector(selector);
+        if (el) {
+          el.focus();
+          // As a fail-safe, set the DOM value directly so the chosen name is visible
+          try {
+            el.value = suggestion.name || '';
+            // Trigger input event for debug (won't call React onChange automatically)
+            const ev = new Event('input', { bubbles: true });
+            el.dispatchEvent(ev);
+            console.log('Set DOM input value for', selector, el.value);
+          } catch (err) {
+            console.warn('Could not set DOM value for chemical input', err);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to focus chemical input', err);
+      }
+    }, 50);
   };
 
   const handleFocus = (expIndex, chemIndex) => {
@@ -1132,6 +1173,7 @@ const CreateRequestForm = () => {
               type="text"
               placeholder="Search chemical..."
               value={chemical.chemicalName}
+              data-chem-input={`chem-${expIndex}-${chemIndex}`}
               onChange={(e) => handleChemicalSearch(expIndex, chemIndex, e.target.value)}
               onFocus={() => handleFocus(expIndex, chemIndex)}
               onBlur={() => handleBlur(expIndex, chemIndex)}
@@ -1152,9 +1194,9 @@ const CreateRequestForm = () => {
                       className={`px-4 py-3 text-sm hover:bg-blue-100/60 cursor-pointer border-b border-white/20 last:border-b-0 transition-all duration-200 ${
                         sug.hasZeroQuantity ? 'bg-red-100/60 hover:bg-red-200/60' : 'hover:bg-blue-100/60'
                       }`}
-                      onClick={(e) => {
+                      onMouseDown={(e) => {
+                        // Prevent input from blurring before selection — ensures selection is applied
                         e.preventDefault();
-                        e.stopPropagation();
                         handleChemicalSelect(expIndex, chemIndex, sug);
                       }}
                     >
@@ -1609,7 +1651,7 @@ const CreateRequestForm = () => {
   };
 
   return (
-    <div className="w-full relative overflow-hidden">
+    <div className="w-full relative overflow-visible">
       {/* Floating claymorphism bubbles - hidden on small/medium screens */}
       <div className="hidden lg:block fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-indigo-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob"></div>
