@@ -420,7 +420,7 @@ const CreateRequestForm = () => {
               chemicalName: defaultChem.chemicalName,
               quantity: defaultChem.quantity,
               unit: defaultChem.unit,
-              chemicalMasterId: matchedChemical._id,
+              chemicalMasterId: matchedChemical.chemicalMasterId,
               suggestions: [],
               showSuggestions: false,
               availableQuantity: availableQty,
@@ -752,7 +752,7 @@ const CreateRequestForm = () => {
     const newChemical = {
       chemicalName: suggestion.name,
       unit: suggestion.unit,
-      chemicalMasterId: suggestion.id,
+      chemicalMasterId: suggestion.chemicalMasterId,
       quantity: '',
       suggestions: [],
       showSuggestions: false,
