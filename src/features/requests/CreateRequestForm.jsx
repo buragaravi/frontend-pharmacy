@@ -124,6 +124,7 @@ const CreateRequestForm = () => {
           chemicalName: '',
           quantity: '',
           unit: '',
+          baseQuantity: 1, // Store the original quantity per student
           chemicalMasterId: '',
           suggestions: [],
           showSuggestions: false,
@@ -393,6 +394,7 @@ const CreateRequestForm = () => {
           chemicalName: '',
           quantity: '',
           unit: '',
+          baseQuantity: 1,
           chemicalMasterId: '',
           suggestions: [],
           showSuggestions: false,
@@ -420,6 +422,7 @@ const CreateRequestForm = () => {
               chemicalName: defaultChem.chemicalName,
               quantity: defaultChem.quantity,
               unit: defaultChem.unit,
+              baseQuantity: defaultChem.quantity, // Store the original quantity
               chemicalMasterId: matchedChemical.chemicalMasterId,
               suggestions: [],
               showSuggestions: false,
@@ -436,6 +439,7 @@ const CreateRequestForm = () => {
               chemicalName: defaultChem.chemicalName,
               quantity: defaultChem.quantity,
               unit: defaultChem.unit,
+              baseQuantity: defaultChem.quantity,
               chemicalMasterId: '',
               suggestions: [],
               showSuggestions: false,
@@ -451,6 +455,7 @@ const CreateRequestForm = () => {
           chemicalName: chem.chemicalName,
           quantity: chem.quantity,
           unit: chem.unit,
+          baseQuantity: chem.quantity,
           chemicalMasterId: '',
           suggestions: [],
           showSuggestions: false,
@@ -604,6 +609,32 @@ const CreateRequestForm = () => {
   const handleExperimentChange = (index, field, value) => {
     const newExperiments = [...experiments];
     newExperiments[index][field] = value;
+
+    // If a batch is selected, multiply default chemical quantities
+    if (field === 'batchId' && value) {
+      const courseId = newExperiments[index].courseId;
+      const course = coursesData.find(c => c._id === courseId);
+      const batch = course?.batches.find(b => b._id === value);
+      const numberOfStudents = batch?.numberOfStudents || 1;
+
+      if (numberOfStudents > 0) {
+        newExperiments[index].chemicals = newExperiments[index].chemicals.map(chem => {
+          // Only multiply if it's a default chemical (has a baseQuantity)
+          if (chem.baseQuantity) {
+            return {
+              ...chem,
+              quantity: chem.baseQuantity * numberOfStudents,
+            };
+          }
+          return chem;
+        });
+        toast.info(`Chemical quantities updated for ${numberOfStudents} students.`, {
+          position: "bottom-right",
+          autoClose: 3000,
+        });
+      }
+    }
+
     setExperiments(newExperiments);
   };
 
@@ -630,12 +661,11 @@ const CreateRequestForm = () => {
   // Helper function to calculate available quantity for selected lab
   const calculateAvailableQuantity = (chemical, selectedLabId) => {
     if (!selectedLabId) {
-      // If no lab selected, show only Central Store quantity
+      // If no lab selected, show the total quantity across all labs.
       if (!chemical.labs) {
         return chemical.totalQuantity || 0;
       }
-      const centralStoreQty = chemical.labs.find(lab => lab.labId === 'central-store')?.quantity || 0;
-      return centralStoreQty;
+      return chemical.labs.reduce((sum, lab) => sum + (lab.quantity || 0), 0);
     }
     
     if (!chemical.labs) {
@@ -928,6 +958,7 @@ const CreateRequestForm = () => {
       chemicalName: '',
       quantity: '',
       unit: '',
+      baseQuantity: 1, // Base quantity for manually added chemicals
       chemicalMasterId: '',
       suggestions: [],
       showSuggestions: false,
@@ -1796,9 +1827,19 @@ const CreateRequestForm = () => {
                           )}
                           {experiment.courseId && experiment.batchId && <span className="mx-2">|</span>}
                           {experiment.batchId && (
-                            <span>
-                              Batch: {getBatchesForCourse(experiment.courseId).find(b => b._id === experiment.batchId)?.batchName} ({getBatchesForCourse(experiment.courseId).find(b => b._id === experiment.batchId)?.batchCode}) - {getBatchesForCourse(experiment.courseId).find(b => b._id === experiment.batchId)?.academicYear}
-                            </span>
+                            (() => {
+                              const selectedBatch = getBatchesForCourse(experiment.courseId).find(b => b._id === experiment.batchId);
+                              if (!selectedBatch) return null;
+
+                              return (
+                                <span>
+                                  Batch: {selectedBatch.batchName} ({selectedBatch.batchCode}) - {selectedBatch.academicYear}
+                                  {selectedBatch.numberOfStudents && (
+                                    <span className="ml-2 font-semibold text-slate-600">(Students: {selectedBatch.numberOfStudents})</span>
+                                  )}
+                                </span>
+                              );
+                            })()
                           )}
                         </div>
                       )}
@@ -1877,6 +1918,7 @@ const CreateRequestForm = () => {
                   </div>
                 </div>
 
+                <div className="relative">
                 {/* Chemicals Section */}
                 <div className="space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
@@ -1935,7 +1977,23 @@ const CreateRequestForm = () => {
 
                 {/* Equipment Section */}
                 {renderEquipmentSection(expIndex)}
+
+                {/* Overlay to disable item inputs until batch is selected */}
+                {!experiment.batchId && (
+                  <div className="absolute inset-0 top-0 z-30 bg-white/70 backdrop-blur-sm rounded-b-2xl flex items-center justify-center">
+                    <div className="text-center p-4 bg-amber-100/80 rounded-xl border border-amber-200 shadow-lg">
+                      <div className="flex items-center gap-2 text-amber-800 font-semibold">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <span>Please select a batch to add or edit items.</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                </div>
               </div>
+
             ))}
 
             <button
