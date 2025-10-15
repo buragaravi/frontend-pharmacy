@@ -143,6 +143,15 @@ const CreateRequestForm = () => {
   const [equipmentLoading, setEquipmentLoading] = useState(false);
   const [equipmentError, setEquipmentError] = useState('');
 
+  // --- Glassware Data Fetching ---
+  const { data: allGlasswareData = [], isLoading: glasswareLoading } = useQuery({
+    queryKey: ['allAvailableGlassware'],
+    queryFn: async () => {
+      const response = await api.get('/glassware/central/available');
+      return response.data;
+    },
+  });
+
   // Fetch dynamic labs and aggregate equipment from all labs
   useEffect(() => {
     const fetchLabs = async () => {
@@ -393,16 +402,11 @@ const CreateRequestForm = () => {
   });
 
   const handleExperimentSelect = async (index, experiment) => {
-    const newExperiments = [...experiments];
-    if (newExperiments[index].experimentId) return; // Prevent reselection
-
     // Helper function to match and auto-fill chemicals
-    const processDefaultChemicals = async (defaultChemicals) => {
+    const processDefaultChemicals = (defaultChemicals) => {
       if (!defaultChemicals || defaultChemicals.length === 0) {
         return [{
           chemicalName: '',
-          quantity: '',
-          unit: '',
           baseQuantity: 1,
           chemicalMasterId: '',
           suggestions: [],
@@ -411,127 +415,88 @@ const CreateRequestForm = () => {
         }];
       }
 
-      try {
-        // Fetch available chemicals for matching
-        const response = await api.get(`/chemicals/all-with-lab-quantities`);
-        const availableChemicals = response.data.chemicals;
+      return defaultChemicals.map(defaultChem => {
+        // Find matching chemical by name (case-insensitive) from pre-fetched data
+        const matchedChemical = allChemicalsData.find(availableChem =>
+          availableChem.displayName.toLowerCase().trim() === defaultChem.chemicalName.toLowerCase().trim()
+        );
 
-        return defaultChemicals.map(defaultChem => {
-          // Find matching chemical by name (case-insensitive)
-          const matchedChemical = availableChemicals.find(availableChem => 
-            availableChem.displayName.toLowerCase().trim() === defaultChem.chemicalName.toLowerCase().trim()
-          );
+        if (matchedChemical) {
+          const availableQty = calculateAvailableQuantity(matchedChemical, labId);
+          const labQuantities = getLabQuantitiesForDisplay(matchedChemical, labId);
+          const hasZeroQuantity = availableQty === 0;
 
-          if (matchedChemical) {
-            const availableQty = calculateAvailableQuantity(matchedChemical, labId);
-            const labQuantities = getLabQuantitiesForDisplay(matchedChemical, labId);
-            const hasZeroQuantity = availableQty === 0;
-            
-            return {
-              chemicalName: defaultChem.chemicalName,
-              quantity: defaultChem.quantity,
-              unit: defaultChem.unit,
-              baseQuantity: defaultChem.quantity, // Store the original quantity
-              chemicalMasterId: matchedChemical.chemicalMasterId,
-              suggestions: [],
-              showSuggestions: false,
-              availableQuantity: availableQty,
-              labs: matchedChemical.labs, // Include all lab quantities
-              centralStoreQty: labQuantities.centralStoreQty,
-              selectedLabQty: labQuantities.selectedLabQty,
-              hasZeroQuantity,
-              totalQuantity: matchedChemical.totalQuantity || 0,
-            };
-          } else {
-            // If no match found, keep the default chemical but without ID
-            return {
-              chemicalName: defaultChem.chemicalName,
-              quantity: defaultChem.quantity,
-              unit: defaultChem.unit,
-              baseQuantity: defaultChem.quantity,
-              chemicalMasterId: '',
-              suggestions: [],
-              showSuggestions: false,
-              availableQuantity: null,
-              isAvailableInLab: false,
-            };
-          }
-        });
-      } catch (err) {
-        console.error('Error fetching chemicals for matching:', err);
-        // If error, return default chemicals without matching
-        return defaultChemicals.map(chem => ({
-          chemicalName: chem.chemicalName,
-          quantity: chem.quantity,
-          unit: chem.unit,
-          baseQuantity: chem.quantity,
-          chemicalMasterId: '',
-          suggestions: [],
-          showSuggestions: false,
-          availableQuantity: null,
-        }));
-      }
+          return {
+            chemicalName: defaultChem.chemicalName,
+            quantity: defaultChem.quantity,
+            unit: defaultChem.unit,
+            baseQuantity: defaultChem.quantity, // Store the original quantity
+            chemicalMasterId: matchedChemical.chemicalMasterId,
+            suggestions: [],
+            showSuggestions: false,
+            availableQuantity: availableQty,
+            labs: matchedChemical.labs,
+            centralStoreQty: labQuantities.centralStoreQty,
+            selectedLabQty: labQuantities.selectedLabQty,
+            hasZeroQuantity,
+            totalQuantity: matchedChemical.totalQuantity || 0,
+          };
+        } else {
+          // If no match found, keep the default chemical but without ID
+          return {
+            chemicalName: defaultChem.chemicalName,
+            quantity: defaultChem.quantity,
+            unit: defaultChem.unit,
+            baseQuantity: defaultChem.quantity,
+            chemicalMasterId: '',
+            suggestions: [],
+            showSuggestions: false,
+            availableQuantity: null,
+            isAvailableInLab: false,
+          };
+        }
+      });
     };
 
     // Helper function to match and auto-fill glassware
-    const processDefaultGlassware = async (defaultGlassware) => {
+    const processDefaultGlassware = (defaultGlassware) => {
       if (!defaultGlassware || defaultGlassware.length === 0) {
         return [];
       }
 
-      try {
-        // Fetch available glassware for matching
-        const response = await api.get(`/glassware/central/available`);
-        const availableGlassware = response.data;
+      return defaultGlassware.map(defaultGw => {
+        // Find matching glassware by name (case-insensitive) from pre-fetched data
+        const matchedGlassware = allGlasswareData.find(availableGw =>
+          availableGw.name.toLowerCase().trim() === defaultGw.name.toLowerCase().trim()
+        );
 
-        return defaultGlassware.map(defaultGw => {
-          // Find matching glassware by name (case-insensitive)
-          const matchedGlassware = availableGlassware.find(availableGw => 
-            availableGw.name.toLowerCase().trim() === defaultGw.name.toLowerCase().trim()
-          );
-
-          if (matchedGlassware) {
-            return {
-              glasswareId: matchedGlassware._id,
-              productId: matchedGlassware.productId || '',
-              name: defaultGw.name,
-              variant: matchedGlassware.variant || matchedGlassware.unit,
-              quantity: defaultGw.quantity,
-              unit: defaultGw.unit,
-              suggestions: [],
-              showSuggestions: false,
-              availableQuantity: matchedGlassware.quantity,
-            };
-          } else {
-            // If no match found, keep the default glassware but without ID
-            return {
-              glasswareId: '',
-              productId: '',
-              name: defaultGw.name,
-              variant: '',
-              quantity: defaultGw.quantity,
-              unit: defaultGw.unit,
-              suggestions: [],
-              showSuggestions: false,
-              availableQuantity: null,
-            };
-          }
-        });
-      } catch (err) {
-        console.error('Error fetching glassware for matching:', err);
-        // If error, return default glassware without matching
-        return defaultGlassware.map(gw => ({
-          glasswareId: '',
-          productId: '',
-          name: gw.name,
-          variant: '',
-          quantity: gw.quantity,
-          unit: gw.unit,
-          suggestions: [],
-          showSuggestions: false,
-          availableQuantity: null,
-        }));
-      }
+        if (matchedGlassware) {
+          return {
+            glasswareId: matchedGlassware._id,
+            productId: matchedGlassware.productId || '',
+            name: defaultGw.name,
+            variant: matchedGlassware.variant || matchedGlassware.unit,
+            quantity: defaultGw.quantity,
+            unit: defaultGw.unit,
+            suggestions: [],
+            showSuggestions: false,
+            availableQuantity: matchedGlassware.quantity,
+          };
+        } else {
+          // If no match found, keep the default glassware but without ID
+          return {
+            glasswareId: '',
+            productId: '',
+            name: defaultGw.name,
+            variant: '',
+            quantity: defaultGw.quantity,
+            unit: defaultGw.unit,
+            suggestions: [],
+            showSuggestions: false,
+            availableQuantity: null,
+          };
+        }
+      });
     };
 
     // Helper function to match and auto-fill equipment
@@ -576,9 +541,12 @@ const CreateRequestForm = () => {
     };
 
     // Process all default items
-    const processedChemicals = await processDefaultChemicals(experiment.defaultChemicals);
-    const processedGlassware = await processDefaultGlassware(experiment.defaultGlassware);
+    const processedChemicals = processDefaultChemicals(experiment.defaultChemicals);
+    const processedGlassware = processDefaultGlassware(experiment.defaultGlassware);
     const processedEquipment = processDefaultEquipment(experiment.defaultEquipment);
+
+    const newExperiments = [...experiments];
+    if (newExperiments[index].experimentId) return; // Prevent reselection
 
     newExperiments[index] = {
       ...newExperiments[index],
