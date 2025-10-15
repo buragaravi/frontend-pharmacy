@@ -346,6 +346,15 @@ const CreateRequestForm = () => {
     },
   });
 
+  // Fetch all available chemicals for frontend filtering
+  const { data: allChemicalsData = [], isLoading: chemicalsLoading } = useQuery({
+    queryKey: ['allChemicalsWithLabQuantities'],
+    queryFn: async () => {
+      const response = await api.get('/chemicals/all-with-lab-quantities');
+      return response.data.chemicals;
+    },
+  });
+
   // Create request mutation
   const createRequestMutation = useMutation({
     mutationFn: async (requestData) => {
@@ -707,43 +716,44 @@ const CreateRequestForm = () => {
   // Debounced search function
   const debouncedSearch = React.useCallback(
     debounce(async (expIndex, chemIndex, searchTerm) => {
-    if (!searchTerm.trim()) {
-      const updated = [...experiments];
-      updated[expIndex].chemicals[chemIndex] = {
-        ...updated[expIndex].chemicals[chemIndex],
-        suggestions: [],
-        showSuggestions: false,
+      const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+      if (!normalizedSearchTerm) {
+        const updated = [...experiments];
+        updated[expIndex].chemicals[chemIndex] = {
+          ...updated[expIndex].chemicals[chemIndex],
+          suggestions: [],
+          showSuggestions: false,
           availableQuantity: null,
           totalSuggestions: 0
-      };
-      setExperiments(updated);
-      return;
-    }
+        };
+        setExperiments(updated);
+        return;
+      }
 
-    try {
-        const response = await api.get(`/chemicals/all-with-lab-quantities?search=${encodeURIComponent(searchTerm)}`);
-        
-        // Show ALL chemicals from ALL labs - no filtering
-        const suggestions = response.data.chemicals.map(item => {
-          const availableQty = calculateAvailableQuantity(item, labId);
-          const labQuantities = getLabQuantitiesForDisplay(item, labId);
-          const hasZeroQuantity = availableQty === 0;
-          
-          
-          return {
-            name: item.displayName,
-        unit: item.unit,
-        id: item._id,
-            availableQuantity: availableQty,
-            labs: item.labs, // Include all lab quantities
-            centralStoreQty: labQuantities.centralStoreQty,
-            selectedLabQty: labQuantities.selectedLabQty,
-            hasZeroQuantity,
-            totalQuantity: item.totalQuantity || 0, // Total across all labs
-            // Add individual lab quantities for display
-            individualLabQuantities: item.labs || [],
-          };
-        });
+      // Perform filtering on the frontend using the cached `allChemicalsData`
+      const filteredChemicals = allChemicalsData.filter(chem =>
+        chem.displayName.toLowerCase().includes(normalizedSearchTerm)
+      );
+
+      const suggestions = filteredChemicals.map(item => {
+        const availableQty = calculateAvailableQuantity(item, labId);
+        const labQuantities = getLabQuantitiesForDisplay(item, labId);
+        const hasZeroQuantity = availableQty === 0;
+
+        return {
+          name: item.displayName,
+          unit: item.unit,
+          id: item._id,
+          availableQuantity: availableQty,
+          labs: item.labs,
+          centralStoreQty: labQuantities.centralStoreQty,
+          selectedLabQty: labQuantities.selectedLabQty,
+          hasZeroQuantity,
+          totalQuantity: item.totalQuantity || 0,
+          individualLabQuantities: item.labs || [],
+        };
+      });
 
       const updated = [...experiments];
       updated[expIndex].chemicals[chemIndex] = {
@@ -753,12 +763,8 @@ const CreateRequestForm = () => {
           totalSuggestions: suggestions.length,
       };
       setExperiments(updated);
-    } catch (err) {
-      console.error('Search error:', err);
-      toast.error('Failed to search chemicals');
-    }
     }, 300),
-    [labId, experiments]
+    [labId, experiments, allChemicalsData] // Add allChemicalsData to dependency array
   );
 
   const handleChemicalSearch = (expIndex, chemIndex, searchTerm) => {
